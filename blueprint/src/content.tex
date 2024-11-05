@@ -4,9 +4,9 @@
 %
 % If you want to split the blueprint content into several files then
 % the current file can be a simple sequence of \input. Otherwise It
-% can start with a \section or \chapter for instance.
+% can start with a \chapter or \chapter for instance.
 
-\section{Introduction}
+\chapter{Introduction}
 
 In this paper, we use tools from analytic number theory to estimate the number of triples of a given height satisfying the $abc$ conjecture.
 Associated to any non-zero  integer $n$ is its radical
@@ -101,7 +101,7 @@ For example, it follows from work of Darmon and
 Granville \cite{DG} that there are only finitely many coprime integer solutions to the Diophantine equation $x^p+y^q=z^r$, when $p,q,r\in \mathbb{N}$ are given and satisfy $1/p+1/q+1/r<1$.
 
 
-\subsection*{Proof outline} We now describe the main ideas behind  the proof of Theorem~\ref{thm:abc}. In terms of the counting function $S_{\alpha,\beta,\gamma}(X)$, our task is to show that whenever $\alpha,\beta,\gamma\in (0,1]$ satisfy $\alpha+\beta+\gamma\leq \lambda$, we have
+\section*{Proof outline} We now describe the main ideas behind  the proof of Theorem~\ref{thm:abc}. In terms of the counting function $S_{\alpha,\beta,\gamma}(X)$, our task is to show that whenever $\alpha,\beta,\gamma\in (0,1]$ satisfy $\alpha+\beta+\gamma\leq \lambda$, we have
 $
 S_{\alpha,\beta,\gamma}(X)\ll X^{2\lambda/3-\eta},
 $
@@ -121,11 +121,11 @@ showing that at least one of the four  methods  always gives a power-saving over
 when $\lambda$ is close to $1$.
 
 
-\subsection*{Notation}
+\section*{Notation}
 We shall use $x\sim X$ to denote $x\in (X,2X]$ and we put
 $[d]=\{1,\dots,d\}$. We denote by $\tau(n)=\sum_{d\mid n}1$ the divisor function.
 
-\subsection*{Acknowledgements}
+\section*{Acknowledgements}
 While working on this paper
 the first author was supported by
 a FWF grant (DOI 10.55776/P36278).
@@ -137,7 +137,7 @@ for Advanced Study School of Mathematics.
 
 
 
-\section{Reduction to Diophantine equations}
+\chapter{Reduction to Diophantine equations}
 
 
 We
@@ -272,9 +272,9 @@ Now the claim follows from the pigeonhole principle.
 
 
 
-\section{Upper bounds for integer points}
+\chapter{Upper bounds for integer points}
 
-\subsection{Fourier analysis}\label{s:fourier}
+\section{Fourier analysis}\label{s:fourier}
 
 The following result uses basic Fourier analysis to bound the
 quantity
@@ -398,7 +398,7 @@ which is the desired bound.
 \end{proof}
 
 
-\subsection{Geometry of numbers}\label{s:geom}
+\section{Geometry of numbers}\label{s:geom}
 
 
 We can supplement Proposition \ref{prop:boundingsolutions} with the following bound,
@@ -452,7 +452,7 @@ summing over the choices $x_i,y_i,z_i\in\Z$,  with $i$ in $I,I',I''$.
 
 
 
-\subsection{Determinant method}\label{s:det}
+\section{Determinant method}\label{s:det}
 
 In this section we will record a bound for  $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$  in  \eqref{eq:Bk} that proceeds via the determinant method of Bombieri--Pila \cite{bp} and Heath-Brown \cite{cime}. See \cite{bl} for a gentle introduction to the determinant method.
 We first record a  basic fact about the irreducibility of certain polynomials.
@@ -592,9 +592,9 @@ from which the statement easily follows.
 
 
 
-\section{Combining the upper bounds }
+\chapter{Combining the upper bounds }
 
-\subsection{Preliminaries}
+\section{Preliminaries}
 
 Throughout this section, let $\varepsilon>0$ be small but fixed.
 We now have everything in place to prove Theorem \ref{thm:abc} for any
@@ -689,7 +689,7 @@ $\sum_{i\leq d} c_i> 0.34 + \delta-\varepsilon/2$. Then \eqref{eq:oat3} implies 
 which is again found to be satisfactory, via \eqref{eq:trivial}. Thus we may proceed under the assumption that the parameters $a_i,b_i,c_i$ satisfy \eqref{eq:oat3}--\eqref{eq:oat5}.
 
 
-\subsection{Summary of the main bounds}
+\section{Summary of the main bounds}
 
 We now recast our bounds in Sections \ref{s:fourier}--\ref{s:det} in terms of
 an upper bound for $\nu$, using
@@ -778,7 +778,7 @@ This easily  follows from Proposition \ref{prop:thue} and \eqref{eq:oat3}.
 
 
 
-\subsection{Completion of the upper bound for nu}
+\section{Completion of the upper bound for \texorpdfstring{$\nu$}{nu}}
 
 Assuming that
  $\delta\leq 0.001$ and
@@ -910,7 +910,7 @@ $s_2\geq 0.3$.
 Without loss of generality,  we shall assume that  $a_3\ge b_3\ge c_3$ in all that follows.
 
 
-\subsubsection*{Case 1: Assume $s_2\ge 0.3$.}
+\subsection*{Case 1: Assume $s_2\ge 0.3$.}
 
 Note that \eqref{eq:s_1+s_2<0.34} gives
 \begin{align}\label{eq:s1}
@@ -921,7 +921,7 @@ s_4 < 0.51-s_2 +\frac{3}{2}\delta\le 0.21 +\frac{3}{2}\delta.
 $$
 We further split into subcases.
 
-\subsubsection*{Subcase 1.1: Assume $b_3\le 0.34-s_1-s_2+\delta$.}
+\subsection*{Subcase 1.1: Assume $b_3\le 0.34-s_1-s_2+\delta$.}
 
 Then
 \begin{align*}
@@ -956,7 +956,7 @@ $$
 This contradicts our assumption $\delta\leq 0.001$.
 
 
-\subsubsection*{Subcase 1.2:  Assume $b_3> 0.34-s_1-s_2+\delta$.}
+\subsection*{Subcase 1.2:  Assume $b_3> 0.34-s_1-s_2+\delta$.}
 Then, by \eqref{eq:Geotau3} we may assume
 \begin{align}\label{eq:b3}
 b_3\geq 0.33 -\frac{1}{2}s_2-\frac{1}{2}\delta.
@@ -1041,7 +1041,7 @@ Hence $\nu\le \frac{1.3}{2} = 0.65$, which is more than satisfactory.
 
 
 
-\subsubsection*{Case 2:  Assume $s_2< 0.3$.}
+\subsection*{Case 2:  Assume $s_2< 0.3$.}
 
 It follows from \eqref{eq:Thue} that
 \begin{align}\label{eq:2b3}
@@ -1082,7 +1082,7 @@ $$
 But then
 $\mathbf{S_5}$ covers $T$. Hence subcases $\mathbf{S_3}$--$\mathbf{S_6}$ will complete the proof of Case 2.
 
-\subsubsection*{Subcase $\bf{S_1}$: Assume $a_3\geq  0.32$}
+\subsection*{Subcase $\bf{S_1}$: Assume $a_3\geq  0.32$}
 
 By \eqref{eq:Thue} we have $b_3,c_3\le 0.34+\delta-a_3\le 0.02+\delta$.
 Let $m_i=\min(b_i,c_i)$, $M_i=\max(b_i,c_i)$, and $t_i=b_i+c_i=m_i+M_i$.
@@ -1137,7 +1137,7 @@ Thus $\nu_2<0.6$, since
  \eqref{eq:robin1} implies that $\delta_{bc}\geq -0.01\bar3-2\delta$, and $\delta\leq 0.001$. Combining the bounds for $\nu_1$ and $\nu_2$, we conclude that $\nu \le \max(\nu_1,\nu_2)+\eps<0.64$, which suffices.
 
 
-\subsubsection*{Subcase $\mathbf{S_2}$: Assume
+\subsection*{Subcase $\mathbf{S_2}$: Assume
 $b_3+c_3<0.33-\frac{s_2}{2}-\frac{\delta}{2}$.}
 
 Then by \eqref{eq:Geotau3} we may assume $\tau_3=b_3+c_3<0.34-s_1-s_2+\delta$. By \eqref{eq:s3>s124} we have
@@ -1157,7 +1157,7 @@ $\mathbf{S_1}$ completes the proof.
 
 
 
-\subsubsection*{Subcase $\mathbf{S_3}$: Assume $4s_1+3s_2>0.71$.}
+\subsection*{Subcase $\mathbf{S_3}$: Assume $4s_1+3s_2>0.71$.}
 
 Then the inequalities $b_3,c_3 \le 0.34-s_1-s_2+ \delta$ give
 $$
@@ -1167,7 +1167,7 @@ $$
 Since $\delta\leq 0.001$, we see that $b_3+c_3<0.33-\frac{s_2}{2}-\frac{\delta}{2}$. Hence Subcase $\mathbf{S_2}$ completes the proof.
 
 
-\subsubsection*{Subcase $\mathbf{S_4}$: Assume $4s_1+s_2<0.4$.}
+\subsection*{Subcase $\mathbf{S_4}$: Assume $4s_1+s_2<0.4$.}
 
 
 In this case, \eqref{eq:Thue} and \eqref{eq:a_3>0.3-s_1} give
@@ -1185,7 +1185,7 @@ Subcase $\mathbf{S_2}$ completes the proof.
 
 
 
-\subsubsection*{Subcase $\mathbf{S_5}$: Assume $0.066\leq s_2\leq
+\subsection*{Subcase $\mathbf{S_5}$: Assume $0.066\leq s_2\leq
 0.204$.}
 
 It follows from
@@ -1208,7 +1208,7 @@ $b_3+c_3<0.33-\frac{s_2}{2}-\frac{\delta}{2}$. Hence
 Subcase $\mathbf{S_2}$ completes the proof.
 
 
-\subsubsection*{Subcase $\mathbf{S_6}$: Assume $2s_1-s_2>0.025$.}
+\subsection*{Subcase $\mathbf{S_6}$: Assume $2s_1-s_2>0.025$.}
 
 In this case we note that the intervals in
 \eqref{eq:Geotau3}  overlap, since $\delta\leq 0.001$.
