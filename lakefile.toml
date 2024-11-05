@@ -1,5 +1,5 @@
-name = "ABC-Exceptions"
-defaultTargets = ["ABC-Exceptions"]
+name = "ABCExceptions"
+defaultTargets = ["ABCExceptions"]
 
 [leanOptions]
 pp.unicode.fun = true
@@ -11,4 +11,4 @@ name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
 
 [[lean_lib]]
-name = "ABC-Exceptions"
+name = "ABCExceptions"
