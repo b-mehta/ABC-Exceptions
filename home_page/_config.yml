@@ -28,6 +28,7 @@ github_username: b-mehta
 repository: b-mehta/ABC-Exceptions
 
 # Build settings
-remote_theme: pages-themes/cayman@v0.2.0 
+remote_theme: pages-themes/cayman@v0.2.0
 plugins:
   - jekyll-remote-theme
+  - jekyll-github-metadata
