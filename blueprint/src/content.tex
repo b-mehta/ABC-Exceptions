@@ -67,11 +67,11 @@ $ N_\lambda(X)$ has exact order
  for $\alpha,\beta,\gamma>0$, which denotes the number of
  $(a,b,c)\in \N^3$
 with $\gcd(a,b,c)=1$ such that
- $$
+ \[
  a,b,c\in [1,X], \quad a+b=c, \quad \rad(a)\leq a^\alpha, \quad
  \rad(b)\leq b^\beta, \quad
  \rad(c)\leq c^\gamma.
- $$
+ \]
 The argument used to prove Proposition \ref{prop:trivial} readily yields
 \begin{equation}\label{eq:trivial}
  S_{\alpha,\beta,\gamma}(X)\ll_\ve X^{\min\{\alpha+\beta , \alpha+\gamma , \beta+\gamma\}+\ve},
@@ -81,11 +81,11 @@ for any $\ve>0$. Mazur then asks whether
 if $\alpha+\beta+\gamma>1$.
  Evidence towards this has been provided by Kane
  \cite[Theorems~1 and 2]{kane}, who proves that
-$$
+\[
 X^{\alpha+\beta+\gamma-1-\ve}\ll_\ve
 S_{\alpha,\beta,\gamma}(X)\ll_\ve
 X^{\alpha+\beta+\gamma-1+\ve}+X^{1+\ve},
-$$
+\]
 for any $\ve>0$,
 provided that $\alpha,\beta,\gamma\in (0,1]$ are fixed and satisfy $\alpha+\beta+\gamma>1$.
 This result gives strong evidence towards Mazur's question when
@@ -107,9 +107,9 @@ S_{\alpha,\beta,\gamma}(X)\ll X^{2\lambda/3-\eta},
 $
 for some $\eta>0$.
 A simple factorisation lemma (Proposition \ref{prop:diophantine}) will reduce the problem of bounding $S_{\alpha,\beta,\gamma}(X)$ to the problem of bounding the number of solutions to various Diophantine equations of the shape
-$$
+\[
 \prod_{j\leq d}x_j^j+\prod_{j\leq d}y_j^j=\prod_{j\leq d}z_j^j ,
-$$
+\]
 with specific constraints $x_i\sim X^{a_i}$, $y_i\sim X^{b_i}, z_i\sim X^{c_i}$ on the size of the variables, for admissible values of $a_i,b_i,c_i$ (depending on $\alpha,\beta,\gamma$).
 We then bound the number of solutions to these Diophantine equations using four different methods. The first of these (Proposition~\ref{prop:boundingsolutions}) uses Fourier analysis and Cauchy--Schwarz to estimate the number of solutions, leading to a bound that works well if two of the exponent vectors $(a_i)_i,(b_i)_i,(c_i)_i$ are somewhat ``correlated''. The second method (Proposition~\ref{prop:detmethod}) uses the geometry of numbers and gives good bounds when
 one of $a_1,b_1,c_1$ is large. The remaining tools come from the determinant method of Heath-Brown (Proposition~\ref{prop:det}) and
@@ -232,17 +232,18 @@ Then, since $m-K\lfloor m/K\rfloor \le K$, it follows from the definition of $c$
 c\leq \prod_{m\geq M}y_m^K\leq X^{K/M}\leq X^{\varepsilon/2}.
 \end{align*}
 Thus
-$$
+\[
 \rad(n)\leq \rad(c)\prod_{j\leq M}\rad(x_j)\leq X^{\varepsilon/2} \prod_{j\leq M} x_j.
-$$
+\]
 
 On the other hand, we have
 \begin{align*}
 x_K = y_K\prod_{m> M}y_m^{\lfloor m/K\rfloor}\leq \Big(y_K^K\cdot\prod_{m> M}y_m^m\Big)^{1/K}\leq n^{1/K}\leq X^{\varepsilon/2}.
 \end{align*}
 Recalling that the $y_j$ are squarefree and pairwise coprime for $j\neq K$, gives the lower bound
-\begin{align*}
-\rad(n)&=\prod_{m\geq 1}y_m \geq \prod_{\substack{j\leq M\\j\neq K}}x_j\geq X^{-\varepsilon/2}\prod_{j\leq M}x_j, \end{align*}
+\[
+\rad(n)=\prod_{m\geq 1}y_m \geq \prod_{\substack{j\leq M\\j\neq K}}x_j\geq X^{-\varepsilon/2}\prod_{j\leq M}x_j,
+\]
 as claimed.
 \end{proof}
 
@@ -262,11 +263,11 @@ X^{\alpha-\varepsilon}\leq \prod_{j\leq d}x_j\leq X^{\alpha+\varepsilon},\quad X
 By dyadic decomposition, we can now find some $X_i, Y_i,Z_i$ such that \eqref{eq:xiyizi_1}
 and \eqref{eq:xiyizi_2}
  hold, and such that
-\begin{align*}
+\[
 S^*_{\alpha,\beta,\gamma}(X)\ll_{\varepsilon} (\log X)^{3d} \sum_{\substack{\mathbf{c}\in \mathbb{N}^3\\
 c_1,c_2,c_3
 \leq X^{\varepsilon/4}}}B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}).
-\end{align*}
+\]
 Now the claim follows from the pigeonhole principle.
 \end{proof}
 
@@ -282,9 +283,9 @@ defined in \eqref{eq:Bk}.
 
 \begin{proposition}[Fourier analysis bound]\label{prop:boundingsolutions}
 Let $d\geq 1$, $\varepsilon>0$ and $A\geq 1$ be fixed.
-Let $$
+Let \[
 X_1,\ldots, X_d, Y_1,\ldots, Y_d,Z_1,\ldots, Z_d\geq 1
-$$
+\]
 and put
 \begin{equation}\label{eq:Delta}
 \Delta =\max_{1\leq i\leq d}(X_iY_iZ_i).
@@ -326,10 +327,10 @@ Using Cauchy--Schwarz again, for any $i\le d$ we have
 &\leq T(\alpha)\prod_{j\not \equiv 0\bmod i}Z_{j},
 \end{align*}
 where
-$$
+\[
 T(\alpha)=
 \sum_{z_j\sim Z_j\, \forall j\not \equiv 0\bmod i}\bigg|\sum_{z_j\sim Z_j\, \forall j\equiv 0\bmod i}e(\alpha c_3z_1\cdots z_d^d)\bigg|^2.
-$$
+\]
 
 Let $ir$ be the largest multiple of $i$ in $[1,d]$. Then
 \begin{align}\label{eq:I2}\begin{split}
@@ -340,21 +341,21 @@ I_2 & = \int_{0}^1|S_2(\alpha)|^2|S_3(\alpha)|^2\, \d\alpha \\
 \end{split}
 \end{align}
 where $\tilde N$ is the number of
-$$
+\[
 (z_1,\ldots, z_d,z_i',\ldots, z_{ir}')\in \mathbb{N}^{d+r}, \quad
 (y_1,\ldots, y_d)\in \mathbb{N}^{d},\quad
 (y_1',\ldots, y_d')\in \mathbb{N}^d
-$$
+\]
 such that
-$$
+\[
 y_j, y_j'\sim Y_j, \quad z_j \sim Z_j, \quad z_j'\sim Z_j
-$$
+\]
 for all $j\leq d$,
 and
-$$
+\[
 c_3\left(\prod_{j\equiv 0\bmod i}z_j^j-\prod_{j \equiv 0\bmod i}z_j'^j\right)\prod_{j\not \equiv 0\bmod i}z_{j}^j
  +c_2\prod_{j\leq d}y_j^j-c_2\prod_{j\leq d}y_j'^j=0.
-$$
+\]
 Let us write
 \begin{align}\label{eq:N}
 \tilde N=\tilde{N}_1+\tilde{N}_2,
@@ -406,12 +407,12 @@ where $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$ is defined in \eqref{eq
 
 \begin{proposition}[Geometry of numbers bound] \label{prop:detmethod}
 Let $d\geq 1$ and $\varepsilon>0$ be fixed, and let
-$$
+\[
 X_1,\ldots, X_d, Y_1,\ldots, Y_d,Z_1,\ldots, Z_d\geq 1.
-$$
+\]
 Let $\mathbf{c}\in (c_1,c_2,c_3)\in \mathbb{Z}^3$ have non-zero and pairwise coprime coordinates.
 Then for $\Delta$ as in~\eqref{eq:Delta},
-$$
+\[
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})
 \ll
 \hspace{-0.1cm} \Delta^{\varepsilon}
@@ -421,7 +422,7 @@ B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})
 \Big(\prod_{i\in I}X_i\prod_{i\in I'}Y_i\prod_{i\in I''}Z_i\Big)\bigg(1 +
 \frac{\prod_{i\notin I}X_i^i\prod_{i\notin I'}Y_i^i\prod_{i\notin I''}Z_i^i}
 {\max\{|c_1|\prod_{i}X_i^i,\;|c_2|\prod_{i}Y_i^i,\;|c_3|\prod_{i}Z_i^i\}}\bigg).
-$$
+\]
 \end{proposition}
 \begin{proof}
 Take any sets $I,I',I''\subset[d]$. Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$. We fix a choice of
@@ -479,7 +480,7 @@ $g(x)-y^r$ is irreducible over $ \C$, as claimed in the lemma.
 
 Let $p,q,r$ be positive integers and let $a_1,a_2,a_3\in \Z_{\neq 0}$.
 We shall require a good upper bound for the counting function
-$$
+\[
 N(X,Y,Z)=
 \#\left\{ (x,y,z)\in \Z_{\neq 0}^3:
 \begin{array}{l}
@@ -488,21 +489,21 @@ N(X,Y,Z)=
 a_1x^p+a_2 y^q+a_3 z^r=0
 \end{array}
 \right\},
-$$
+\]
 for given $X,Y,Z\geq 1$. This is achieved in the following result.
 
 \begin{lemma}\label{lem:t15}
 Let $\eps>0$ and $D\geq 1$ and
 assume that $p,q,r\in [1,D]$ are integers. Then
-$$
+\[
 N(X,Y,Z)\ll_{\ve,D} Z \min\left(X^{\frac{1}{q}}, Y^{\frac{1}{p}} \right) (XY)^\ve,
-$$
+\]
 where the implied constant only depends on $\ve$ and $D$. Furthermore,
 if $p=q\geq 2$,
 then we have
-$$
+\[
 N(X,Y,Z)\ll_{\ve,D} Z (|a_1a_2a_3|XYZ)^\ve.
-$$
+\]
 \end{lemma}
 
 
@@ -528,18 +529,18 @@ for $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$, as defined in \eqref{eq:
 
 \begin{proposition}[Determinant method bound] \label{prop:det}
 Let $d\geq 1$, and let
-$$
+\[
 X_1,\ldots, X_d, Y_1,\ldots, Y_d,Z_1,\ldots, Z_d\geq 1.
-$$
+\]
 Let $\mathbf{c}\in (c_1,c_2,c_3)\in \mathbb{Z}_{\neq 0}^3$.
 Then for $\Delta$ as in~\eqref{eq:Delta}, we have
-$$
+\[
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 \Delta^\ve \prod_{j\leq d} X_jY_jZ_j \cdot
 \min_{p,q\geq 1}\left(
 (X_pY_q)^{-1}
 \min\left( X_p^{\frac{1}{q}} , Y_q^{\frac{1}{p}}\right)\right).
-$$
+\]
 \end{proposition}
 
 
@@ -547,13 +548,13 @@ $$
 Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$.
 For any integers $p,q\geq 1$, we fix all but $x_p$ and $y_q$ and apply
 the first part of Lemma \ref{lem:t15}. This gives
-$$
+\[
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 \Delta^\ve \prod_{\substack{j\leq d\\ j\neq p }} X_j
 \prod_{\substack{j\leq d\\ j\neq q }} Y_j
 \prod_{\substack{j\leq d }} Z_j \cdot
 \min\left( X_p^{\frac{1}{q}} , Y_q^{\frac{1}{p}}\right) ,
-$$
+\]
 from which the statement of the lemma easily follows.
 \end{proof}
 
@@ -563,17 +564,17 @@ from which the statement of the lemma easily follows.
 
 \begin{proposition}[Thue bound] \label{prop:thue}
 Let $d\geq 1$, and let
-$$
+\[
 X_1,\ldots, X_d, Y_1,\ldots, Y_d,Z_1,\ldots, Z_d\geq 1.
-$$
+\]
 Let $\mathbf{c}\in (c_1,c_2,c_3)\in \mathbb{Z}_{\neq 0}^3$.
 Then
-$$
+\[
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 \Delta^\ve \prod_{j\leq d} X_jY_jZ_j \cdot
 \min_{p\geq 2}
 \prod_{\substack{j\leq d \\ p\mid j}} (X_jY_j)^{-1},
-$$
+\]
 where $\Delta$ is given by \eqref{eq:Delta}.
 \end{proposition}
 
@@ -582,11 +583,11 @@ where $\Delta$ is given by \eqref{eq:Delta}.
 Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$.
 We collect together all indices which are multiples of $p$ for any integer $p\geq 2$.
 Applying the second part of Lemma \ref{lem:t15} now gives
-$$
+\[
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 \Delta^\ve \prod_{\substack{j\leq d\\ j\not\equiv 0 \bmod{p} }} X_jY_jZ_j
  \prod_{\substack{j\leq d\\ j\equiv 0 \bmod{p} }} Z_j,
-$$
+\]
 from which the statement easily follows.
 \end{proof}
 
@@ -598,11 +599,11 @@ from which the statement easily follows.
 
 Throughout this section, let $\varepsilon>0$ be small but fixed.
 We now have everything in place to prove Theorem \ref{thm:abc} for any
-$$
+\[
 \lambda\in (0,1+\delta-\eps).
-$$
+\]
 and
-$$\delta\le 0.001-\varepsilon.$$
+\[\delta\le 0.001-\varepsilon.\]
 We shall write $\delta$ as a symbol rather than its numerical value
 in order to clarify the argument. As will be clear from the proof, a somewhat larger value of $\delta$ would also work.
 
@@ -616,9 +617,9 @@ The following result allows us to limit the range of $\alpha,\beta,\gamma$ under
 
 \begin{proposition}\label{prop:simple}
 Let $\alpha,\beta,\gamma>0$, and let $\varepsilon>0$ be fixed. Then
-$$
+\[
 S^*_{\alpha,\beta,\gamma}(X)\ll X^{0.66-\varepsilon^2/2},
-$$
+\]
 unless $\min\{\alpha+\beta, \beta+\gamma,\gamma+\alpha\}\geq 0.66-\varepsilon^2$.
 \end{proposition}
 
@@ -638,9 +639,9 @@ In the light of Proposition \ref{prop:diophantine} (with $\ve^2$ in place of $\v
  $ satisfy \eqref{eq:goat}.
 
 It will be convenient to define $a_i,b_i,c_i\in \R_{>0}$ via
-$$
+\[
 X_i=X^{a_i}, \quad Y_i=X^{b_i}, \quad Z_i=X^{c_i},
-$$
+\]
 for $1\leq i\leq d$, and $a_i=b_i=c_i=0$ for $i>d$. Then it follows from
 \eqref{eq:xiyizi_2} that
 \begin{equation}\label{eq:oat1}
@@ -658,9 +659,9 @@ and
 \sum_{i\leq d} (a_i+b_i+c_i) \leq 1+\delta-\eps.
 \end{equation}
 It will be convenient to henceforth define
-$$
+\[
 \nu=2\varepsilon^2+\frac{\log B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})}{\log X}.
-$$
+\]
 Our goal is now to show that $\nu\le 0.66$, since then
 \eqref{eq:S*}
 is a direct consequence of
@@ -675,17 +676,17 @@ Before proceeding to the main tools that we shall use to estimate $\nu$, we firs
 \end{equation}
 using the argument of Proposition \ref{prop:simple}. Indeed, suppose that
 $\sum_{i\leq d} c_i> 0.34 + \delta-\varepsilon/2$. Then \eqref{eq:oat3} implies that
- $$
+ \[
  \sum_{i\leq d} (a_i + b_i)<
  0.66-\frac{1}{2}\eps,
- $$
+ \]
  whence
  \eqref{eq:trivial} yields $\nu< 0.66$. This shows that we may suppose that the upper bound in \eqref{eq:oat5} holds.
  Suppose next that
  $\sum_{i\leq d} c_i< 0.32 - \delta$. Then, by the upper bound in~\eqref{eq:oat5}, we have
- $$
+ \[
  \sum_{i\leq d} (b_i + c_i)< 0.66-\frac{1}{2}\eps,
- $$
+ \]
 which is again found to be satisfactory, via \eqref{eq:trivial}. Thus we may proceed under the assumption that the parameters $a_i,b_i,c_i$ satisfy \eqref{eq:oat3}--\eqref{eq:oat5}.
 
 
@@ -704,10 +705,10 @@ We have
 \end{proposition*}
 \begin{proof}
 It follows from Proposition~\ref{prop:boundingsolutions} that
-$$
+\[
 \nu \leq 3\varepsilon^2+
 \frac{1}{2}\sum_{i\leq d}\Big(a_i+b_i+c_i +\max(a_i,b_i) - \max_{m>1}b_m\Big).
-$$
+\]
 Permuting variables, the claim now follows from \eqref{eq:oat3}.
 \end{proof}
 
@@ -721,14 +722,14 @@ We have
 \end{proposition*}
 \begin{proof}
 Applying Proposition \ref{prop:detmethod}, we obtain
-$$
+\[
 \nu \leq 3\varepsilon^2+
 \min_{I,I',I''}
  \left( \sum_{i\notin I} a_i +\sum_{i\notin I'} b_i + \sum_{i\notin I''} c_i +
 \max\left( 0 \,,\, \sum_{i\in I} ia_i +\sum_{i\in I'} ib_i + \sum_{i\in I''} ic_i-
 \sum_{i\in [d]} ic_i
 \right)\right) ,
-$$
+\]
 where the minimum runs over subsets
 $I,I',I''\subset[d]$. Taking the lower bound
 $\sum_{i\in [d]} ic_i\ge 1-\eps^2$,
@@ -754,13 +755,13 @@ We have
 \begin{proof}
 Proposition \ref{prop:det} implies
 that
-$$
+\[
 \nu\leq 3\ve^2+
 \sum_{i\leq d} (a_i+b_i+c_i)
 -\max_{p,q\geq 1} \left(\min\left(
 \frac{a_p}{q}, \frac{b_q}{p}\right)
 -a_p-b_q\right).
-$$
+\]
 The claimed bound now follows from \eqref{eq:oat3}.
 \end{proof}
 
@@ -784,8 +785,8 @@ Assuming that
  $\delta\leq 0.001$ and
 $\ve>0$ is sufficiently small,
 the remainder of this paper is devoted to a proof of the upper bound
-$$\nu \le 0.66,
-$$
+\[\nu \le 0.66,
+\]
 for any choice of parameters $a_i,b_i ,c_i$ satisfying the properties recorded in \eqref{eq:oat1}--\eqref{eq:oat5}.
 
 
@@ -794,9 +795,9 @@ It will be convenient to define constants $\delta_a,\delta_b,\delta_c$ via
 \sum_{i\leq d} a_i \, = \frac{1}{3}-\delta_a, \quad \sum_{i\leq d} b_i \, = \frac{1}{3}-\delta_b, \quad \sum_{i\leq d} c_i &= \frac{1}{3}-\delta_c,
 \end{align}
 together with
-$$
+\[
 \delta_{ab}:=\delta_a+\delta_b,\quad \delta_{ac}:=\delta_a+\delta_c, \quad \delta_{bc}:=\delta_b+\delta_c,
-$$
+\]
 and $\delta_s := \delta_a+\delta_b+\delta_c$. It follows from \eqref{eq:oat4} that
 \begin{equation}\label{eq:robin2}
 \delta_{ab}, \delta_{ac}, \delta_{bc} \leq 0.00\overline{6} + \eps^2,
@@ -824,9 +825,9 @@ Referring to \eqref{eq:oat1}, it will be convenient to record the inequalities
 \end{align}
 that follow by subtracting. Similar relations hold for $b_i$ and $c_i$.
 By the Thue bound, we have
-$$
+\[
 \nu < 1 +\delta- \max_{p\ge2}\sum_{p\mid i} (a_i+b_i),
-$$
+\]
 and similarly for $a_i+c_i$ and $b_i+c_i$. Thus it suffices to assume
 \begin{align}\label{eq:Thue}
 a_j+b_j, \,a_j+c_j,\, b_j+c_j < 0.34+\delta,
@@ -895,9 +896,9 @@ a_3 = \frac{1}{3}-\delta_a - a_1-a_2 - \sum_{i\ge4}a_i \ge \frac{1}{3}-4\delta_a
 \label{eq:black1}
 \end{equation}
 and
-$$
+\[
 a_3 = \frac{1}{3}-\delta_a - a_1-a_2 - a_4 - \sum_{i\ge5}a_i \ge \frac{1}{3}-\frac{5}{2}\delta_a - 2a_1 - \frac{3}{2}a_2 - \frac{1}{2}a_4.
-$$
+\]
 Analogous bounds hold for $b_3$ and $c_3$, and so we obtain
 \begin{align}
 s_3 &\ge 1-4\delta_s - 3s_1 - 2s_2, \label{eq:s3>s12}\\
@@ -916,9 +917,9 @@ Note that \eqref{eq:s_1+s_2<0.34} gives
 \begin{align}\label{eq:s1}
 s_1 \leq 0.34-s_2+\delta \le 0.04+\delta,
 \end{align}
-and \eqref{eq:sThue} gives $$
+and \eqref{eq:sThue} gives \[
 s_4 < 0.51-s_2 +\frac{3}{2}\delta\le 0.21 +\frac{3}{2}\delta.
-$$
+\]
 We further split into subcases.
 
 \subsection*{Subcase 1.1: Assume $b_3\le 0.34-s_1-s_2+\delta$.}
@@ -949,10 +950,10 @@ a_3 = s_3 - (b_3 + c_3)
 \end{align*}
 But \eqref{eq:ai1/3} implies that $\frac{1}{3}-\delta_a \ge a_3\geq 0.365
 -\frac{5}{2}\delta_a -3\delta$. Thus \eqref{eq:robin1} implies that
-$$
+\[
 0.031\bar 6<\frac{3}{2}\delta_a +3\delta
 \leq \frac{3}{2}(0.01\bar{3}+\delta+\eps) +3\delta \le 0.02+5\delta.
-$$
+\]
 This contradicts our assumption $\delta\leq 0.001$.
 
 
@@ -962,9 +963,9 @@ Then, by \eqref{eq:Geotau3} we may assume
 b_3\geq 0.33 -\frac{1}{2}s_2-\frac{1}{2}\delta.
 \end{align}
 By permuting the variables in~\eqref{eq:ai}, we have
-$$
+\[
 \sum_{i\ge4} (i-2)b_i\le\frac{1}{3}-b_3+b_1 + 2\delta_b.
-$$
+\]
 We also have
 $b_1\leq s_1\leq 0.34 -s_2+\delta$
 by \eqref{eq:s_1+s_2<0.34}.
@@ -981,9 +982,9 @@ Thus
 \end{align*}
 since
 \eqref{eq:robin1} ensures that $\delta_b\leq 0.01\bar 3+\delta+\eps$ (and we have $\delta\leq 0.001$). A fortiori the same bound holds for $\sum_{i\geq 4}a_i$. Thus, in the light of \eqref{eq:Geotau3}, taking $\varepsilon>0$ small we may assume that
-$$
+\[
 a_4,b_4,a_5,b_5,a_6,b_6\leq 0.34-s_1-s_2+\delta.
-$$
+\]
 
 Now write $M_i = \max(a_i,b_i)$ and $m_i = \min(a_i,b_i)$, so that $m_i+M_i=a_i+b_i$. By the Fourier bound we have
 \begin{align*}
@@ -998,9 +999,9 @@ this implies that
 \end{align*}
 
 Next we lower bound $a_2+b_2$. To do this, we observe that by~\eqref{eq:ai} we have
-$$
+\[
 4\sum_{i\ge7} a_i \le \sum_{i\ge7}(i-3)a_i = 2a_1+a_2+3\delta_a -a_4-2a_5-3a_6,
-$$
+\]
 whence
 \begin{align*}
 \frac{1}{3} -\delta_a&= \sum_{i}a_i
@@ -1058,10 +1059,10 @@ a_3 = s_3 - (b_3+c_3)
 
 
 We shall proceed by separately handing the subcases
-$$
+\[
 \mathbf{S_1}:\ a_3\geq 0.32 \qquad\qquad\qquad \mathbf{S_2}: \
 b_3+c_3<0.33-\frac{s_2}{2}-\frac{\delta}{2}.
- $$
+ \]
 These will be instrumental to proving the following subcases
 \begin{align*}
 \mathbf{S_3}&:\ 4s_1+3s_2 > 0.71, & \mathbf{S_5}&:\
@@ -1074,11 +1075,11 @@ These will be instrumental to proving the following subcases
 Handling these subcases will complete the proof.
 Indeed $\mathbf{S_3}, \mathbf{S_4}, \mathbf{S_6}$
 each define half-planes that cover $[0,1]^2\setminus T$, for the closed triangle $T$ with vertices
-$$
+\[
 (s_1,s_2)\in \{(0.06125,0.155), (0.0785,0.132), (
 0.0708\bar3,
 0.11\bar 6)\}.
-$$
+\]
 But then
 $\mathbf{S_5}$ covers $T$. Hence subcases $\mathbf{S_3}$--$\mathbf{S_6}$ will complete the proof of Case 2.
 
@@ -1115,10 +1116,10 @@ Using~\eqref{eq:ai}, we see that
  & \le a_3 + b_3 + \frac{1}{2}t_4+t_5+\frac{1}{5}\Big(\frac{4}{3}+\delta_{bc}-t_2-2t_3- 3t_4-4t_5\Big).
 \end{align*}
 Using $a_3+b_3\le 0.34+\delta$ (which follows from~\eqref{eq:2b3}), $\delta_{bc}<0.00\overline{6}+\eps^2$, and $t_5\le 0.135$, we conclude that
-$$
+\[
 \nu_1 \le a_3+b_3 + \frac{1}{5}\Big(\frac{4}{3}+\delta_{bc}+t_5\Big)
  \le 0.34+ \delta + \frac{1}{5}\Big(\frac{4}{3}+0.00\overline{6}+\eps^2+0.135\Big) < 0.637.
-$$
+\]
 Similarly, on recalling $\sum_i i a_i \le 1$, we have $\sum_i is_i -1 \le \sum_i it_i$, whence
 \begin{align*}
 \nu_2
@@ -1160,10 +1161,10 @@ $\mathbf{S_1}$ completes the proof.
 \subsection*{Subcase $\mathbf{S_3}$: Assume $4s_1+3s_2>0.71$.}
 
 Then the inequalities $b_3,c_3 \le 0.34-s_1-s_2+ \delta$ give
-$$
+\[
 b_3+c_3<0.68-2(s_1+s_2)+2\delta<
 0.325 -\frac{s_2}{2}+2\delta.
-$$
+\]
 Since $\delta\leq 0.001$, we see that $b_3+c_3<0.33-\frac{s_2}{2}-\frac{\delta}{2}$. Hence Subcase $\mathbf{S_2}$ completes the proof.
 
 
@@ -1171,9 +1172,9 @@ Since $\delta\leq 0.001$, we see that $b_3+c_3<0.33-\frac{s_2}{2}-\frac{\delta}{
 
 
 In this case, \eqref{eq:Thue} and \eqref{eq:a_3>0.3-s_1} give
-$$
+\[
 b_3,c_3 \le 0.34-a_3+\delta \le 0.34 - (0.32-4\delta_s-s_1-2\delta) +\delta= 0.02+4\delta_s+s_1+3\delta.
-$$
+\]
 In view of \eqref{eq:robin3} and
 our assumption $4s_1+s_2<0.4$, we deduce that
 \begin{align*}
@@ -1191,9 +1192,9 @@ Subcase $\mathbf{S_2}$ completes the proof.
 It follows from
 \eqref{eq:robin3} and
  \eqref{eq:a_3>0.3-s_1} that
-$$
+\[
 a_3 \geq 0.32-4\delta_s-s_1 -2\delta \geq 0.28-4\eps-s_1 -2\delta.
-$$
+\]
 Thus
 $a_3>0.34-s_1-s_2 +\delta$, since $s_2\geq 0.066 \ge 0.062+4\eps +3\delta$ and $\delta\leq 0.001$.
 It now follows from \eqref{eq:Geotau3} that we may assume $\tau_3=a_3 \geq 0.33
@@ -1229,10 +1230,10 @@ in the light of Subcases $\mathbf{S_3}$ and $\mathbf{S_4}$, we may assume that
 
 If we also had $b_3+c_3<0.34-s_1-s_2+\delta$, then we would have $s_3 = a_3 + b_3 +c_3 < 0.68-2s_1-2s_2+2\delta$. Combining this with
  \eqref{eq:s3>s12}, we would then conclude that
-$$
+\[
 0.68-2s_1-2s_2+2\delta>
 s_3 \ge 1-4\delta_s-3s_1-2s_2,
-$$
+\]
 which implies that
 $s_1>0.32-4\delta_s-2\delta$.
 Recalling \eqref{eq:robin3} and the inequalities
@@ -1274,9 +1275,9 @@ This together with the bounds $\delta\leq 0.001$, $a_3,b_3>0.164$ and \eqref{eq:
 \end{align*}
 using $\delta_a,\delta_b\in [-0.00\bar{6}-\delta,\, 0.01\bar{3}+\delta+\eps]$.
 Thus
-$$
+\[
 \nu\leq \frac{1.296}{2}+\frac{1}{3}M_2.
-$$
+\]
 It follows that
  $\nu< 0.66$ provided $M_2 < 0.036$.
  Otherwise, we may assume that $M_2=\max(a_2,b_2) \geq 0.036$.
