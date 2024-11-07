@@ -6,7 +6,7 @@ open Set
 
 variable {d : ℕ} {a b c : ℕ → ℝ}
 
-structure baseAssumptions (d : ℕ) (a : ℕ → ℝ) : Prop :=
+structure baseAssumptions (d : ℕ) (a : ℕ → ℝ) : Prop where
 (nonneg : ∀ i ≤ d, 0 ≤ a i)
 (zero : a 0 = 0)
 (sum_bound : ∑ i ≤ d, i * a i ≤ 1)
@@ -25,7 +25,7 @@ def Bound4Point4 (d : ℕ) (δ ε : ℝ) (a b c : ℕ → ℝ) : Prop :=
   ∑ i ≤ d, (a i + b i + c i) ≤ 1 + δ - ε
 
 -- we will later show that 4.5 can be safely assumed in context, after we've assumed 1.2 and 4.4
-structure Bound4Point5 (d : ℕ) (δ ε : ℝ) (a : ℕ → ℝ) : Prop :=
+structure Bound4Point5 (d : ℕ) (δ ε : ℝ) (a : ℕ → ℝ) : Prop where
 (lower : 0.32 - δ ≤ ∑ i ≤ d, a i)
 (upper : ∑ i ≤ d, a i ≤ 0.34 + δ - ε / 2)
 
