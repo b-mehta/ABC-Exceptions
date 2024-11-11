@@ -49,11 +49,7 @@ jobs:
       - name: Install elan
         run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
 
-      - name: Get cache for project
-        run: ~/.elan/bin/lake exe cache get || true
-
-      - name: Get cache for docs
-        working-directory: docbuild
+      - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
 
       - name: Build project
@@ -63,13 +59,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            docbuild/.lake/build/doc
+            .lake/build/doc
           key: LakeBuildDoc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
           restore-keys: LakeBuildDoc-
 
       - name: Build project API documentation
-        working-directory: ./docbuild
-        run: ~/.elan/bin/lake build ABCExceptions:docs
+        run: ~/.elan/bin/lake -R -Kenv=dev build ABCExceptions:docs
 
       - name: Check for `home_page` folder # this is meant to detect a Jekyll-based website
         id: check_home_page
@@ -108,7 +103,7 @@ jobs:
             ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Copy API documentation to `home_page/docs`
-        run: cp -r ./docbuild/.lake/build/doc home_page/docs
+        run: cp -r .lake/build/doc home_page/docs
 
       - name: Bundle dependencies
         if: github.event_name == 'push'
