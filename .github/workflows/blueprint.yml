@@ -62,7 +62,7 @@ jobs:
           key: LakeBuildDoc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
           restore-keys: LakeBuildDoc-
 
-      - name: Setup lake symlinks
+      - name: Setup symlinks between project and docbuild
         working-directory: docbuild
         run: |
           mkdir -p .lake/packages
