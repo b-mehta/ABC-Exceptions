@@ -62,7 +62,7 @@ jobs:
           key: LakeBuildDoc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
           restore-keys: LakeBuildDoc-
 
-      - name: Build project API documentation
+      - name: Setup lake symlinks
         working-directory: docbuild
         run: |
           mkdir -p .lake/packages
@@ -70,6 +70,11 @@ jobs:
             package=$(basename $package_path)
             ln -s ../../../.lake/packages/$package .lake/packages/$package
           done
+
+      - name: Build project API documentation
+        working-directory: docbuild
+        run: |
+          ~/.elan/bin/lake exe cache get || true
           ~/.elan/bin/lake build ABCExceptions:docs
 
       - name: Check for `home_page` folder # this is meant to detect a Jekyll-based website
