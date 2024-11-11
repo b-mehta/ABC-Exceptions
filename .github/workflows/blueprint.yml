@@ -59,9 +59,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
+            .lake/build/doc/Aesop
+            .lake/build/doc/Batteries
             .lake/build/doc/Init
             .lake/build/doc/Lake
             .lake/build/doc/Lean
+            .lake/build/doc/LeanSearchClient
+            .lake/build/doc/ProofWidgets
+            .lake/build/doc/Qq
             .lake/build/doc/Std
             .lake/build/doc/Mathlib
             .lake/build/doc/declarations
