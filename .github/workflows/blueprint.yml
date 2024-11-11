@@ -61,7 +61,7 @@ jobs:
           path: |
             .lake/build/doc
           key: LakeBuildDoc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
-          #restore-keys: LakeBuildDoc-
+          restore-keys: LakeBuildDoc-
 
       - name: Build project API documentation
         run: ~/.elan/bin/lake -R -Kenv=dev build ABCExceptions:docs
