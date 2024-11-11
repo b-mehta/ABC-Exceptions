@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# Ensure you are in the `docbuild` directory
+if [[ $(basename "$PWD") != "docbuild" ]]; then
+  echo "Error: This script must be run from within the 'docbuild' directory."
+  exit 1
+fi
+
 # Create the target directory .lake/packages if it doesn't already exist
 mkdir -p .lake/packages
 
