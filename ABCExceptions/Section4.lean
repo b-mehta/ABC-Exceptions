@@ -1,4 +1,5 @@
-import Mathlib
+import Mathlib.Analysis.RCLike.Basic
+import Mathlib.Data.Real.StarOrdered
 
 noncomputable section
 
@@ -342,7 +343,7 @@ lemma bound_4_point_15
     have := h.special_s {1, 2} (by simp [Finset.insert_subset_iff]; constructor <;> omega)
     simpa using this
   replace h₁ : ν < max (δ + (1 - (s 1 + s 2))) (δ + s 2) := calc
-    ν < δ + (max 1 (s 1 + 2 * s 2) - (s 1 + s 2)) := h₁
+    _ < δ + (max 1 (s 1 + 2 * s 2) - (s 1 + s 2)) := h₁
     _ = δ + (1 - (s 1 + s 2)) ⊔ (s 1 + 2 * s 2 - (s 1 + s 2)) := by rw [max_sub_sub_right]
     _ = δ + max (1 - (s 1 + s 2)) (s 2) := by ring_nf
     _ = max (δ + (1 - (s 1 + s 2))) (δ + s 2) := by rw [max_add_add_left]
@@ -470,5 +471,31 @@ lemma bound_4_point_17
 
 -- theorem thm_4_point_3 : ν ≤ 0.66 :=
 --   sorry
+
+lemma cases_cover (s1 s2 : ℝ)
+    (hs3 : 4 * s1 + 3 * s2 ≤ 0.71)
+    (hs4 : 0.4 ≤ 4 * s1 + s2)
+    (hs5 : ¬ (0.066 ≤ s2 ∧ s2 ≤ 0.204))
+    (hs6 : 2 * s1 - s2 ≤ 0.025) : False := by
+  norm_num1 at *
+  simp only [not_and_or, not_le] at hs5
+  cases' hs5
+  · linarith
+  · linarith
+
+def s1 (hν : 0.66 < ν) : a 3 < 0.32 := sorry
+def s2 (hν : 0.66 < ν) : 0.33 - s 2 / 2 - δ / 2 ≤ b 3 + c 3 := sorry
+
+lemma s3
+    (hν : 0.66 < ν)
+    (hb3 : b 3 ≤ 0.34 - s 1 - s 2 + δ)
+    (hc3 : c 3 ≤ 0.34 - s 1 - s 2 + δ)
+    (hs2 : s 2 < 0.3)
+    (hδ : δ ≤ 0.001)
+    (h : 0.71 < 4 * s 1 + 3 * s 2) :
+    False := by
+  have : 0.33 - s 2 / 2 - δ / 2 ≤ _ := s2 (δ := δ) hν
+  norm_num1 at *
+  linarith
 
 end
