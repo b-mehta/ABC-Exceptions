@@ -35,7 +35,7 @@ we must have
 $\min\{\rad(a)\rad(b),\rad(b)\rad(c),\rad(c)\rad(a)\}< X^{2\lambda/3}$, since $a,b,c$ are pairwise coprime.
 An application of~\eqref{eq:bruijn} now leads to the following ``trivial bound''.
 
-\begin{proposition}\label{prop:trivial}
+\begin{proposition}\label{prop:TrivialBound}
 Let $\lambda>0$. Then
 $
 N_\lambda(X)=O_\ve( X^{2\lambda/3+\ve}),
@@ -52,7 +52,7 @@ Let $\lambda\in (0, 1.001)$ be fixed. Then
 $N_\lambda(X)=O( X^{33/50})$.
 \end{theorem}
 
-Here we note that $33/50=0.66$. By comparison, the trivial bound in Proposition~\ref{prop:trivial} would give $N_1(X)=O(X^{0.66\bar{6}+\eps})$ and $N_{1.001}(X)=O(X^{0.6674})$.
+Here we note that $33/50=0.66$. By comparison, the trivial bound in Proposition~\ref{prop:TrivialBound} would give $N_1(X)=O(X^{0.66\bar{6}+\eps})$ and $N_{1.001}(X)=O(X^{0.6674})$.
 Moreover, we see that Theorem~\ref{thm:abc} gives a power-saving when $\lambda\in (0.99,1.001)$. We emphasise that this power-saving represents a proof of concept of the methods; we expect that the exponent can be reduced with substantial computer assistance.
 
 
@@ -72,7 +72,7 @@ with $\gcd(a,b,c)=1$ such that
  \rad(b)\leq b^\beta, \quad
  \rad(c)\leq c^\gamma.
  \]
-The argument used to prove Proposition~\ref{prop:trivial} readily yields
+The argument used to prove Proposition~\ref{prop:TrivialBound} readily yields
 \begin{equation}\label{eq:trivial}
  S_{\alpha,\beta,\gamma}(X)\ll_\ve X^{\min\{\alpha+\beta , \alpha+\gamma , \beta+\gamma\}+\ve},
 \end{equation}
@@ -94,7 +94,7 @@ when $\alpha+\beta+\gamma<3/2$.
 
 When considering $abc$ triples of exponent $\lambda<1$, we always have $\alpha+\beta+\gamma\leq \lambda< 1$, and the methods of Kane give no information
 in this regime. Indeed, we are not aware of any general estimates when $\lambda<1$,
- beyond Proposition~\ref{prop:trivial}. Nonetheless, there do exist specific Diophantine equations which are covered by the $abc$ conjecture and where bounds have been given for the number of solutions.
+ beyond Proposition~\ref{prop:TrivialBound}. Nonetheless, there do exist specific Diophantine equations which are covered by the $abc$ conjecture and where bounds have been given for the number of solutions.
 For example, it follows from work of Darmon and
 Granville~\cite{DG} that there are only finitely many coprime integer solutions to the Diophantine equation $x^p+y^q=z^r$, when $p,q,r\in \mathbb{N}$ are given and satisfy $1/p+1/q+1/r<1$.
 
@@ -104,15 +104,15 @@ $
 S_{\alpha,\beta,\gamma}(X)\ll X^{2\lambda/3-\eta},
 $
 for some $\eta>0$.
-A simple factorisation lemma (Proposition~\ref{prop:diophantine}) will reduce the problem of bounding $S_{\alpha,\beta,\gamma}(X)$ to the problem of bounding the number of solutions to various Diophantine equations of the shape
+A simple factorisation lemma (Proposition~\ref{prop:DiophantineReduction}) will reduce the problem of bounding $S_{\alpha,\beta,\gamma}(X)$ to the problem of bounding the number of solutions to various Diophantine equations of the shape
 \[
 \prod_{j\leq d}x_j^j+\prod_{j\leq d}y_j^j=\prod_{j\leq d}z_j^j ,
 \]
 with specific constraints $x_i\sim X^{a_i}$, $y_i\sim X^{b_i}, z_i\sim X^{c_i}$ on the size of the variables, for admissible values of $a_i,b_i,c_i$ (depending on $\alpha,\beta,\gamma$).
-We then bound the number of solutions to these Diophantine equations using four different methods. The first of these (Proposition~\ref{prop:boundingsolutions}) uses Fourier analysis and Cauchy-Schwarz to estimate the number of solutions, leading to a bound that works well if two of the exponent vectors $(a_i)_i,(b_i)_i,(c_i)_i$ are somewhat ``correlated''. The second method (Proposition~\ref{prop:detmethod}) uses the geometry of numbers and gives good bounds when
-one of $a_1,b_1,c_1$ is large. The remaining tools come from the determinant method of Heath-Brown (Proposition~\ref{prop:det}) and
-uniform upper bounds for the number of solutions to Thue equations (Proposition~\ref{prop:thue}).
-For every choice of the exponents $a_i,b_i,c_i$ we shall need to take the minimum of these bounds, which leads to a rather intricate combinatorial optimisation problem. This is solved by showing that at least one of the four methods always gives a power-saving over Proposition~\ref{prop:trivial} when $\lambda$ is close to $1$.
+We then bound the number of solutions to these Diophantine equations using four different methods. The first of these (Proposition~\ref{prop:FourierAnalysis}) uses Fourier analysis and Cauchy-Schwarz to estimate the number of solutions, leading to a bound that works well if two of the exponent vectors $(a_i)_i,(b_i)_i,(c_i)_i$ are somewhat ``correlated''. The second method (Proposition~\ref{prop:GeometryofNumbers}) uses the geometry of numbers and gives good bounds when
+one of $a_1,b_1,c_1$ is large. The remaining tools come from the determinant method of Heath-Brown (Proposition~\ref{prop:DeterminantMethod}) and
+uniform upper bounds for the number of solutions to Thue equations (Proposition~\ref{prop:ThueEquations}).
+For every choice of the exponents $a_i,b_i,c_i$ we shall need to take the minimum of these bounds, which leads to a rather intricate combinatorial optimisation problem. This is solved by showing that at least one of the four methods always gives a power-saving over Proposition~\ref{prop:TrivialBound} when $\lambda$ is close to $1$.
 
 \section*{Notation}
 We shall use $x\sim X$ to denote $x\in (X,2X]$ and we put
@@ -161,7 +161,7 @@ for $\mathbf{c}\in \mathbb{Z}^3$ and $\mathbf{X},\mathbf{Y},\mathbf{Z}\in \mathb
 
 
 
-\begin{proposition}\label{prop:diophantine}
+\begin{proposition}\label{prop:DiophantineReduction}
 Let $\alpha,\beta,\gamma\in (0,1]$ be fixed and let $X\geq 2$. For any $\varepsilon>0$ there exists an integer $d=d(\varepsilon)\geq 1$ such that the following holds.
 There exist $X_1,\ldots, X_d,Y_1,\ldots, Y_d, Z_1,\ldots, Z_d\geq 1$ satisfying
 \begin{align}\label{eq:xiyizi_1}
@@ -180,7 +180,7 @@ S^*_{\alpha,\beta,\gamma}(X) \ll_{\varepsilon} X^{\varepsilon}B_d(\mathbf{c},\ma
 \end{proposition}
 
 
-Proposition~\ref{prop:diophantine} is based on the following factorisation of an integer as a product of powers.
+Proposition~\ref{prop:DiophantineReduction} is based on the following factorisation of an integer as a product of powers.
 
 
 \begin{lemma}\label{le_factor} Let $\varepsilon\in (0,1/2)$, and let $2\leq n\leq X$ be an integer. Then there exists a factorisation
@@ -230,7 +230,9 @@ Recalling that the $y_j$ are squarefree and pairwise coprime for $j\neq K$, give
 as claimed.
 \end{proof}
 
-\begin{proof}[Proof of Proposition~\ref{prop:diophantine}] We may assume that $X$ is large enough in terms of $\varepsilon$, since otherwise the claim is trivial. Let $(a,b,c)$ be a triple counted by $S^*_{\alpha,\beta,\gamma}(X)$. Apply Lemma~\ref{le_factor} (with $\varepsilon^2/2$ in place of $\varepsilon$) to each of $a,b,c$ to obtain factorisations of the form
+\begin{proof}[Proof of Proposition~\ref{prop:DiophantineReduction}]
+  \proves{prop:DiophantineReduction}
+  We may assume that $X$ is large enough in terms of $\varepsilon$, since otherwise the claim is trivial. Let $(a,b,c)$ be a triple counted by $S^*_{\alpha,\beta,\gamma}(X)$. Apply Lemma~\ref{le_factor} (with $\varepsilon^2/2$ in place of $\varepsilon$) to each of $a,b,c$ to obtain factorisations of the form
 \begin{align*}
 a=c_1\prod_{j\leq d}x_j^j,\quad b=c_2\prod_{j\leq d}y_j^j,\quad c=c_3\prod_{j\leq d}z_j^j,
 \end{align*}
@@ -264,7 +266,7 @@ The following result uses basic Fourier analysis to bound the
 quantity
 defined in~\eqref{eq:Bk}.
 
-\begin{proposition}[Fourier analysis bound]\label{prop:boundingsolutions}
+\begin{proposition}[Fourier analysis bound]\label{prop:FourierAnalysis}
 Let $d\geq 1$, $\varepsilon>0$ and $A\geq 1$ be fixed.
 Let \[
 X_1,\ldots, X_d, Y_1,\ldots, Y_d,Z_1,\ldots, Z_d\geq 1
@@ -282,6 +284,7 @@ B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 \end{proposition}
 
 \begin{proof}
+  \proves{prop:FourierAnalysis}
 By the orthogonality of characters, we have
 \begin{align*}
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) &\leq \int_0^1 \sum_{x_j\sim X_j}\sum_{y_j\sim Y_i}\sum_{z_j\sim Z_j}e\Big(\alpha\Big(c_1\prod_{j\leq d}x_j^j+c_2\prod_{j\leq d}y_j^j-c_3\prod_{j\leq d}z_j^j\Big)\Big)\dd{\alpha} \nonumber\\
@@ -385,10 +388,10 @@ which is the desired bound.
 \section{Geometry of numbers}\label{s:geom}
 
 
-We can supplement Proposition~\ref{prop:boundingsolutions} with the following bound,
+We can supplement Proposition~\ref{prop:FourierAnalysis} with the following bound,
 where $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$ is defined in~\eqref{eq:Bk}.
 
-\begin{proposition}[Geometry of numbers bound] \label{prop:detmethod}
+\begin{proposition}[Geometry of numbers bound] \label{prop:GeometryofNumbers}
 Let $d\geq 1$ and $\varepsilon>0$ be fixed, and let
 \[
 X_1,\ldots, X_d, Y_1,\ldots, Y_d,Z_1,\ldots, Z_d\geq 1.
@@ -408,6 +411,7 @@ B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})
 \]
 \end{proposition}
 \begin{proof}
+  \proves{prop:GeometryofNumbers}
 Take any sets $I,I',I''\subset[d]$. Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$. We fix a choice of
 $
 x_i,y_i,z_i \in \mathbb{Z}
@@ -505,12 +509,12 @@ bound $O_{\ve,D}((|a_1a_2N|XY)^\ve)$ follows from Heath-Brown~\cite[Theorem~3]{c
  \end{proof}
 
 
-Using these lemmas we can now supplement Propositions~\ref{prop:boundingsolutions}
-and~\ref{prop:detmethod} with further bounds
+Using these lemmas we can now supplement Propositions~\ref{prop:FourierAnalysis}
+and~\ref{prop:GeometryofNumbers} with further bounds
 for $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$, as defined in~\eqref{eq:Bk}.
 
 
-\begin{proposition}[Determinant method bound]\label{prop:det}
+\begin{proposition}[Determinant method bound]\label{prop:DeterminantMethod}
 Let $d\geq 1$, and let
 \[
 X_1,\ldots, X_d, Y_1,\ldots, Y_d,Z_1,\ldots, Z_d\geq 1.
@@ -528,6 +532,7 @@ B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 
 
 \begin{proof}
+  \proves{prop:DeterminantMethod}
 Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$.
 For any integers $p,q\geq 1$, we fix all but $x_p$ and $y_q$ and apply
 the first part of Lemma~\ref{lem:t15}. This gives
@@ -545,7 +550,7 @@ from which the statement of the lemma easily follows.
 
 
 
-\begin{proposition}[Thue bound]\label{prop:thue}
+\begin{proposition}[Thue bound]\label{prop:ThueEquations}
 Let $d\geq 1$, and let
 \[
 X_1,\ldots, X_d, Y_1,\ldots, Y_d,Z_1,\ldots, Z_d\geq 1.
@@ -563,6 +568,7 @@ where $\Delta$ is given by~\eqref{eq:Delta}.
 
 
 \begin{proof}
+  \proves{prop:ThueEquations}
 Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$.
 We collect together all indices which are multiples of $p$ for any integer $p\geq 2$.
 Applying the second part of Lemma~\ref{lem:t15} now gives
@@ -610,7 +616,7 @@ This is an immediate consequence of~\eqref{eq:trivial} (with $\varepsilon^2/2$ i
 \end{proof}
 
 
-In the light of Proposition~\ref{prop:diophantine} (with $\ve^2$ in place of $\ve$), we wish to bound $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$ for any
+In the light of Proposition~\ref{prop:DiophantineReduction} (with $\ve^2$ in place of $\ve$), we wish to bound $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$ for any
  pairwise coprime integers $1\leq |c_1|,|c_2|,|c_3|\leq X^{\varepsilon^2}$, any fixed $d\geq 1$,
  and any choice of
  $X_i,Y_i,Z_i\geq 1$, for $1\leq i\leq d$ that satisfies
@@ -645,7 +651,7 @@ It will be convenient to henceforth define
 \]
 Our goal is now to show that $\nu\le 0.66$, since then~\eqref{eq:S*}
 is a direct consequence of
-Proposition~\ref{prop:diophantine}.
+Proposition~\ref{prop:DiophantineReduction}.
 This will then imply
 Theorem~\ref{thm:abc}, via~\eqref{eq:step1} and~\eqref{eq:S->S*}.
 
@@ -677,14 +683,16 @@ an upper bound for $\nu$, using
 the parameters $a_i,b_i,c_i$.
 In all of the following bounds, we may freely permute the exponent vectors $(a_i),(b_i),(c_i)$.
 
-\begin{proposition*}[Fourier bound]
+\begin{proposition*}[Fourier bound]\label{prop:FourierBound}
 We have
 \begin{align*}
 \nu & < \frac{1}{2}\Big(1+\delta +\sum_{i\leq d} \max(a_i,b_i) - \max_{m>1}(a_m,b_m)\Big).
 \end{align*}
 \end{proposition*}
 \begin{proof}
-It follows from Proposition~\ref{prop:boundingsolutions} that
+  \proves{prop:FourierBound}
+  \uses{prop:FourierAnalysis}
+It follows from Proposition~\ref{prop:FourierAnalysis} that
 \[
 \nu \leq 3\varepsilon^2+
 \frac{1}{2}\sum_{i\leq d}\Big(a_i+b_i+c_i +\max(a_i,b_i) - \max_{m>1}b_m\Big).
@@ -693,7 +701,7 @@ Permuting variables, the claim now follows from~\eqref{eq:oat3}.
 \end{proof}
 
 
-\begin{proposition*}[Geometry bound]
+\begin{proposition*}[Geometry bound] \label{prop:GeometryBound}
 We have
 \begin{align*}
 \nu < \delta + \min_{I,I',I''\subset [d]} \left(
@@ -701,7 +709,9 @@ We have
 \end{align*}
 \end{proposition*}
 \begin{proof}
-Applying Proposition~\ref{prop:detmethod}, we obtain
+  \proves{prop:GeometryBound}
+  \uses{prop:GeometryofNumbers}
+Applying Proposition~\ref{prop:GeometryofNumbers}, we obtain
 \[
 \nu \leq 3\varepsilon^2+
 \min_{I,I',I''}
@@ -726,14 +736,16 @@ The proof now follows from~\eqref{eq:oat3}.
 \end{proof}
 
 
-\begin{proposition*}[Determinant bound]
+\begin{proposition*}[Determinant bound] \label{prop:DeterminantBound}
 We have
 \begin{align*}
 \nu < \min_{p,q\ge1} \left( 1+\delta- a_p - b_q +\min\left(\frac{a_p}{q}, \frac{b_q}{p}\right)\right).
 \end{align*}
 \end{proposition*}
 \begin{proof}
-Proposition~\ref{prop:det} implies
+  \proves{prop:DeterminantBound}
+  \uses{prop:DeterminantMethod}
+Proposition~\ref{prop:DeterminantMethod} implies
 that
 \[
 \nu\leq 3\ve^2+
@@ -746,14 +758,16 @@ The claimed bound now follows from~\eqref{eq:oat3}.
 \end{proof}
 
 
-\begin{proposition*}[Thue bound]
+\begin{proposition*}[Thue bound] \label{prop:ThueBound}
 We have
 \begin{align*}
 \nu < 1 +\delta- \max_{p\ge2}\sum_{p\mid i}(a_i+b_i).
 \end{align*}
 \end{proposition*}
 \begin{proof}
-This easily follows from Proposition~\ref{prop:thue} and~\eqref{eq:oat3}.
+  \proves{prop:ThueBound}
+  \uses{prop:ThueEquations}
+This easily follows from Proposition~\ref{prop:ThueEquations} and~\eqref{eq:oat3}.
 \end{proof}
 
 
@@ -1262,6 +1276,13 @@ A similar argument with $(a_i,c_i)$ and $(b_i,c_i)$ gives
 \nu & \leq \frac{1.296}{2}+ \frac{1}{3}\max(b_2,c_2).
 \end{align*}
 Hence we may assume that two of $a_2,b_2,c_2$ are $\geq 0.036$. But then $s_2 \geq 2( 0.036) = 0.072$, which contradicts the fact that $s_2< 0.066$.
+
+
+\begin{proof}[Proof of Theorem \ref{thm:abc}]
+\proves{thm:abc}
+\uses{prop:TrivialBound, prop:FourierAnalysis, prop:GeometryofNumbers, prop:ThueEquations, prop:DetMethod}
+\end{proof}
+
 
 \chapter{Bibliography}
 \begin{thebibliography}{99}
