@@ -1277,10 +1277,17 @@ A similar argument with $(a_i,c_i)$ and $(b_i,c_i)$ gives
 \end{align*}
 Hence we may assume that two of $a_2,b_2,c_2$ are $\geq 0.036$. But then $s_2 \geq 2( 0.036) = 0.072$, which contradicts the fact that $s_2< 0.066$.
 
+\begin{theorem} \label{thm:nu66}
+We have $\nu \le 0.66$.
+\end{theorem}
+\begin{proof}
+  \proves{thm:nu66}
+  \uses{prop:TrivialBound, prop:FourierAnalysis, prop:GeometryofNumbers, prop:ThueEquations, prop:DeterminantMethod}
+\end{proof}
 
 \begin{proof}[Proof of Theorem \ref{thm:abc}]
 \proves{thm:abc}
-\uses{prop:TrivialBound, prop:FourierAnalysis, prop:GeometryofNumbers, prop:ThueEquations, prop:DeterminantMethod}
+\uses{thm:nu66}
 \end{proof}
 
 
