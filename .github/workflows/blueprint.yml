@@ -55,27 +55,27 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake build ABCExceptions
 
-      - name: Cache API docs
-        uses: actions/cache@v4
-        with:
-          path: docbuild/.lake/build/doc
-          key: LakeBuildDoc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: LakeBuildDoc-
+      # - name: Cache API docs
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: docbuild/.lake/build/doc
+      #     key: LakeBuildDoc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
+      #     restore-keys: LakeBuildDoc-
 
-      - name: Setup symlinks between project and docbuild
-        working-directory: docbuild
-        run: |
-          mkdir -p .lake/packages
-          for package_path in ../.lake/packages/*; do
-            package=$(basename $package_path)
-            ln -s ../../../.lake/packages/$package .lake/packages/$package
-          done
+      # - name: Setup symlinks between project and docbuild
+      #   working-directory: docbuild
+      #   run: |
+      #     mkdir -p .lake/packages
+      #     for package_path in ../.lake/packages/*; do
+      #       package=$(basename $package_path)
+      #       ln -s ../../../.lake/packages/$package .lake/packages/$package
+      #     done
 
-      - name: Build project API documentation
-        working-directory: docbuild
-        run: |
-          ~/.elan/bin/lake exe cache get || true
-          ~/.elan/bin/lake build ABCExceptions:docs
+      # - name: Build project API documentation
+      #   working-directory: docbuild
+      #   run: |
+      #     ~/.elan/bin/lake exe cache get || true
+      #     ~/.elan/bin/lake build ABCExceptions:docs
 
       - name: Check for `home_page` folder # this is meant to detect a Jekyll-based website
         id: check_home_page
@@ -113,8 +113,8 @@ jobs:
         run: |
             ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
-      - name: Copy API documentation to `home_page/docs`
-        run: cp -r docbuild/.lake/build/doc home_page/docs
+      # - name: Copy API documentation to `home_page/docs`
+      #   run: cp -r docbuild/.lake/build/doc home_page/docs
 
       - name: Bundle dependencies
         if: github.event_name == 'push'
