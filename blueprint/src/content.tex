@@ -243,13 +243,15 @@ S^*_{\alpha,\beta,\gamma}(X) \ll_{\varepsilon} X^{\varepsilon}B_d(\mathbf{c},\ma
 \end{proposition}
 \begin{proof}
 \proves{prop:DiophantineReduction}
+\uses{lem:DiophantineFactor}
 \end{proof}
 
 
 Proposition~\ref{prop:DiophantineReduction} is based on the following factorisation of an integer as a product of powers.
 
 
-\begin{lemma}\label{le_factor} Let $\varepsilon\in (0,1/2)$, and let $2\leq n\leq X$ be an integer. Then there exists a factorisation
+\begin{lemma}\label{lem:DiophantineFactor}
+Let $\varepsilon\in (0,1/2)$, and let $2\leq n\leq X$ be an integer. Then there exists a factorisation
 \begin{align*}
 n=c\prod_{j\leq 10\varepsilon^{-2}}x_j^{j},
 \end{align*}
@@ -298,11 +300,11 @@ as claimed.
 
 \begin{proof}[Proof of Proposition~\ref{prop:DiophantineReduction}]
   \proves{prop:DiophantineReduction}
-  We may assume that $X$ is large enough in terms of $\varepsilon$, since otherwise the claim is trivial. Let $(a,b,c)$ be a triple counted by $S^*_{\alpha,\beta,\gamma}(X)$. Apply Lemma~\ref{le_factor} (with $\varepsilon^2/2$ in place of $\varepsilon$) to each of $a,b,c$ to obtain factorisations of the form
+  We may assume that $X$ is large enough in terms of $\varepsilon$, since otherwise the claim is trivial. Let $(a,b,c)$ be a triple counted by $S^*_{\alpha,\beta,\gamma}(X)$. Apply Lemma~\ref{lem:DiophantineFactor} (with $\varepsilon^2/2$ in place of $\varepsilon$) to each of $a,b,c$ to obtain factorisations of the form
 \begin{align*}
 a=c_1\prod_{j\leq d}x_j^j,\quad b=c_2\prod_{j\leq d}y_j^j,\quad c=c_3\prod_{j\leq d}z_j^j,
 \end{align*}
-where $d=\lfloor 40\varepsilon^{-4}\rfloor$ and $1\leq c_1,c_2,c_3\leq X^{\varepsilon^2/4}$. Since $(a,b,c)$ is counted by $S^*_{\alpha,\beta,\gamma}(X)$, we have $\gcd(a,b,c)=1$ and $a+b=c$, so $a,b,c$ are pairwise coprime. Hence, all the $3d+3$ numbers $x_i,y_i,z_i,c_1,c_2,c_3$ are pairwise coprime. Note also that by the properties of the factorisation given by Lemma~\ref{le_factor}, we have
+where $d=\lfloor 40\varepsilon^{-4}\rfloor$ and $1\leq c_1,c_2,c_3\leq X^{\varepsilon^2/4}$. Since $(a,b,c)$ is counted by $S^*_{\alpha,\beta,\gamma}(X)$, we have $\gcd(a,b,c)=1$ and $a+b=c$, so $a,b,c$ are pairwise coprime. Hence, all the $3d+3$ numbers $x_i,y_i,z_i,c_1,c_2,c_3$ are pairwise coprime. Note also that by the properties of the factorisation given by Lemma~\ref{lem:DiophantineFactor}, we have
 \begin{align*}
 &X^{-\varepsilon/2}\prod_{j\leq d}x_j\leq \rad(a)\leq X^{\varepsilon/2}\prod_{j\leq d}x_j,\quad X^{-\varepsilon/2}\prod_{j\leq d}y_j\leq \rad(b)\leq X^{\varepsilon/2}\prod_{j\leq d}y_j,\\
 &X^{-\varepsilon/2}\prod_{j\leq d}z_j\leq \rad(c)\leq X^{\varepsilon/2}\prod_{j\leq d}z_j.
@@ -734,10 +736,16 @@ for $1\leq i\leq d$, and $a_i=b_i=c_i=0$ for $i>d$.
 In particular, in the light of~\eqref{eq:goat} and
  Proposition~\ref{prop:simple}, we
 may henceforth assume that
+\begin{lemma} \label{lem:Trivialaibici}
+We have
 \begin{equation}\label{eq:oat4}
 \sum_{i\leq d} (a_i+b_i)\geq 0.66-\varepsilon^2,\quad \sum_{i\leq d} (a_i+c_i)\geq 0.66-\varepsilon^2,\quad
 \sum_{i\leq d} (b_i+c_i) \geq 0.66-\varepsilon^2
 \end{equation}
+\end{lemma}
+\begin{proof}
+\uses{prop:simple}
+\end{proof}
 and
 \begin{equation}\label{eq:oat3}
 \sum_{i\leq d} (a_i+b_i+c_i) \leq 1+\delta-\eps.
@@ -1383,7 +1391,7 @@ We have $\nu \le 0.66$.
 \end{theorem}
 \begin{proof}
   \proves{thm:ABCExponentNu}
-  \uses{prop:TrivialBound, prop:FourierBound, prop:GeometryBound, prop:ThueBound, prop:DeterminantBound}
+  \uses{lem:aibiciconstraints, prop:FourierBound, prop:GeometryBound, prop:ThueBound, prop:DeterminantBound}
 \end{proof}
 
 
