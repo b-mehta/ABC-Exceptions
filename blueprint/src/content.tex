@@ -196,15 +196,28 @@ S^{*}_{\alpha,\beta,\gamma}(X)\ll \frac{X^{0.66}}{(\log X)^4}.
 \end{theorem}
 Moreover, $S^*_{\alpha,\beta,\gamma}(X)\leq S_{\alpha,\beta,\gamma}(X)$ and so~\eqref{eq:trivial} equally applies to $S^*_{\alpha,\beta,\gamma}(X)$.
 
+\begin{theorem}\label{thm:BdExceptions}
+  \uses{def:BdDiophantineCount}
+  There exists $\eps>0$ such that for all
+  $\mathbf{c}\in \mathbb{Z}^3$ and $\mathbf{X},\mathbf{Y},\mathbf{Z}\in \mathbb{R}_{>0}^{d}$. we have
+\begin{align}
+B_d({\bf c, X,Y,Z}) \ll  X^{0.66-\eps}.
+\end{align}
+\end{theorem}
+\begin{proof}
+\uses{ABCExponentNu}
+\end{proof}
+
 \begin{proof}[Proof of Theorem \ref{thm:ABCExceptions}]
   \proves{thm:ABCExceptions}
-  \uses{thm:SstarExceptions,lem:StoSstar,lem:NlambdatoSabc}
+  \uses{thm:BdExceptions,lem:StoSstar,lem:NlambdatoSabc}
   \end{proof}
 
 
 The following result allows us to bound $S^*_{\alpha,\beta,\gamma}(X)$
 in terms of the number of solutions to certain monomial Diophantine equations. In order to state it, we need to introduce the quantity $B_d$
 \begin{definition}\label{def:BdDiophantineCount}
+For $\mathbf{c}\in \mathbb{Z}^3$ and $\mathbf{X},\mathbf{Y},\mathbf{Z}\in \mathbb{R}_{>0}^{d}$. we have
 \begin{equation}\label{eq:Bk}
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) := \#\left\{(\mathbf{x},\mathbf{y},\mathbf{z})\in \mathbb{N}^{3d}\;:\;
 \begin{array}{l}
@@ -213,9 +226,8 @@ c_1\prod_{j\leq d}x_j^j+c_2\prod_{j\leq d}y_j^j=c_3\prod_{j\leq d}z_j^j\\
 \gcd(c_1\prod_{j\leq d}x_j,c_2\prod_{j\leq d}y_j ,
 c_3\prod_{j\leq d}z_j)=1
 \end{array}
-\right\},
+\right\}.
 \end{equation}
-for $\mathbf{c}\in \mathbb{Z}^3$ and $\mathbf{X},\mathbf{Y},\mathbf{Z}\in \mathbb{R}_{>0}^{d}$.
 \end{definition}
 
 
@@ -1383,9 +1395,9 @@ We have $\nu \le 0.66$.
 \end{proof}
 
 
-\begin{proof}[Proof of Theorem \ref{thm:SstarExceptions}]
-\proves{thm:SstarExceptions}
-\uses{thm:ABCExponentNu,prop:DiophantineReduction,def:nu,def:BdDiophantineCount}
+\begin{proof}[Proof of Theorem \ref{thm:BdExceptions}]
+\proves{thm:BdExceptions}
+\uses{thm:ABCExponentNu, prop:DiophantineReduction, def:nu, def:BdDiophantineCount}
 \end{proof}
 
 
