@@ -223,7 +223,7 @@ c_3\prod_{j\leq d}z_j)=1
 
 
 \begin{proposition}\label{prop:DiophantineReduction}
-  \uses{def:BdDiophantineCount, def:Sstar}
+  %\uses{def:BdDiophantineCount, def:Sstar}
 Let $\alpha,\beta,\gamma\in (0,1]$ be fixed and let $X\geq 2$. For any $\varepsilon>0$ there exists an integer $d=d(\varepsilon)\geq 1$ such that the following holds.
 There exist $X_1,\ldots, X_d,Y_1,\ldots, Y_d, Z_1,\ldots, Z_d\geq 1$ satisfying
 \begin{align}\label{eq:xiyizi_1}
@@ -242,7 +242,7 @@ S^*_{\alpha,\beta,\gamma}(X) \ll_{\varepsilon} X^{\varepsilon}B_d(\mathbf{c},\ma
 \end{proposition}
 \begin{proof}
 \proves{prop:DiophantineReduction}
-\uses{lem:DiophantineFactor}
+\uses{lem:DiophantineFactor,def:BdDiophantineCount, def:Sstar}
 \end{proof}
 
 
@@ -683,7 +683,7 @@ where $\Delta$ is given by~\eqref{eq:Delta}.
 \end{proposition}
 \begin{proof}
   \proves{prop:ThueEquations}
-  \uses{MixedThueMethods}
+  \uses{lem:MixedThueMethods}
 Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$.
 We collect together all indices which are multiples of $p$ for any integer $p\geq 2$.
 Applying the second part of Lemma~\ref{lem:MixedThueMethods} now gives
