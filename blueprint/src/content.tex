@@ -35,10 +35,10 @@ an old result of
 de Bruijn~\cite{debruijn} implies that
 
 \begin{lemma}\label{lem:deBruijnRadical}
+For any $\ve>0$, we have
 \begin{equation}\label{eq:bruijn}
-\#\left\{n\leq x : \rad(n)\leq x^\lambda\right\}=O_\ve(x^{\lambda+\ve}),
+\#\left\{n\leq x : \rad(n)\leq x^\lambda\right\} \ll_\ve x^{\lambda+\ve}.
 \end{equation}
-for any $\ve>0$.
 \end{lemma}
 Any triple $(a,b,c)$ counted by
 $N_\lambda(X)$ must satisfy $\rad(abc)< X^{\lambda}$, and so
@@ -63,17 +63,17 @@ for any $\ve>0$.
 The primary goal of this paper is to give the first power-saving improvement over this simple bound for values of $\lambda$ close to $1$.
 
 
-\begin{theorem}\label{thm:abc}
+\begin{theorem}\label{thm:ABCExceptions}
   \uses{def:Nlambda}
 Let $\lambda\in (0, 1.001)$ be fixed. Then
 $N_\lambda(X)=O( X^{33/50})$.
 \end{theorem}
 
 Here we note that $33/50=0.66$. By comparison, the trivial bound in Proposition~\ref{prop:TrivialBound} would give $N_1(X)=O(X^{0.66\bar{6}+\eps})$ and $N_{1.001}(X)=O(X^{0.6674})$.
-Moreover, we see that Theorem~\ref{thm:abc} gives a power-saving when $\lambda\in (0.99,1.001)$. We emphasise that this power-saving represents a proof of concept of the methods; we expect that the exponent can be reduced with substantial computer assistance.
+Moreover, we see that Theorem~\ref{thm:ABCExceptions} gives a power-saving when $\lambda\in (0.99,1.001)$. We emphasise that this power-saving represents a proof of concept of the methods; we expect that the exponent can be reduced with substantial computer assistance.
 
 
- Theorem~\ref{thm:abc} also applies for $\lambda$ slightly greater than $1$,
+ Theorem~\ref{thm:ABCExceptions} also applies for $\lambda$ slightly greater than $1$,
  which places it in the realm of a question by Mazur~\cite{mazur}.
 Given a fixed $\lambda>1$, he asked whether or not
 $ N_\lambda(X)$ has exact order
@@ -87,9 +87,9 @@ as the number of
  $(a,b,c)\in \N^3$
 with $\gcd(a,b,c)=1$ such that
  \[
- a,b,c\in [1,X], \quad a+b=c, \quad \rad(a)\leq a^\alpha, \quad
- \rad(b)\leq b^\beta, \quad
- \rad(c)\leq c^\gamma.
+ a,b,c\in [1,X], \quad a+b=c, \quad \rad(a)\leq X^\alpha, \quad
+ \rad(b)\leq X^\beta, \quad
+ \rad(c)\leq X^\gamma.
  \]
 \end{definition}
 
@@ -130,7 +130,7 @@ For example, it follows from work of Darmon and
 Granville~\cite{DG} that there are only finitely many coprime integer solutions to the Diophantine equation $x^p+y^q=z^r$, when $p,q,r\in \mathbb{N}$ are given and satisfy $1/p+1/q+1/r<1$.
 
 
-\section*{Proof outline} We now describe the main ideas behind the proof of Theorem~\ref{thm:abc}. In terms of the counting function $S_{\alpha,\beta,\gamma}(X)$, our task is to show that whenever $\alpha,\beta,\gamma\in (0,1]$ satisfy $\alpha+\beta+\gamma\leq \lambda$, we have
+\section*{Proof outline} We now describe the main ideas behind the proof of Theorem~\ref{thm:ABCExceptions}. In terms of the counting function $S_{\alpha,\beta,\gamma}(X)$, our task is to show that whenever $\alpha,\beta,\gamma\in (0,1]$ satisfy $\alpha+\beta+\gamma\leq \lambda$, we have
 $
 S_{\alpha,\beta,\gamma}(X)\ll X^{2\lambda/3-\eta},
 $
@@ -155,24 +155,51 @@ $[d]=\{1,\dots,d\}$. We denote by $\tau(n)=\sum_{d\mid n}1$ the divisor function
 
 We
  begin by noting that
+\begin{lemma}\label{lem:NlambdatoSabc}
+  \uses{defNlambda, defSabc}
+We have
 \begin{equation}\label{eq:step1}
 N_\lambda(X)\leq \max_{\substack{
 \alpha,\beta,\gamma>0\\ \alpha+\beta+\gamma\leq \lambda}} S_{\alpha,\beta,\gamma}(X).
 \end{equation}
-Let us define a variant $S^*_{\alpha,\beta,\gamma}(X)$ of $S_{\alpha,\beta,\gamma}(X)$ to be the number of $(a,b,c)\in \mathbb{N}^3$ with $\gcd(a,b,c)=1$ and
-\begin{align*}
-c\in [X/2,X],\quad a+b=c,\quad \rad(a)\sim X^{\alpha},\quad \rad(b)\sim X^{\beta},\quad \rad(c)\sim X^{\gamma}.
-\end{align*}
+\end{lemma}
+\begin{proof}
+\proves{lem:NlambdatoSabc}
+\end{proof}
+Let us define a variant of $S_{\alpha,\beta,\gamma}(X)$
+\begin{definition}\label{def:Sstar}
+  Let $S^*_{\alpha,\beta,\gamma}(X)$ to be the number of $(a,b,c)\in \mathbb{N}^3$ with $\gcd(a,b,c)=1$ and
+  \begin{align*}
+  c\in [X/2,X],\quad a+b=c,\quad \rad(a)\sim X^{\alpha},\quad \rad(b)\sim X^{\beta},\quad \rad(c)\sim X^{\gamma}.
+  \end{align*}
+\end{definition}
+
 
 By the pigeonhole principle, we have
+
+\begin{lemma}\label{lem:StoSstar}
+  \uses{def:Sabc, def:Sstar}
 \begin{equation}\label{eq:S->S*}
 S_{\alpha,\beta,\gamma}(X)\ll (\log X)^4\max_{\substack{\alpha'\leq \alpha\\\beta'\leq \beta\\\gamma'\leq \gamma}}\max_{Y\in [1,X]}S^*_{\alpha',\beta',\gamma'}(Y).
 \end{equation}
+\end{lemma}
+\begin{proof}
+\proves{lem:StoSstar}
+\end{proof}
 Hence, in the rest of the paper we are concerned with showing
+
+\begin{theorem}\label{thm:SstarExceptions}
+  \uses{def:Sstar}
 \begin{align}\label{eq:S*}
 S^{*}_{\alpha,\beta,\gamma}(X)\ll \frac{X^{0.66}}{(\log X)^4}.
 \end{align}
+\end{\theorem}
 Moreover, $S^*_{\alpha,\beta,\gamma}(X)\leq S_{\alpha,\beta,\gamma}(X)$ and so~\eqref{eq:trivial} equally applies to $S^*_{\alpha,\beta,\gamma}(X)$.
+
+\begin{proof}[Proof of Theorem \ref{thm:ABCExceptions}]
+  \proves{thm:ABCExceptions}
+  \uses{thm:SstarExceptions,lem:StoSstar,lem:NlambdatoSabc}
+  \end{proof}
 
 
 The following result allows us to bound $S^*_{\alpha,\beta,\gamma}(X)$
@@ -635,7 +662,7 @@ from which the statement easily follows.
 \section{Preliminaries}
 
 Throughout this section, let $\varepsilon>0$ be small but fixed.
-We now have everything in place to prove Theorem~\ref{thm:abc} for any
+We now have everything in place to prove Theorem~\ref{thm:ABCExceptions} for any
 \[
 \lambda\in (0,1+\delta-\eps).
 \]
@@ -652,6 +679,7 @@ for any $\alpha,\beta,\gamma$ such that
 The following result allows us to limit the range of $\alpha,\beta,\gamma$ under consideration.
 
 \begin{proposition}\label{prop:simple}
+\uses{def:Sstarabc}
 Let $\alpha,\beta,\gamma>0$, and let $\varepsilon>0$ be fixed. Then
 \[
 S^*_{\alpha,\beta,\gamma}(X)\ll X^{0.66-\varepsilon^2/2},
@@ -660,6 +688,8 @@ unless $\min\{\alpha+\beta, \beta+\gamma,\gamma+\alpha\}\geq 0.66-\varepsilon^2$
 \end{proposition}
 
 \begin{proof}
+\proves{prop:simple}
+\uses{prop:TrivialBdforS}
 This is an immediate consequence of~\eqref{eq:trivial} (with $\varepsilon^2/2$ in place of $\varepsilon$).
 \end{proof}
 
@@ -674,14 +704,23 @@ In the light of Proposition~\ref{prop:DiophantineReduction} (with $\ve^2$ in pla
  \alpha,\beta,\gamma
  $ satisfy~\eqref{eq:goat}.
 
-It will be convenient to define $a_i,b_i,c_i\in \R_{>0}$ via
+It will be convenient to define
+\begin{definition} \label{def:ai}
+Define $a_i,b_i,c_i\in \R_{>0}$ via
 \[
 X_i=X^{a_i}, \quad Y_i=X^{b_i}, \quad Z_i=X^{c_i},
 \]
-for $1\leq i\leq d$, and $a_i=b_i=c_i=0$ for $i>d$. Then it follows from~\eqref{eq:xiyizi_2} that
+for $1\leq i\leq d$, and $a_i=b_i=c_i=0$ for $i>d$.
+\end{definition}
+ Then it follows from~\eqref{eq:xiyizi_2} that
+\begin{lemma}\label{lem:aiconstraints}
 \begin{equation}\label{eq:oat1}
 \sum_{i\leq d} ia_i \leq 1, \quad \sum_{i\leq d} ib_i \leq 1, \quad 1-\ve^2\leq \sum_{i\leq d} ic_i \leq 1.
 \end{equation}
+\end{lemma}
+\begin{proof}
+\proves{lem:aiconstraints}
+\end{proof}
 In particular, in the light of~\eqref{eq:goat} and
  Proposition~\ref{prop:simple}, we
 may henceforth assume that
@@ -693,15 +732,18 @@ and
 \begin{equation}\label{eq:oat3}
 \sum_{i\leq d} (a_i+b_i+c_i) \leq 1+\delta-\eps.
 \end{equation}
-It will be convenient to henceforth define
+It will be convenient to henceforth
+\begin{definition}\label{def:nu}
+define
 \[
 \nu=2\varepsilon^2+\frac{\log B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})}{\log X}.
 \]
+\end{definition}
 Our goal is now to show that $\nu\le 0.66$, since then~\eqref{eq:S*}
 is a direct consequence of
 Proposition~\ref{prop:DiophantineReduction}.
 This will then imply
-Theorem~\ref{thm:abc}, via~\eqref{eq:step1} and~\eqref{eq:S->S*}.
+Theorem~\ref{thm:ABCExceptions}, via~\eqref{eq:step1} and~\eqref{eq:S->S*}.
 
 
 Before proceeding to the main tools that we shall use to estimate $\nu$, we first show that we may assume that \begin{equation}\label{eq:oat5}
@@ -1325,18 +1367,15 @@ A similar argument with $(a_i,c_i)$ and $(b_i,c_i)$ gives
 \end{align*}
 Hence we may assume that two of $a_2,b_2,c_2$ are $\geq 0.036$. But then $s_2 \geq 2( 0.036) = 0.072$, which contradicts the fact that $s_2< 0.066$.
 
-\begin{theorem} \label{thm:nu66}
+\begin{theorem} \label{thm:ABCExponentNu}
+\uses{def:nu}
 We have $\nu \le 0.66$.
 \end{theorem}
 \begin{proof}
-  \proves{thm:nu66}
+  \proves{thm:ABCExponentNu}
   \uses{prop:TrivialBound, prop:FourierAnalysis, prop:GeometryofNumbers, prop:ThueEquations, prop:DeterminantMethod}
 \end{proof}
 
-\begin{proof}[Proof of Theorem \ref{thm:abc}]
-\proves{thm:abc}
-\uses{thm:nu66}
-\end{proof}
 
 
 \chapter{Bibliography}
