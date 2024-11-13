@@ -44,7 +44,7 @@ we must have
 $\min\{\rad(a)\rad(b),\rad(b)\rad(c),\rad(c)\rad(a)\}< X^{2\lambda/3}$, since $a,b,c$ are pairwise coprime.
 An application of~\eqref{eq:bruijn} now leads to the following ``trivial bound''.
 
-\begin{proposition}\label{prop:TrivialBound}
+\begin{proposition}\label{prop:ABCTrivialBound}
   \uses{def:Nlambda}
 Let $\lambda>0$. Then
 $
@@ -53,7 +53,6 @@ $
 for any $\ve>0$.
 \end{proposition}
 \begin{proof}
-\proves{prop:TrivialBound}
 \uses{lem:TrivialBdforS}
 \end{proof}
 
@@ -67,7 +66,7 @@ Let $\lambda\in (0, 1.001)$ be fixed. Then
 $N_\lambda(X)=O( X^{33/50})$.
 \end{theorem}
 
-Here we note that $33/50=0.66$. By comparison, the trivial bound in Proposition~\ref{prop:TrivialBound} would give $N_1(X)=O(X^{0.66\bar{6}+\eps})$ and $N_{1.001}(X)=O(X^{0.6674})$.
+Here we note that $33/50=0.66$. By comparison, the trivial bound in Proposition~\ref{prop:ABCTrivialBound} would give $N_1(X)=O(X^{0.66\bar{6}+\eps})$ and $N_{1.001}(X)=O(X^{0.6674})$.
 Moreover, we see that Theorem~\ref{thm:ABCExceptions} gives a power-saving when $\lambda\in (0.99,1.001)$. We emphasise that this power-saving represents a proof of concept of the methods; we expect that the exponent can be reduced with substantial computer assistance.
 
 
@@ -91,7 +90,7 @@ with $\gcd(a,b,c)=1$ such that
  \]
 \end{definition}
 
-The argument used to prove Proposition~\ref{prop:TrivialBound} readily yields
+The argument used to prove Proposition~\ref{prop:ABCTrivialBound} readily yields
 
 \begin{lemma}\label{lem:TrivialBdforS}
 \begin{equation}\label{eq:trivial}
@@ -123,7 +122,7 @@ when $\alpha+\beta+\gamma<3/2$.
 
 When considering $abc$ triples of exponent $\lambda<1$, we always have $\alpha+\beta+\gamma\leq \lambda< 1$, and the methods of Kane give no information
 in this regime. Indeed, we are not aware of any general estimates when $\lambda<1$,
- beyond Proposition~\ref{prop:TrivialBound}. Nonetheless, there do exist specific Diophantine equations which are covered by the $abc$ conjecture and where bounds have been given for the number of solutions.
+ beyond Proposition~\ref{prop:ABCTrivialBound}. Nonetheless, there do exist specific Diophantine equations which are covered by the $abc$ conjecture and where bounds have been given for the number of solutions.
 For example, it follows from work of Darmon and
 Granville~\cite{DG} that there are only finitely many coprime integer solutions to the Diophantine equation $x^p+y^q=z^r$, when $p,q,r\in \mathbb{N}$ are given and satisfy $1/p+1/q+1/r<1$.
 
@@ -141,7 +140,7 @@ with specific constraints $x_i\sim X^{a_i}$, $y_i\sim X^{b_i}, z_i\sim X^{c_i}$ 
 We then bound the number of solutions to these Diophantine equations using four different methods. The first of these (Proposition~\ref{prop:FourierAnalysis}) uses Fourier analysis and Cauchy-Schwarz to estimate the number of solutions, leading to a bound that works well if two of the exponent vectors $(a_i)_i,(b_i)_i,(c_i)_i$ are somewhat ``correlated''. The second method (Proposition~\ref{prop:GeometryofNumbers}) uses the geometry of numbers and gives good bounds when
 one of $a_1,b_1,c_1$ is large. The remaining tools come from the determinant method of Heath-Brown (Proposition~\ref{prop:DeterminantMethod}) and
 uniform upper bounds for the number of solutions to Thue equations (Proposition~\ref{prop:ThueEquations}).
-For every choice of the exponents $a_i,b_i,c_i$ we shall need to take the minimum of these bounds, which leads to a rather intricate combinatorial optimisation problem. This is solved by showing that at least one of the four methods always gives a power-saving over Proposition~\ref{prop:TrivialBound} when $\lambda$ is close to $1$.
+For every choice of the exponents $a_i,b_i,c_i$ we shall need to take the minimum of these bounds, which leads to a rather intricate combinatorial optimisation problem. This is solved by showing that at least one of the four methods always gives a power-saving over Proposition~\ref{prop:ABCTrivialBound} when $\lambda$ is close to $1$.
 
 \section*{Notation}
 We shall use $x\sim X$ to denote $x\in (X,2X]$ and we put
@@ -1391,7 +1390,7 @@ We have $\nu \le 0.66$.
 \end{theorem}
 \begin{proof}
   \proves{thm:ABCExponentNu}
-  \uses{lem:aibiciconstraints, prop:FourierBound, prop:GeometryBound, prop:ThueBound, prop:DeterminantBound}
+  \uses{lem:aibiciconstraints, lem:Trivialaibici, prop:FourierBound, prop:GeometryBound, prop:ThueBound, prop:DeterminantBound}
 \end{proof}
 
 
