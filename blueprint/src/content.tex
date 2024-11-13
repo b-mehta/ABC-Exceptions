@@ -561,7 +561,28 @@ a_1x^p+a_2 y^q+a_3 z^r=0
 \]
 for given $X,Y,Z\geq 1$. This is achieved in the following result.
 
-\begin{lemma}\label{lem:t15}
+
+\begin{theorem} \label{thm:BombieriPilaforDet}
+We have
+\end{theorem}
+
+\begin{theorem} \label{thm:HeathBrownpadicDet}
+  We have
+\end{theorem}
+
+\begin{theorem} \label{thm:HeathBrownQuadraticForms}
+  We have
+\end{theorem}
+
+\begin{theorem} \label{thm:BombierSchmidtforThueEqs}
+  We have
+\end{theorem}
+
+\begin{lemma} \label{lem:omegaUpperBound}
+We have
+\end{lemma}
+
+\begin{lemma}\label{lem:MixedDeterminantMethods}
 Let $\eps>0$ and $D\geq 1$ and
 assume that $p,q,r\in [1,D]$ are integers. Then
 \[
@@ -577,8 +598,8 @@ N(X,Y,Z)\ll_{\ve,D} Z (|a_1a_2a_3|XYZ)^\ve.
 
 
 \begin{proof}
-  \proves{lem:t15}
-  \uses{lem:EisensteinCrit}
+  \proves{lem:MixedDeterminantMethods}
+  \uses{lem:EisensteinCrit,thm:BombieriPilaforDet,thm:HeathBrownpadicDet,thm:HeathBrownQuadraticForms,thm:BombierSchmidtforThueEqs,lem:omegaUpperBound}
 We fix a choice of non-zero integer $z\in [-Z,Z]$, of which there are $O(Z)$. When $z$ is fixed, the resulting equation defines a curve in $\mathbb{A}^2$ and we can hope to apply work of Bombieri-Pila~\cite[Theorem~4]{bp}, which would show that the equation has $O_{\ve,D}(\max(X,Y)^{\frac{1}{\max(p,q)}+\ve})$ integer solutions in the region $|x|\leq X$ and $|y|\leq Y$, where the implied constant only depends on $\ve$ and $D$. This is valid only when
 the curve is absolutely irreducible, which we claim is true when $z\neq 0$. But, for fixed $z\in \Z_{\neq 0}$ the
 polynomial $a_2y^q+a_3z^r$ has non-zero discriminant as a polynomial in $y$. Hence the claim follows from Lemma~\ref{eis}. Rather than appealing to Bombieri-Pila, however, we can get a sharper bound by using work of
@@ -617,10 +638,10 @@ B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 
 \begin{proof}
   \proves{prop:DeterminantMethod}
-  \uses{lem:t15}
+  \uses{lem:MixedDeterminantMethods}
 Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$.
 For any integers $p,q\geq 1$, we fix all but $x_p$ and $y_q$ and apply
-the first part of Lemma~\ref{lem:t15}. This gives
+the first part of Lemma~\ref{lem:MixedDeterminantMethods}. This gives
 \[
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 \Delta^\ve \prod_{\substack{j\leq d\\ j\neq p }} X_j
@@ -656,7 +677,7 @@ where $\Delta$ is given by~\eqref{eq:Delta}.
   \proves{prop:ThueEquations}
 Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$.
 We collect together all indices which are multiples of $p$ for any integer $p\geq 2$.
-Applying the second part of Lemma~\ref{lem:t15} now gives
+Applying the second part of Lemma~\ref{lem:MixedDeterminantMethods} now gives
 \[
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 \Delta^\ve \prod_{\substack{j\leq d\\ j\not\equiv 0 \bmod{p} }} X_j Y_j Z_j
