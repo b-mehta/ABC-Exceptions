@@ -56,7 +56,7 @@ for any $\ve>0$.
 \end{proposition}
 \begin{proof}
 \proves{prop:TrivialBound}
-\uses{lem:deBruijnRadical}
+\uses{lem:TrivialBdforS}
 \end{proof}
 
 
@@ -103,7 +103,7 @@ for any $\ve>0$.
 \end{lemma}
 \begin{proof}
 \proves{lem:TrivialBdforS}
-\uses{prop:TrivialBound}
+\uses{thm:deBruijnRadical}
 \end{proof}
 
 
@@ -773,12 +773,12 @@ an upper bound for $\nu$, using
 the parameters $a_i,b_i,c_i$.
 In all of the following bounds, we may freely permute the exponent vectors $(a_i),(b_i),(c_i)$.
 
-\begin{proposition*}[Fourier bound]\label{prop:FourierBound}
+\begin{proposition}[Fourier bound]\label{prop:FourierBound}
 We have
 \begin{align*}
 \nu & < \frac{1}{2}\Big(1+\delta +\sum_{i\leq d} \max(a_i,b_i) - \max_{m>1}(a_m,b_m)\Big).
 \end{align*}
-\end{proposition*}
+\end{proposition}
 \begin{proof}
   \proves{prop:FourierBound}
   \uses{prop:FourierAnalysis}
@@ -791,13 +791,13 @@ Permuting variables, the claim now follows from~\eqref{eq:oat3}.
 \end{proof}
 
 
-\begin{proposition*}[Geometry bound] \label{prop:GeometryBound}
+\begin{proposition}[Geometry bound] \label{prop:GeometryBound}
 We have
 \begin{align*}
 \nu < \delta + \min_{I,I',I''\subset [d]} \left(
 \max\left( 1 \,,\, \sum_{i\in I} ia_i +\sum_{i\in I'} ib_i + \sum_{i\in I''} ic_i\right) - \sum_{i\in I} a_i -\sum_{i\in I'} b_i - \sum_{i\in I''} c_i\right).
 \end{align*}
-\end{proposition*}
+\end{proposition}
 \begin{proof}
   \proves{prop:GeometryBound}
   \uses{prop:GeometryofNumbers}
@@ -826,12 +826,12 @@ The proof now follows from~\eqref{eq:oat3}.
 \end{proof}
 
 
-\begin{proposition*}[Determinant bound] \label{prop:DeterminantBound}
+\begin{proposition}[Determinant bound] \label{prop:DeterminantBound}
 We have
 \begin{align*}
 \nu < \min_{p,q\ge1} \left( 1+\delta- a_p - b_q +\min\left(\frac{a_p}{q}, \frac{b_q}{p}\right)\right).
 \end{align*}
-\end{proposition*}
+\end{proposition}
 \begin{proof}
   \proves{prop:DeterminantBound}
   \uses{prop:DeterminantMethod}
@@ -848,12 +848,12 @@ The claimed bound now follows from~\eqref{eq:oat3}.
 \end{proof}
 
 
-\begin{proposition*}[Thue bound] \label{prop:ThueBound}
+\begin{proposition}[Thue bound] \label{prop:ThueBound}
 We have
 \begin{align*}
 \nu < 1 +\delta- \max_{p\ge2}\sum_{p\mid i}(a_i+b_i).
 \end{align*}
-\end{proposition*}
+\end{proposition}
 \begin{proof}
   \proves{prop:ThueBound}
   \uses{prop:ThueEquations}
