@@ -412,6 +412,7 @@ B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})
 \end{proposition}
 \begin{proof}
   \proves{prop:GeometryofNumbers}
+  \uses{thm:HeathBrownGeometry}
 Take any sets $I,I',I''\subset[d]$. Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$. We fix a choice of
 $
 x_i,y_i,z_i \in \mathbb{Z}
@@ -438,6 +439,18 @@ desired upper bound by
 summing over the choices $x_i,y_i,z_i\in\Z$, with $i$ in $I,I',I''$.
 \end{proof}
 
+\begin{theorem}[\cite[Lemma 3]{h-b84}] \label{thm:HeathBrownGeometry}
+  Let $\gcd(a_1,a_2,a_3)=1$. Then for $X_1,X_2,X_3>1$, we have
+  \begin{align*}
+    \#\left((x_1,x_2,x_3)\in\Z^3 \;:\; \gcd(x_1,x_2,x_3)=1,\, |x_i| \le X_i ,\, a_1x_1+a_2x_2+a_3x_3=0\right)
+    \ll \ 1 \ + \ &
+    \frac{X_1X_2X_3}{\max_i\{|a_i|X_i\}}.
+    \end{align*}
+\end{theorem}
+\begin{proof}
+\proves{thm:HeathBrownGeometry}
+\end{proof}
+
 
 
 \section{Determinant method}\label{s:det}
@@ -445,13 +458,14 @@ summing over the choices $x_i,y_i,z_i\in\Z$, with $i$ in $I,I',I''$.
 In this section we will record a bound for $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$ in~\eqref{eq:Bk} that proceeds via the determinant method of Bombieri-Pila~\cite{bp} and Heath-Brown~\cite{cime}. See~\cite{bl} for a gentle introduction to the determinant method.
 We first record a basic fact about the irreducibility of certain polynomials.
 
-\begin{lemma}\label{eis}
+\begin{lemma}\label{lem:EisensteinCrit}
 Let $r\geq 1$ and let $g\in \C[x]$ be a polynomial
 which has at least one root of multiplicity $1$.
 Then the polynomial $g(x)-y^r$ is absolutely irreducible.
 \end{lemma}
 
 \begin{proof}
+  \proves{lem:EisensteinCrit}
 We may assume a factorisation
  $g(x)=l_1(x)^{e_1}\dots l_t(x)^{e_t}$, with
 pairwise non-proportional linear polynomials $l_1,\dots,l_t\in \C[x]$ and exponents $e_1,\dots,e_t\in \N$ such that
@@ -495,6 +509,8 @@ N(X,Y,Z)\ll_{\ve,D} Z (|a_1a_2a_3|XYZ)^\ve.
 
 
 \begin{proof}
+  \proves{lem:t15}
+  \uses{lem:EisensteinCrit}
 We fix a choice of non-zero integer $z\in [-Z,Z]$, of which there are $O(Z)$. When $z$ is fixed, the resulting equation defines a curve in $\mathbb{A}^2$ and we can hope to apply work of Bombieri-Pila~\cite[Theorem~4]{bp}, which would show that the equation has $O_{\ve,D}(\max(X,Y)^{\frac{1}{\max(p,q)}+\ve})$ integer solutions in the region $|x|\leq X$ and $|y|\leq Y$, where the implied constant only depends on $\ve$ and $D$. This is valid only when
 the curve is absolutely irreducible, which we claim is true when $z\neq 0$. But, for fixed $z\in \Z_{\neq 0}$ the
 polynomial $a_2y^q+a_3z^r$ has non-zero discriminant as a polynomial in $y$. Hence the claim follows from Lemma~\ref{eis}. Rather than appealing to Bombieri-Pila, however, we can get a sharper bound by using work of
@@ -533,6 +549,7 @@ B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) \ll
 
 \begin{proof}
   \proves{prop:DeterminantMethod}
+  \uses{lem:t15}
 Let $(x_1,\ldots, x_d,y_1,\ldots, y_d,z_1,\ldots, z_d)$ be a tuple counted by $B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z})$.
 For any integers $p,q\geq 1$, we fix all but $x_p$ and $y_q$ and apply
 the first part of Lemma~\ref{lem:t15}. This gives
