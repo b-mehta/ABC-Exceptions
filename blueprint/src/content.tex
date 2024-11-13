@@ -60,17 +60,17 @@ for any $\ve>0$.
 The primary goal of this paper is to give the first power-saving improvement over this simple bound for values of $\lambda$ close to $1$.
 
 
-\begin{theorem}\label{thm:ABCExceptions}
+\begin{theorem}\label{thm:ABCExceptionalBound}
   \uses{def:Nlambda}
 Let $\lambda\in (0, 1.001)$ be fixed. Then
 $N_\lambda(X)=O( X^{33/50})$.
 \end{theorem}
 
 Here we note that $33/50=0.66$. By comparison, the trivial bound in Proposition~\ref{prop:ABCTrivialBound} would give $N_1(X)=O(X^{0.66\bar{6}+\eps})$ and $N_{1.001}(X)=O(X^{0.6674})$.
-Moreover, we see that Theorem~\ref{thm:ABCExceptions} gives a power-saving when $\lambda\in (0.99,1.001)$. We emphasise that this power-saving represents a proof of concept of the methods; we expect that the exponent can be reduced with substantial computer assistance.
+Moreover, we see that Theorem~\ref{thm:ABCExceptionalBound} gives a power-saving when $\lambda\in (0.99,1.001)$. We emphasise that this power-saving represents a proof of concept of the methods; we expect that the exponent can be reduced with substantial computer assistance.
 
 
- Theorem~\ref{thm:ABCExceptions} also applies for $\lambda$ slightly greater than $1$,
+ Theorem~\ref{thm:ABCExceptionalBound} also applies for $\lambda$ slightly greater than $1$,
  which places it in the realm of a question by Mazur~\cite{mazur}.
 Given a fixed $\lambda>1$, he asked whether or not
 $ N_\lambda(X)$ has exact order
@@ -127,7 +127,7 @@ For example, it follows from work of Darmon and
 Granville~\cite{DG} that there are only finitely many coprime integer solutions to the Diophantine equation $x^p+y^q=z^r$, when $p,q,r\in \mathbb{N}$ are given and satisfy $1/p+1/q+1/r<1$.
 
 
-\section*{Proof outline} We now describe the main ideas behind the proof of Theorem~\ref{thm:ABCExceptions}. In terms of the counting function $S_{\alpha,\beta,\gamma}(X)$, our task is to show that whenever $\alpha,\beta,\gamma\in (0,1]$ satisfy $\alpha+\beta+\gamma\leq \lambda$, we have
+\section*{Proof outline} We now describe the main ideas behind the proof of Theorem~\ref{thm:ABCExceptionalBound}. In terms of the counting function $S_{\alpha,\beta,\gamma}(X)$, our task is to show that whenever $\alpha,\beta,\gamma\in (0,1]$ satisfy $\alpha+\beta+\gamma\leq \lambda$, we have
 $
 S_{\alpha,\beta,\gamma}(X)\ll X^{2\lambda/3-\eta},
 $
@@ -152,7 +152,7 @@ $[d]=\{1,\dots,d\}$. We denote by $\tau(n)=\sum_{d\mid n}1$ the divisor function
 
 We
  begin by noting that
-\begin{lemma}\label{lem:NlambdatoSabc}
+\begin{lemma}\label{lem:NlambdatoS}
   \uses{defNlambda, defSabc}
 We have
 \begin{equation}\label{eq:step1}
@@ -161,7 +161,7 @@ N_\lambda(X)\leq \max_{\substack{
 \end{equation}
 \end{lemma}
 \begin{proof}
-\proves{lem:NlambdatoSabc}
+\proves{lem:NlambdatoS}
 \end{proof}
 Let us define a variant of $S_{\alpha,\beta,\gamma}(X)$
 \begin{definition}\label{def:Sstar}
@@ -185,7 +185,7 @@ S_{\alpha,\beta,\gamma}(X)\ll (\log X)^4\max_{\substack{\alpha'\leq \alpha\\\bet
 \end{proof}
 
 
-\begin{theorem}\label{thm:BdExceptions}
+\begin{theorem}\label{thm:BdExceptionalBound}
   \uses{def:BdDiophantineCount}
   There exists $\eps>0$ such that for all
   $\mathbf{c}\in \mathbb{Z}^3$ and $\mathbf{X},\mathbf{Y},\mathbf{Z}\in \mathbb{R}_{>0}^{d}$. we have
@@ -197,9 +197,9 @@ B_d({\bf c, X,Y,Z}) \ll  X^{0.66-\eps}.
 \uses{ABCExponentNu}
 \end{proof}
 
-\begin{proof}[Proof of Theorem \ref{thm:ABCExceptions}]
-  \proves{thm:ABCExceptions}
-  \uses{thm:BdExceptions,lem:StoSstar,lem:NlambdatoSabc}
+\begin{proof}[Proof of Theorem \ref{thm:ABCExceptionalBound}]
+  \proves{thm:ABCExceptionalBound}
+  \uses{thm:BdExceptionalBound, lem:StoSstar, lem:NlambdatoS}
   \end{proof}
 
 
@@ -258,8 +258,9 @@ for positive integers $x_j,c$ such that $c\leq X^{\varepsilon/2}$, the $x_j$ are
 X^{-\varepsilon}\prod_{j\leq 10\varepsilon^{-2}}x_j \leq \rad(n) \leq X^{\varepsilon}\prod_{j\leq 10\varepsilon^{-2}}x_j.
 \end{align*}
 \end{lemma}
-
-\begin{proof} Fix $2\le n\le X$ and let $K=2\lceil \varepsilon^{-1}\rceil$, $M=\lfloor 10\varepsilon^{-2}\rfloor$. Define
+\begin{proof}
+  \proves{lem:DiophantineFactor}
+  Fix $2\le n\le X$ and let $K=2\lceil \varepsilon^{-1}\rceil$, $M=\lfloor 10\varepsilon^{-2}\rfloor$. Define
 \begin{align*}
 y_j:=\prod_{p^j\|n} p.
 \end{align*}
@@ -671,7 +672,7 @@ from which the statement easily follows.
 \section{Preliminaries}
 
 Throughout this section, let $\varepsilon>0$ be small but fixed.
-We now have everything in place to prove Theorem~\ref{thm:ABCExceptions} for any
+We now have everything in place to prove Theorem~\ref{thm:ABCExceptionalBound} for any
 \[
 \lambda\in (0,1+\delta-\eps).
 \]
@@ -687,7 +688,7 @@ for any $\alpha,\beta,\gamma$ such that
 \end{equation}
 The following result allows us to limit the range of $\alpha,\beta,\gamma$ under consideration.
 
-\begin{proposition}\label{prop:simple}
+\begin{proposition}\label{prop:TrivialBoundforSstar}
 \uses{def:Sstarabc}
 Let $\alpha,\beta,\gamma>0$, and let $\varepsilon>0$ be fixed. Then
 \[
@@ -697,8 +698,8 @@ unless $\min\{\alpha+\beta, \beta+\gamma,\gamma+\alpha\}\geq 0.66-\varepsilon^2$
 \end{proposition}
 
 \begin{proof}
-\proves{prop:simple}
-\uses{prop:TrivialBdforS}
+\proves{prop:prop:TrivialBoundforSstar}
+\uses{prop:TrivialBoundforS}
 This is an immediate consequence of~\eqref{eq:trivial} (with $\varepsilon^2/2$ in place of $\varepsilon$).
 \end{proof}
 
@@ -733,7 +734,7 @@ for $1\leq i\leq d$, and $a_i=b_i=c_i=0$ for $i>d$.
 \uses{prop:DiophantineReduction}
 \end{proof}
 In particular, in the light of~\eqref{eq:goat} and
- Proposition~\ref{prop:simple}, we
+ Proposition~\ref{prop:prop:TrivialBoundforSstar}, we
 may henceforth assume that
 \begin{lemma} \label{lem:Trivialaibici}
 We have
@@ -743,7 +744,7 @@ We have
 \end{equation}
 \end{lemma}
 \begin{proof}
-\uses{prop:simple}
+\uses{prop:prop:TrivialBoundforSstar}
 \end{proof}
 and
 \begin{equation}\label{eq:oat3}
@@ -767,7 +768,7 @@ Before proceeding to the main tools that we shall use to estimate $\nu$, we firs
 0.32 - \delta \leq \sum_{i\leq d} a_i ,~ \sum_{i\leq d} b_i ,~ \sum_{i\leq d} c_i \leq 0.34 + \delta-
 \frac{1}{2}\ve,
 \end{equation}
-using the argument of Proposition~\ref{prop:simple}. Indeed, suppose that
+using the argument of Proposition~\ref{prop:TrivialBoundforSstar}. Indeed, suppose that
 $\sum_{i\leq d} c_i> 0.34 + \delta-\varepsilon/2$. Then~\eqref{eq:oat3} implies that
  \[
  \sum_{i\leq d} (a_i + b_i)<
@@ -1394,8 +1395,8 @@ We have $\nu \le 0.66$.
 \end{proof}
 
 
-\begin{proof}[Proof of Theorem \ref{thm:BdExceptions}]
-\proves{thm:BdExceptions}
+\begin{proof}[Proof of Theorem \ref{thm:BdExceptionalBound}]
+\proves{thm:BdExceptionalBound}
 \uses{thm:ABCExponentNu, prop:DiophantineReduction, def:nu, def:BdDiophantineCount}
 \end{proof}
 
