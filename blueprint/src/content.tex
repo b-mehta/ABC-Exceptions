@@ -24,10 +24,8 @@ The best unconditional result is due to Stewart and Yu~\cite{styu}, who have sho
 In this paper we shall focus on counting the number $N_\lambda(X)$ of $abc$ triples of exponent $\lambda$ in a box $[1,X]^3$, as $X\to \infty$.
 
 \begin{definition}\label{def:Nlambda}
-For $\lambda>0$ define $N_\lambda(X)$ as the number of triples $(a,b,c)\in \N^3$ with $\gcd(a,b,c)=1$ and
-\begin{align*}
-  a+b=c,\quad \rad(abc) < c^{\lambda}.
-  \end{align*}
+For $\lambda>0$ define $N_\lambda(X)$ as the number of triples $(a,b,c)\in \N^3$ with $a+b=c$, $\gcd(a,b,c)=1$ and
+$\rad(abc) < c^{\lambda}$.
 \end{definition}
 
 Given $\lambda>0$,
@@ -186,15 +184,7 @@ S_{\alpha,\beta,\gamma}(X)\ll (\log X)^4\max_{\substack{\alpha'\leq \alpha\\\bet
 \begin{proof}
 \proves{lem:StoSstar}
 \end{proof}
-Hence, in the rest of the paper we are concerned with showing
 
-\begin{theorem}\label{thm:SstarExceptions}
-  \uses{def:Sstar}
-\begin{align}\label{eq:S*}
-S^{*}_{\alpha,\beta,\gamma}(X)\ll \frac{X^{0.66}}{(\log X)^4}.
-\end{align}
-\end{theorem}
-Moreover, $S^*_{\alpha,\beta,\gamma}(X)\leq S_{\alpha,\beta,\gamma}(X)$ and so~\eqref{eq:trivial} equally applies to $S^*_{\alpha,\beta,\gamma}(X)$.
 
 \begin{theorem}\label{thm:BdExceptions}
   \uses{def:BdDiophantineCount}
@@ -723,7 +713,7 @@ In the light of Proposition~\ref{prop:DiophantineReduction} (with $\ve^2$ in pla
  $ satisfy~\eqref{eq:goat}.
 
 It will be convenient to define
-\begin{definition} \label{def:ai}
+\begin{definition} \label{def:aibici}
 Define $a_i,b_i,c_i\in \R_{>0}$ via
 \[
 X_i=X^{a_i}, \quad Y_i=X^{b_i}, \quad Z_i=X^{c_i},
@@ -731,13 +721,15 @@ X_i=X^{a_i}, \quad Y_i=X^{b_i}, \quad Z_i=X^{c_i},
 for $1\leq i\leq d$, and $a_i=b_i=c_i=0$ for $i>d$.
 \end{definition}
  Then it follows from~\eqref{eq:xiyizi_2} that
-\begin{lemma}\label{lem:aiconstraints}
+\begin{lemma}\label{lem:aibiciconstraints}
+  \uses{def:aibici}
 \begin{equation}\label{eq:oat1}
 \sum_{i\leq d} ia_i \leq 1, \quad \sum_{i\leq d} ib_i \leq 1, \quad 1-\ve^2\leq \sum_{i\leq d} ic_i \leq 1.
 \end{equation}
 \end{lemma}
 \begin{proof}
-\proves{lem:aiconstraints}
+\proves{lem:aibiciconstraints}
+\uses{prop:DiophantineReduction}
 \end{proof}
 In particular, in the light of~\eqref{eq:goat} and
  Proposition~\ref{prop:simple}, we
