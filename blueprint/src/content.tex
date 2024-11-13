@@ -103,7 +103,7 @@ for any $\ve>0$.
 \end{lemma}
 \begin{proof}
 \proves{lem:TrivialBdforS}
-\uses{thm:deBruijnRadical}
+\uses{lem:deBruijnRadical}
 \end{proof}
 
 
@@ -203,7 +203,8 @@ Moreover, $S^*_{\alpha,\beta,\gamma}(X)\leq S_{\alpha,\beta,\gamma}(X)$ and so~\
 
 
 The following result allows us to bound $S^*_{\alpha,\beta,\gamma}(X)$
-in terms of the number of solutions to certain monomial Diophantine equations. In order to state it, we need to introduce the quantity
+in terms of the number of solutions to certain monomial Diophantine equations. In order to state it, we need to introduce the quantity $B_d$
+\begin{definition}\label{def:BdDiophantineCount}
 \begin{equation}\label{eq:Bk}
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) := \#\left\{(\mathbf{x},\mathbf{y},\mathbf{z})\in \mathbb{N}^{3d}\;:\;
 \begin{array}{l}
@@ -215,11 +216,13 @@ c_3\prod_{j\leq d}z_j)=1
 \right\},
 \end{equation}
 for $\mathbf{c}\in \mathbb{Z}^3$ and $\mathbf{X},\mathbf{Y},\mathbf{Z}\in \mathbb{R}_{>0}^{d}$.
+\end{definition}
 
 
 
 
 \begin{proposition}\label{prop:DiophantineReduction}
+  \uses{def:BdDiophantineCount, def:Sstar}
 Let $\alpha,\beta,\gamma\in (0,1]$ be fixed and let $X\geq 2$. For any $\varepsilon>0$ there exists an integer $d=d(\varepsilon)\geq 1$ such that the following holds.
 There exist $X_1,\ldots, X_d,Y_1,\ldots, Y_d, Z_1,\ldots, Z_d\geq 1$ satisfying
 \begin{align}\label{eq:xiyizi_1}
@@ -236,6 +239,9 @@ and pairwise coprime integers $1\leq c_1,c_2,c_3\leq X^{\varepsilon}$, such that
 S^*_{\alpha,\beta,\gamma}(X) \ll_{\varepsilon} X^{\varepsilon}B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}).
 \end{align*}
 \end{proposition}
+\begin{proof}
+\proves{prop:DiophantineReduction}
+\end{proof}
 
 
 Proposition~\ref{prop:DiophantineReduction} is based on the following factorisation of an integer as a product of powers.
