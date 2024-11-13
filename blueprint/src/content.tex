@@ -23,31 +23,48 @@ The well-known $abc$ conjecture of Masser and Oesterl\'e asserts that, for any $
 The best unconditional result is due to Stewart and Yu~\cite{styu}, who have shown that finitely many $abc$ triples satisfy $\rad(abc) < (\log c)^{3-\eps}$. Recently, Pasten~\cite{hector} has proved a new subexponential bound, assuming that $a<c^{1-\eps}$, via a connection to Shimura curves.
 In this paper we shall focus on counting the number $N_\lambda(X)$ of $abc$ triples of exponent $\lambda$ in a box $[1,X]^3$, as $X\to \infty$.
 
+\begin{definition}\label{def:Nlambda}
+For $\lambda>0$ define $N_\lambda(X)$ as the number of triples $(a,b,c)\in \N^3$ with $\gcd(a,b,c)=1$ and
+\begin{align*}
+  a+b=c,\quad \rad(abc) < c^{\lambda}.
+  \end{align*}
+\end{definition}
+
 Given $\lambda>0$,
 an old result of
 de Bruijn~\cite{debruijn} implies that
+
+\begin{lemma}\label{lem:deBruijnRadical}
 \begin{equation}\label{eq:bruijn}
 \#\left\{n\leq x : \rad(n)\leq x^\lambda\right\}=O_\ve(x^{\lambda+\ve}),
 \end{equation}
-for any $\ve>0$. Any triple $(a,b,c)$ counted by
+for any $\ve>0$.
+\end{lemma}
+Any triple $(a,b,c)$ counted by
 $N_\lambda(X)$ must satisfy $\rad(abc)< X^{\lambda}$, and so
 we must have
 $\min\{\rad(a)\rad(b),\rad(b)\rad(c),\rad(c)\rad(a)\}< X^{2\lambda/3}$, since $a,b,c$ are pairwise coprime.
 An application of~\eqref{eq:bruijn} now leads to the following ``trivial bound''.
 
 \begin{proposition}\label{prop:TrivialBound}
+  \uses{def:Nlambda}
 Let $\lambda>0$. Then
 $
 N_\lambda(X)=O_\ve( X^{2\lambda/3+\ve}),
 $
 for any $\ve>0$.
 \end{proposition}
+\begin{proof}
+\proves{prop:TrivialBound}
+\uses{lem:deBruijnRadical}
+\end{proof}
 
 
 The primary goal of this paper is to give the first power-saving improvement over this simple bound for values of $\lambda$ close to $1$.
 
 
 \begin{theorem}\label{thm:abc}
+  \uses{def:Nlambda}
 Let $\lambda\in (0, 1.001)$ be fixed. Then
 $N_\lambda(X)=O( X^{33/50})$.
 \end{theorem}
@@ -63,8 +80,10 @@ $ N_\lambda(X)$ has exact order
  $ X^{\lambda-1}$.
  In fact, Mazur studies
  the refined counting function
- $S_{\alpha,\beta,\gamma}(X)$
- for $\alpha,\beta,\gamma>0$, which denotes the number of
+
+\begin{definition}\label{def:Sabc}
+For $\alpha,\beta,\gamma>0$, define $S_{\alpha,\beta,\gamma}(X)$
+as the number of
  $(a,b,c)\in \N^3$
 with $\gcd(a,b,c)=1$ such that
  \[
@@ -72,11 +91,23 @@ with $\gcd(a,b,c)=1$ such that
  \rad(b)\leq b^\beta, \quad
  \rad(c)\leq c^\gamma.
  \]
+\end{definition}
+
 The argument used to prove Proposition~\ref{prop:TrivialBound} readily yields
+
+\begin{lemma}\label{lem:TrivialBdforS}
 \begin{equation}\label{eq:trivial}
  S_{\alpha,\beta,\gamma}(X)\ll_\ve X^{\min\{\alpha+\beta , \alpha+\gamma , \beta+\gamma\}+\ve},
 \end{equation}
-for any $\ve>0$. Mazur then asks whether
+for any $\ve>0$.
+\end{lemma}
+\begin{proof}
+\proves{lem:TrivialBdforS}
+\uses{prop:TrivialBound}
+\end{proof}
+
+
+Mazur then asks whether
  $S_{\alpha,\beta,\gamma}(X)$ has order $X^{\alpha+\beta+\gamma-1}$
 if $\alpha+\beta+\gamma>1$.
 Evidence towards this has been provided by Kane~\cite[Theorems~1 and 2]{kane}, who proves that
