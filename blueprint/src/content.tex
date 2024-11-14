@@ -567,6 +567,9 @@ Bombieri--Pila \cite[Theorem 4]{bp}
     \ll_d (\log N)^{O(N)} N^{1/d}
   \end{align*}
 \end{theorem}
+\begin{proof}
+\proves{}
+\end{proof}
 
 Heath-Brown Theorem 15
 
@@ -589,6 +592,9 @@ Heath-Brown Theorem 15
   with $\deg F_i \le D$, such that every root of $F(x_1 ,\ldots, x_n)=0$ with $x_i \le B_i$
   is also a root of $F_j(x_1 ,\ldots, x_n)=0$, for some $j\le k$.
 \end{theorem}
+\begin{proof}
+  \proves{thm:HeathBrownpadicDet}
+\end{proof}
 
 \begin{theorem} \label{thm:HeathBrownQuadraticForms}
   Given integers $n,a_1,a_2\neq0$, there are
@@ -598,6 +604,9 @@ Heath-Brown Theorem 15
     n = a_1 x_1^2 + a_2 x_2^2.
   \end{align*}
 \end{theorem}
+\begin{proof}
+  \proves{thm:HeathBrownQuadraticForms}
+\end{proof}
 
 \begin{theorem} \label{thm:BombierSchmidtforThueEqs}
   \uses{def:omega}
@@ -608,15 +617,21 @@ Heath-Brown Theorem 15
     n = a_1 x_1^p + a_2 x_2^p.
   \end{align*}
 \end{theorem}
+\begin{proof}
+  \proves{thm:BombierSchmidtforThueEqs}
+\end{proof}
 
 
 \begin{definition}\label{def:omega}
 Let $\omega(n)$ denote the number of distinct prime factors of an integer $n$.
 \end{definition}
 
-\begin{lemma} \label{lem:omegaUpperBound}
+\begin{lemma} \label{lem:omegaUpperBound} \uses{def:omega}
 For any $n\ge2$, we have $\omega(n) \ll \log(3n)/\log\log(3n)$.
 \end{lemma}
+\begin{proof}
+  \proves{lem:omegaUpperBound}
+\end{proof}
 
 \begin{lemma}\label{lem:MixedDetMethods}
 Let $\eps>0$ and $D\geq 1$ and
@@ -631,8 +646,6 @@ then we have
 N(X,Y,Z)\ll_{\ve,D} Z (|a_1a_2a_3|XYZ)^\ve.
 \]
 \end{lemma}
-
-
 \begin{proof}
   \proves{lem:MixedDetMethods}
   \uses{lem:EisensteinCrit,thm:BombieriPilaforDet,thm:HeathBrownpadicDet}
