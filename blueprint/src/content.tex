@@ -273,7 +273,7 @@ as claimed.
 \end{proof}
 
 \begin{proposition}\label{prop:DiophantineReduction}
-  %\uses{def:BdDiophantineCount, def:Sstar}
+  \uses{def:BdDiophantineCount, def:Sstar}
 Let $\alpha,\beta,\gamma\in (0,1]$ be fixed and let $X\geq 2$. For any $\varepsilon>0$ there exists an integer $d=d(\varepsilon)\geq 1$ such that the following holds.
 There exist $X_1,\ldots, X_d,Y_1,\ldots, Y_d, Z_1,\ldots, Z_d\geq 1$ satisfying
 \begin{align}\label{eq:xiyizi_1}
@@ -290,13 +290,10 @@ and pairwise coprime integers $1\leq c_1,c_2,c_3\leq X^{\varepsilon}$, such that
 S^*_{\alpha,\beta,\gamma}(X) \ll_{\varepsilon} X^{\varepsilon}B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}).
 \end{align*}
 \end{proposition}
-\begin{proof}
-\proves{prop:DiophantineReduction}
-\uses{lem:DiophantineFactor,def:BdDiophantineCount, def:Sstar}
-\end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:DiophantineReduction}]
   \proves{prop:DiophantineReduction}
+  \uses{lem:DiophantineFactor}
   We may assume that $X$ is large enough in terms of $\varepsilon$, since otherwise the claim is trivial. Let $(a,b,c)$ be a triple counted by $S^*_{\alpha,\beta,\gamma}(X)$. Apply Lemma~\ref{lem:DiophantineFactor} (with $\varepsilon^2/2$ in place of $\varepsilon$) to each of $a,b,c$ to obtain factorisations of the form
 \begin{align*}
 a=c_1\prod_{j\leq d}x_j^j,\quad b=c_2\prod_{j\leq d}y_j^j,\quad c=c_3\prod_{j\leq d}z_j^j,
