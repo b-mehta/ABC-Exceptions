@@ -573,45 +573,74 @@ lemma subcase_1_point_1
     (h43bc : Bound4Point3 d ε b c)
     (hd : 4 ≤ d)
     (hν : 0.66 < ν)
-    (hδ₀ : 0 ≤ δ)
-    (hδ : δ ≤ 0.001)
-    (hbc : c 3 ≤ b 3)
+    (hδ : δ ≤ 0.003)
+    (hcb : c 3 ≤ b 3)
     (hs₂ : 0.3 ≤ s 2)
-    (hb₃ : b 3 ≤ 0.34 - s 1 - s 2 + δ)
-    (hε : ε ≤ 1 / 1000000)
-    (hε₀ : 0 < ε) :
+    (hε : ε ≤ 1 / 10000)
+    (hε₀ : 0 < ε)
+    (hb₃ : b 3 ≤ 0.34 - s 1 - s 2 + δ) :
     False := by
-  have h₁ : b 3 + c 3 ≤ 0.33 - 1 / 2 * s 2 - 1 / 2* δ := by
-    linear_combination hbc + 2 * hb₃ + 2 * s_nonneg ha hb hc 1 + 3 / 2 * hs₂ + 5 / 2 * hδ
+  -- We have an upper bound on b₃ + c₃
+  have h₁ : b 3 + c 3 ≤ 0.33 - 1 / 2 * s 2 - 1 / 2 * δ := by
+    linear_combination hcb + 2 * hb₃ + 2 * s_nonneg ha hb hc 1 + 3 / 2 * hs₂ + 5 / 2 * hδ
   have hbcs : b 3 + c 3 ∈ SubSums 3 a b c := by simp [SubSums]
+  -- From 4.17, the upper bound strengthens
   have h₂ : b 3 + c 3 < 0.34 - s 1 - s 2 + δ := by
     simpa [h₁.not_lt, -one_div] using bound_4_point_17_aux1 hg hbcs hν (by omega)
-  have hs3 : a 3 = s 3 - (b 3 + c 3) := by rw [s_apply]; ring
-  have hδ' : δ ≤ 0.06 := by linear_combination hδ
-  have := bound_4_point_14_two_four ha hb hc htab htac htbc hd hν
+  -- Collect applications of earlier inequalities
+  have h_4_20 : 1 - 5 / 2 * δₛ - 2 * s 1 - 3 / 2 * s 2 - 1 / 2 * s 4 ≤ s 3 :=
+    bound_4_point_20 ha hb hc hd
+  have h_4_21 : s 1 ≤ 0.04 + δ :=
+    bound_4_point_21 ha hb hc htab htac htbc hg hν hs₂ (by linear_combination hδ) (by omega)
+  have h_4_14 : s 2 + s 4 < 0.51 + 1.5 * δ :=
+    bound_4_point_14_two_four ha hb hc htab htac htbc hd hν
+
+  -- Combine the above facts to deduce a lower bound on a₃
+  have h₃ : 0.365 - 5 / 2 * δₛ - 11 / 4 * δ ≤ a 3 := calc
+    _ ≤ s 3 - (b 3 + c 3) := by linear_combination h_4_20 + h_4_21 + (1 / 2) * h_4_14 + h₂
+    _ = a 3 := by simp [s_apply]
+
+  -- We have a simple upper bound on a₃ in terms of δₐ
+  have h₄ : a 3 ≤ 1 / 3 - δ_ d a := calc
+    a 3 ≤ ∑ i ≤ d, a i := Finset.single_le_sum (fun i hi ↦ ha.nonneg i) (by simp; omega)
+    _ = 1 / 3 - δ_ d a := sum_eq_δ_ _ _
+
   have i : δₛ = δ_ d a + δ_ d b + δ_ d c := by simp [δₛ_eq]
-  have h₃ : 0.365 - (5 / 2) * δₛ - 3 * δ ≤ a 3 := calc
-    _ ≤ 0.66 - 5 / 2 * δₛ - s 1 - 1 / 2 * s 2 - 1 / 2 * s 4 - δ := by
-      linear_combination 1 / 2 * this + 1 / 4 * hδ₀ +
-        bound_4_point_21 ha hb hc htab htac htbc hg hν hs₂ hδ' (by omega)
-    _ ≤ a 3 := by
-        linear_combination h₂ - hs3 + bound_4_point_20 ha hb hc hd
-  have h₄ : a 3 ≤ 1 / 3 - δ_ d a := by
-    rw [← sum_eq_δ_]
-    apply Finset.single_le_sum
-    · intro i hi
-      apply ha.nonneg i
-    · simp
-      omega
-  have hbc := bound_4_point_8 h43bc
-  have h₅ := bound_4_point_10_upper hε₀ (by linarith only [hε]) h43ab h43ac h43bc
-  have h₆ : (0.365 - 1 / 3) ≤ (3 / 2) * δₛ + δ_ d b + δ_ d c + 3 * δ := by
+  -- Combining the bounds on a₃, we derive the following inequality
+  replace h₄ : 0.365 - 1 / 3 ≤ 3 / 2 * δₛ + δ_ d b + δ_ d c + 11 / 4 * δ := by
     linear_combination h₃ + h₄ + i
+
+  -- But this inequality is easily contradicted by 4.8 and 4.10
+  have h_4_8 := bound_4_point_8 h43bc
+  have h_4_10 := bound_4_point_10_upper hε₀ (by linear_combination hε) h43ab h43ac h43bc
   have : ε ^ 2 ≤ ε := by nlinarith only [hε₀, hε]
-  have : (3 / 2) * δₛ + δ_ d b + δ_ d c + 3 * δ < 0.0247 := by
-    linear_combination (3 / 2) * h₅ + hbc + 3 * hδ + this + 5 / 2 * hε
-  norm_num1 at h₆ this
-  linarith only [h₆, this]
+
+  have : 3 / 2 * δₛ + δ_ d b + δ_ d c + 11 / 4 * δ < 0.365 - 1 / 3 := by
+    linear_combination (3 / 2) * h_4_10 + h_4_8 + this + (11 / 4) * hδ + (5 / 2) * hε
+
+  exact h₄.not_lt this
+
+include hg in
+lemma bound_4_point_22
+    (hd : 3 ≤ d)
+    (hν : 0.66 < ν)
+    (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) :
+    0.33 - 1 / 2 * s 2 - 1 / 2 * δ < b 3 := by
+  have hbcs : b 3 ∈ SubSums 3 a b c := by simp [SubSums]
+  simpa [hb₃.le] using bound_4_point_17_aux1 hg hbcs hν (by omega)
+
+-- include ha hb hc hg htab htac htbc hg in
+lemma subcase_1_point_2
+    (hd : 4 ≤ d)
+    (hν : 0.66 < ν)
+    (hδ : δ ≤ 0.003)
+    (hcb : c 3 ≤ b 3)
+    (hba : b 3 ≤ a 3)
+    (hs₂ : 0.3 ≤ s 2)
+    (hb₃ : 0.34 - s 1 - s 2 + δ < b 3)
+    (hε₀ : 0 < ε) :
+    False :=
+  sorry
 
 lemma case_1
     (hν : 0.66 < ν)
@@ -619,11 +648,92 @@ lemma case_1
     False := by
   sorry
 
+include ha hb htab in
+lemma bound_4_point_24
+    (hd : 3 ≤ d)
+    (hν : 0.66 < ν)
+    (h : b 3 ≤ a 3) :
+    b 3 < 0.17 + 1 / 2 * δ := by
+  linear_combination 1 / 2 * h + 1 / 2 * bound_4_point_12 ha hb htab 3 (by simp; omega) hν
+
+include ha hb hc hg htab in
+lemma bound_4_point_25
+    (hd : 3 ≤ d)
+    (hν : 0.66 < ν)
+    (hba : b 3 ≤ a 3)
+    (hcb : c 3 ≤ b 3)
+    (hs₂ : s 2 < 0.3)
+    (hδ : δ ≤ 0.001) :
+    0.32 - 4 * δₛ - s 1 - 2 * δ ≤ a 3 := by
+  have h₁ : b 3 < 0.33 - 1 / 2 * s 2 - 1 / 2 * δ := calc
+    b 3 < 0.17 + (1 / 2) * δ := bound_4_point_24 ha hb htab hd hν hba
+    _ ≤ 0.33 - 1 / 2 * s 2 - 1 / 2 * δ := by linear_combination 1 / 2 * hs₂ + hδ
+  have hb3 : b 3 ∈ SubSums 3 a b c := by simp [SubSums]
+  have h₂ : b 3 < 0.34 - s 1 - s 2 + δ := by
+    simpa [h₁.not_lt, -one_div] using bound_4_point_17_aux1 hg hb3 hν hd
+  have h₃ : c 3 < 0.34 - s 1 - s 2 + δ := hcb.trans_lt h₂
+  have : a 3 + b 3 + c 3 = s 3 := rfl
+  linear_combination h₂ + h₃ + bound_4_point_19 ha hb hc hd - this
+
+lemma case_2_subcase_1
+    (hν : 0.66 < ν)
+    (hs₂ : s 2 < 0.3)
+    (h : 0.32 ≤ a 3) :
+    False := by
+  sorry
+
+lemma case_2_subcase_2
+    (hν : 0.66 < ν)
+    (hs₂ : s 2 < 0.3)
+    (h : b 3 + c 3 < 0.33 - 1 / 2 * s 2 - 1 / 2 * δ) :
+    False := by
+  sorry
+
+lemma case_2_subcase_3
+    (hν : 0.66 < ν)
+    (hs₂ : s 2 < 0.3)
+    (h : 0.71 < 4 * s 1 + 3 * s 2) :
+    False := by
+  sorry
+
+lemma case_2_subcase_4
+    (hν : 0.66 < ν)
+    (hs₂ : s 2 < 0.3)
+    (h : 4 * s 1 + s 2 < 0.4) :
+    False := by
+  sorry
+
+lemma case_2_subcase_5
+    (hν : 0.66 < ν)
+    (hs₂ : s 2 < 0.3)
+    (h : s 2 ∈ Icc 0.066 0.204) :
+    False := by
+  sorry
+
+lemma case_2_subcase_6
+    (hν : 0.66 < ν)
+    (hs₂ : s 2 < 0.3)
+    (h : 0.024 < 2 * s 1 - s 2) :
+    False := by
+  sorry
+
 lemma case_2
     (hν : 0.66 < ν)
     (hs₂ : s 2 < 0.3) :
     False := by
-  sorry
+  suffices (0.71 < 4 * s 1 + 3 * s 2) ∨ (4 * s 1 + s 2 < 0.4) ∨
+      (s 2 ∈ Icc 0.066 0.204) ∨ (0.024 < 2 * s 1 - s 2) by
+    obtain h | h | h | h := this
+    · apply case_2_subcase_3 hν hs₂ h
+    · apply case_2_subcase_4 hν hs₂ h
+    · apply case_2_subcase_5 hν hs₂ h
+    · apply case_2_subcase_6 hν hs₂ h
+  by_contra! h
+  simp only [mem_Icc, not_and_or, not_le] at h
+  obtain ⟨h₁, h₂, (h₃ | h₃), h₄⟩ := h
+  all_goals
+    norm_num1 at *
+    linarith +splitHypotheses
 
 include a b c in
 theorem thm_4_point_3 : ν ≤ 0.66 := by
