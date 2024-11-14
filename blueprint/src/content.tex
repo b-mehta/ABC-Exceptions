@@ -543,7 +543,6 @@ $g(x)-y^r$ is irreducible over $ \C$, as claimed in the lemma.
 
 
 
-
 Let $p,q,r$ be positive integers and let $a_1,a_2,a_3\in \Z_{\neq 0}$.
 We shall require a good upper bound for the counting function
 \[
@@ -558,25 +557,65 @@ a_1x^p+a_2 y^q+a_3 z^r=0
 \]
 for given $X,Y,Z\geq 1$. This is achieved in the following result.
 
-
+Bombieri--Pila \cite[Theorem 4]{bp}
 \begin{theorem} \label{thm:BombieriPilaforDet}
-We have
+  Let $f(x)$ be a $C^\infty$ function on a closed subinterval of $[0,N]$,
+  and suppose that$F (x, f ) = 0$, where $F(x, y) \in \R[x, y]$ is absolutely irreducible of degree $d \ge 2$.
+  Suppose that $|f'(x)| \le 1$. Then
+  \begin{align*}
+    \#\{(x,f(x))\in \{1,\ldots,N\}^2 \}
+    \ll_d (\log N)^{O(N)} N^{1/d}
+  \end{align*}
 \end{theorem}
 
+Heath-Brown Theorem 15
+
 \begin{theorem} \label{thm:HeathBrownpadicDet}
-  We have
+  Let $F\in \Z[x_1 ,\ldots, x_n]$ be an absolutely irreducible polynomial of degree $d$,
+  and let $\eps > 0$ and $B_1,\ldots,B_n \ge 1$ be given. Define
+  \begin{align*}
+    B = \max_{(e_1,\ldots,e_n)}\Big( \prod_{i\le n} B_i^{e_i} \Big)
+  \end{align*}
+  where the maximum is taken over all integer $n$-tuples $(e_1,\ldots,e_n)$ for which the
+  corresponding monomial $x_1^{e_1}\cdots x_n^{e_n}$ occurs in $F$ with non-zero coefficient.
+
+  Then there exists $D = D(n,d,\eps)$ and an integer $k$ with
+  \begin{align*}
+    k \ll_{n,d,\eps}  T^\eps (\log \|F\|)^{2n-3}
+    \exp\Big((n-1)\Big(\frac{\prod_{i\le n}\log B_i}{\log B}\Big)^{1/(n-1)}\Big)
+  \end{align*}
+  satisfying the following:
+  There are $k$ polynomials $F_1,\ldots,F_k\in \Z[x_1 ,\ldots, x_n]$ coprime to $F$,
+  with $\deg F_i \le D$, such that every root of $F(x_1 ,\ldots, x_n)=0$ with $x_i \le B_i$
+  is also a root of $F_j(x_1 ,\ldots, x_n)=0$, for some $j\le k$.
 \end{theorem}
 
 \begin{theorem} \label{thm:HeathBrownQuadraticForms}
-  We have
+  Given integers $n,a_1,a_2\neq0$, there are
+  at most $O_{\eps,D}(|na_1a_2 X_1 X_2|^{\eps})$ many solutions
+  $(x_1,x_2)\in\Z^2$ such that $|x_i|\le X_i$ and
+  \begin{align*}
+    n = a_1 x_1^2 + a_2 x_2^2.
+  \end{align*}
 \end{theorem}
 
 \begin{theorem} \label{thm:BombierSchmidtforThueEqs}
-  We have
+  \uses{def:omega}
+  Given integers $n,a_1,a_2\neq0$ and $p\ge3$, there are
+  at most $O(p^{1+\omega(|n|)})$ many solutions
+  $(x_1,x_2)\in\Z^2$ such that $|x_i|\le X_i$ and
+  \begin{align*}
+    n = a_1 x_1^p + a_2 x_2^p.
+  \end{align*}
 \end{theorem}
 
+
+\begin{definition}\label{def:omega}
+Let $\omega(n)$ denote the number of distinct prime factors of an integer $n$.
+\end{definition}
+
 \begin{lemma} \label{lem:omegaUpperBound}
-We have
+For any $n\ge2$, we have $\omega(n) \ll \log(3n)/\log\log(3n)$.
 \end{lemma}
 
 \begin{lemma}\label{lem:MixedDetMethods}
