@@ -222,32 +222,6 @@ c_3\prod_{j\leq d}z_j)=1
 
 
 
-\begin{proposition}\label{prop:DiophantineReduction}
-  %\uses{def:BdDiophantineCount, def:Sstar}
-Let $\alpha,\beta,\gamma\in (0,1]$ be fixed and let $X\geq 2$. For any $\varepsilon>0$ there exists an integer $d=d(\varepsilon)\geq 1$ such that the following holds.
-There exist $X_1,\ldots, X_d,Y_1,\ldots, Y_d, Z_1,\ldots, Z_d\geq 1$ satisfying
-\begin{align}\label{eq:xiyizi_1}
-X^{\alpha-\varepsilon}\leq \prod_{j=1}^{d}X_j\leq X^{\alpha+\varepsilon},\quad
-X^{\beta-\varepsilon}\leq\prod_{j=1}^{d}Y_j\leq X^{\beta+\varepsilon},\quad
-X^{\gamma-\varepsilon}\leq\prod_{j=1}^{d}Z_j\leq X^{\gamma+\varepsilon}
-\end{align}
-and
-\begin{align}\label{eq:xiyizi_2}
-\prod_{j=1}^d X_j^j \leq X, \quad \prod_{j=1}^d Y_j^j\leq X,\quad X^{1-\varepsilon^2}\leq \prod_{j=1}^d Z_j^j\leq X
-\end{align}
-and pairwise coprime integers $1\leq c_1,c_2,c_3\leq X^{\varepsilon}$, such that
-\begin{align*}
-S^*_{\alpha,\beta,\gamma}(X) \ll_{\varepsilon} X^{\varepsilon}B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}).
-\end{align*}
-\end{proposition}
-\begin{proof}
-\proves{prop:DiophantineReduction}
-\uses{lem:DiophantineFactor,def:BdDiophantineCount, def:Sstar}
-\end{proof}
-
-
-Proposition~\ref{prop:DiophantineReduction} is based on the following factorisation of an integer as a product of powers.
-
 
 \begin{lemma}\label{lem:DiophantineFactor}
 Let $\varepsilon\in (0,1/2)$, and let $2\leq n\leq X$ be an integer. Then there exists a factorisation
@@ -296,6 +270,29 @@ Recalling that the $y_j$ are squarefree and pairwise coprime for $j\neq K$, give
 \rad(n)=\prod_{m\geq 1}y_m \geq \prod_{\substack{j\leq M\\j\neq K}}x_j\geq X^{-\varepsilon/2}\prod_{j\leq M}x_j,
 \]
 as claimed.
+\end{proof}
+
+\begin{proposition}\label{prop:DiophantineReduction}
+  %\uses{def:BdDiophantineCount, def:Sstar}
+Let $\alpha,\beta,\gamma\in (0,1]$ be fixed and let $X\geq 2$. For any $\varepsilon>0$ there exists an integer $d=d(\varepsilon)\geq 1$ such that the following holds.
+There exist $X_1,\ldots, X_d,Y_1,\ldots, Y_d, Z_1,\ldots, Z_d\geq 1$ satisfying
+\begin{align}\label{eq:xiyizi_1}
+X^{\alpha-\varepsilon}\leq \prod_{j=1}^{d}X_j\leq X^{\alpha+\varepsilon},\quad
+X^{\beta-\varepsilon}\leq\prod_{j=1}^{d}Y_j\leq X^{\beta+\varepsilon},\quad
+X^{\gamma-\varepsilon}\leq\prod_{j=1}^{d}Z_j\leq X^{\gamma+\varepsilon}
+\end{align}
+and
+\begin{align}\label{eq:xiyizi_2}
+\prod_{j=1}^d X_j^j \leq X, \quad \prod_{j=1}^d Y_j^j\leq X,\quad X^{1-\varepsilon^2}\leq \prod_{j=1}^d Z_j^j\leq X
+\end{align}
+and pairwise coprime integers $1\leq c_1,c_2,c_3\leq X^{\varepsilon}$, such that
+\begin{align*}
+S^*_{\alpha,\beta,\gamma}(X) \ll_{\varepsilon} X^{\varepsilon}B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}).
+\end{align*}
+\end{proposition}
+\begin{proof}
+\proves{prop:DiophantineReduction}
+\uses{lem:DiophantineFactor,def:BdDiophantineCount, def:Sstar}
 \end{proof}
 
 \begin{proof}[Proof of Proposition~\ref{prop:DiophantineReduction}]
