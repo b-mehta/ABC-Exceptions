@@ -38,6 +38,33 @@ For any $\ve>0$, we have
 \#\left\{n\leq x : \rad(n)\leq x^\lambda\right\} \ll_\ve x^{\lambda+\ve}.
 \end{equation}
 \end{lemma}
+\begin{proof}
+\proves{lem:deBruijnRadical}
+
+It suffices to show that for any integer $k\geq 2$ we have
+\begin{align}\label{eq1}
+|\{n\leq X:\,\, \rad(n)=k\}|\ll X^{O(1/\log \log X)}.
+\end{align}
+To prove \eqref{eq1}, write $k=p_1\cdots p_r$ as distinct primes $p_1<\cdots <p_r$. Then $\rad(n)=k$ implies that $n=p_1^{m_1}\cdots p_{r}^{m_r}$ for some integers $m_1,\ldots, m_r\geq 1$. Therefore, the number of $n\leq X$ in question is
+\begin{align*}
+ |\{n\leq X:\,\, \rad(n)=k\}| &\leq \sum_{m_1,\ldots, m_r\geq 1}\1_{\sum_{j\leq r}m_j(\log p_j)\leq \log X}\\
+ &\leq \sum_{m_1,\ldots, m_r\geq 1}\int_{\mathbb{R}^r}\1_{\sum_{j\leq r}t_j(\log p_j)\leq \log X}\1_{t_j\in (m_j-1,m_j]\, \forall j\leq r} \d t_1\cdots \d t_r\\
+ &=\textnormal{vol}\Big(\big\{(t_1,\ldots, t_r)\in \mathbb{R}_{\geq 0}^r:\,\, t_1(\log p_1)+\cdots +t_r(\log p_r)\leq \log X\big\}\Big)\\
+ &=(\log X)^re^{O(r)}r^{-r}\prod_{j=1}^r \frac{1}{\log p_j}
+\end{align*}
+by calculating the volume of a simplex. Moreover, we have
+\begin{align*}
+\prod_{j=1}^r \log p_j\geq \prod_{j=2}^{r+1}\log j=\exp\left(\sum_{j=2}^{r+1}\log \log j\right)\gg (\log r)^{r}e^{-O(r)}.
+\end{align*}
+Hence for some $C_0>1$
+\begin{align*}
+ |\{n\leq X:\,\, \rad(n)=k\}| \ll \left(\frac{C_0\log X}{r\log r}\right)^r\ll
+ \exp\Big(O\Big(\frac{\log X}{\log\log X}\Big)\Big),
+\end{align*}
+since $r=\omega(k)\leq (1+o(1))(\log X)/(\log \log X)$ by the prime number theorem.
+
+\end{proof}
+
 Any triple $(a,b,c)$ counted by
 $N_\lambda(X)$ must satisfy $\rad(abc)< X^{\lambda}$, and so
 we must have
@@ -593,7 +620,7 @@ Heath-Brown Theorem 15
   \proves{thm:HeathBrownpadicDet}
 \end{proof}
 
-\begin{theorem} \label{thm:HeathBrownQuadraticForms}
+\begin{theorem} \label{thm:QuadraticFormsEstimate}
   Given integers $n,a_1,a_2\neq0$, there are
   at most $O_{\eps,D}(|na_1a_2 X_1 X_2|^{\eps})$ many solutions
   $(x_1,x_2)\in\Z^2$ such that $|x_i|\le X_i$ and
@@ -602,7 +629,26 @@ Heath-Brown Theorem 15
   \end{align*}
 \end{theorem}
 \begin{proof}
-  \proves{thm:HeathBrownQuadraticForms}
+  \proves{thm:QuadraticFormsEstimate}
+  \uses{lem:DivisorBoundQuadField}
+  Suppose $n=a_1x_1^2+a_2x_2^2$. Then $a_1n=a_1^2x_1^2+a_1a_2x_2^2$.
+  Let $D$ be the squarefree part of $a_1a_2$. Then the number of solutions $(x_1,x_2)$
+   with $|x_i|\leq X_i$ to this equations is at most the number of solutions $(m_1,m_2)$
+    to $a_1n=m_1^2+Dm_2^2$ with $|m_i|\leq X_ia_1a_2$. For any such solution,
+    we have $m_1+\sqrt{-D}m_2\mid a_1n$ in $\mathbb{Q}(\sqrt{-D})$.
+    The claim follows from the divisor bound in quadratic fields, in Lemma \ref{lem:DivisorBoundQuadField}.
+\end{proof}
+
+\begin{lemma} \label{lem:DivisorBoundQuadField}
+  Let $\eps>0$. Let $D\ge1$ be a squarefree integer, and set $K=\mathbb{Q}(\sqrt{-D})$.
+  Then for all $\alpha\in K$, the number of ideals dividing $(\alpha)$ in $K$
+  is $O(N_\alpha^\eps)$.
+\end{lemma}
+\begin{proof}
+  \proves{lem:DivisorBoundQuadField}
+  mimicks the proof over the integers
+  using the fundamental theorem of arithmetic, but with ideals
+  [See link in comment] %% https://mathoverflow.net/questions/68437/the-divisor-bound-in-number-fields
 \end{proof}
 
 \begin{theorem} \label{thm:BombierSchmidtforThueEqs}
@@ -662,7 +708,7 @@ polynomial $a_2y^q+a_3z^r$ has non-zero discriminant as a polynomial in $y$. Hen
   where the implied constant only depends on $\ve$ and $D$.
   \end{lemma}
 \begin{proof}
-  \uses{thm:HeathBrownQuadraticForms,thm:BombierSchmidtforThueEqs,lem:omegaUpperBound}
+  \uses{thm:QuadraticFormsEstimate,thm:BombierSchmidtforThueEqs,lem:omegaUpperBound}
  Suppose now that $p=q\geq 2$. Then, for given $z\in \Z_{\neq 0}$, we are left with counting the number of integer solutions to the equation $N=a_1x^p+a_2y^p$, with $|x|,|y|\leq \max(X,Y)$, and
  where $N=-a_3z^r$. For $p=2$ this is a classical problem in quadratic forms. The
 bound $O_{\ve,D}((|a_1a_2N|XY)^\ve)$ follows from Heath-Brown~\cite[Theorem~3]{cubic}, for example.
