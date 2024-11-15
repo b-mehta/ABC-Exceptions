@@ -162,6 +162,10 @@ end
 def s (a b c : ℕ → ℝ) (i : ℕ) := a i + b i + c i
 local notation "s" => s a b c
 
+def M (a b: ℕ → ℝ) (i : ℕ) := max (a i) (b i)
+
+def m (a b: ℕ → ℝ) (i : ℕ) := min (a i) (b i)
+
 lemma s_apply (i : ℕ) : s i = a i + b i + c i := rfl
 
 include ha hb hc in
@@ -770,6 +774,8 @@ lemma b6_bound
     _ < 1 / 5 * (0.66 - s 2 - δ) := by
       linear_combination 3 / 40 * h₆ + (23 / 20) * hδ + (1 / 2) * hε'
     _ = (0.66 - s 2 - δ) / 5 := by ring
+
+
 
 #exit
 
