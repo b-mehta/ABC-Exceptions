@@ -1,7 +1,6 @@
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Tactic.NormNum.BigOperators
-import Mathlib
 
 noncomputable section
 
@@ -494,9 +493,11 @@ lemma bound_4_point_17 {τ : ℝ} {j : ℕ} (hτ : τ ∈ SubSums j a b c) (hν 
     linarith
 
 include hg in
-lemma bound_4_point_17_3 {τ : ℝ} {j : ℕ} (hτ : τ ∈ SubSums j a b c) (hν : 0.66 < ν) (hd : 3 ≤ d) :
+lemma bound_4_point_17_3 {τ : ℝ} (hτ : τ ∈ SubSums 3 a b c) (hν : 0.66 < ν) (hd : 3 ≤ d) :
     τ ∉ Icc (0.34 - s 1 - s 2 + δ) (0.33 - 1 / 2 * s 2 - 1 / 2 * δ) := by
-  sorry
+  have := bound_4_point_17 hg hτ hν (by simp [hd])
+  convert this using 3
+  ring
 
 include hg in
 lemma bound_4_point_18_aux {τ : ℝ} (hτ : τ ∈ SubSums 3 a b c) (hν : 0.66 < ν) (hd : 3 ≤ d) :
@@ -643,7 +644,7 @@ lemma bound_4_point_23
   have hbcs : b 3 ∈ SubSums 3 a b c := by simp [SubSums]
   simpa [hb₃.le] using bound_4_point_17_3 hg hbcs hν (by omega)
 
-include ha hb hc htab htac htbc hg
+include ha hb hc htab htac htbc hg in
 lemma b4_bound
     (hd : 4 ≤ d)
     (hν : 0.66 < ν)
@@ -687,7 +688,7 @@ lemma b4_bound
       linear_combination 1 / 12 * h₆ + (13 / 6) * hδ + hε'
     _ = (0.66 - s 2 - δ) / 3 := by ring
 
-include ha hb hc htab htac htbc hg
+include ha hb hc htab htac htbc hg in
 lemma b5_bound
     (hd : 5 ≤ d)
     (hν : 0.66 < ν)
@@ -731,7 +732,7 @@ lemma b5_bound
       linear_combination 1 / 12 * h₆ + (3 / 2) * hδ + (2 / 3) * hε'
     _ = (0.66 - s 2 - δ) / 4 := by ring
 
-include ha hb hc htab htac htbc hg
+include ha hb hc htab htac htbc hg in
 lemma b6_bound
     (hd : 6 ≤ d)
     (hν : 0.66 < ν)
@@ -775,11 +776,7 @@ lemma b6_bound
       linear_combination 3 / 40 * h₆ + (23 / 20) * hδ + (1 / 2) * hε'
     _ = (0.66 - s 2 - δ) / 5 := by ring
 
-
-
-#exit
-
--- include ha hb hc hg htab htac htbc hg in
+include ha hb hc hg htab htac htbc hg in
 lemma subcase_1_point_2
     (hd : 4 ≤ d)
     (hν : 0.66 < ν)
