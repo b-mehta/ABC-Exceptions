@@ -987,13 +987,13 @@ In all of the following bounds, we may freely permute the exponent vectors $(a_i
 \end{proof}
 
 \begin{proposition}[Thue bound]\label{prop:ThueBound}
-  \uses{def:aibici,def:nu,lem:Trivialaibici}
+  \uses{def:aibici,def:nu}
   \begin{align*}
   \nu < 1 +\delta- \max_{p\ge2}\sum_{p\mid i}(a_i+b_i).
   \end{align*}
 \end{proposition}
 \begin{proof}
-  \uses{prop:ThueEquations}
+  \uses{prop:ThueEquations,lem:Trivialaibici}
   This easily follows from Proposition~\ref{prop:ThueEquations} and~\eqref{eq:oat3}.
 \end{proof}
 
@@ -1727,10 +1727,10 @@ $b_3+c_3<0.33-\frac{s_2}{2}-\frac{\delta}{2}$.}
 \end{proof}
 
 \begin{theorem}\label{thm:ABCExponentNu}
-\uses{prop:FourierBound, prop:GeometryBound, prop:ThueBound, prop:DeterminantBound, lem:aibiciconstraints, lem:Trivialaibici, lem:Case1, def:nu, lem:Case2}
   $\nu \le 0.66$.
 \end{theorem}
 \begin{proof}
+  \uses{lem:Case1, lem:Case2}
   Immediate from Lemmas~\ref{lem:Case1} and~\ref{lem:Case2}.
 \end{proof}
 
