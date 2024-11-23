@@ -1109,12 +1109,39 @@ lemma case_2_subcase_4
       1 / 4 * h + 4 * bound_4_point_10_upper hε₀ (by linear_combination hε) h43ab h43ac h43bc
   linear_combination h₁ + h₂ + 2 * this + 8 * hε + 13 / 2 * hδ
 
+include ha hb hc h43ab h43ac h43bc htab htac htbc hg in
 lemma case_2_subcase_5
+    (hd : 4 ≤ d)
     (hν : 0.66 < ν)
     (hs₂ : s 2 < 0.3)
-    (h : s 2 ∈ Icc 0.066 0.204) :
+    (hδ : δ ≤ 0.003)
+    (hε₀ : 0 < ε)
+    (hε : ε ≤ 1 / 100000)
+    (hba : b 3 ≤ a 3)
+    (hcb : c 3 ≤ b 3)
+    (h : s 2 ∈ Icc 0.07 0.199) :
     False := by
-  sorry
+
+  suffices b 3 + c 3 < 0.33 - 1 / 2 * s 2 - 1 / 2 * δ from
+    case_2_subcase_2 ha hb hc h43ab h43ac h43bc htab htac htbc hg (by omega) hν hs₂
+      (by linear_combination hδ) hε₀ (by linear_combination hε) this
+
+  simp only [mem_Icc] at h
+  have h426 :=
+    bound_4_point_26 ha hb hc htab hg (by omega) hν hs₂ (by linear_combination hδ) hba hcb
+  have h410 :=
+    bound_4_point_10_upper hε₀ (by linear_combination hε) h43ab h43ac h43bc
+  have h₁ : a 3 > 0.34 - s 1 - s 2 + δ := by
+    linear_combination h426 + 4 * h410 + h.1 + 3 * hδ + 4 * hε
+  replace h₁ : a 3 > 0.33 - 1 / 2 * s 2 - 1 / 2 * δ := by
+    have := bound_4_point_17_3 hg (a 3) (by simp [SubSums]) hν (by omega)
+    contrapose! this
+    exact ⟨h₁.le, this⟩
+
+  have h₂ := bound_4_point_12 ha hb htab 3 (by simp; omega) hν
+  have h₃ := bound_4_point_12 ha hc htac 3 (by simp; omega) hν
+
+  linear_combination h₂ + h₃ + 2 * h₁ + (3 / 2) * h.2 + (7 / 2) * hδ
 
 lemma case_2_subcase_6
     (hν : 0.66 < ν)
@@ -1126,16 +1153,18 @@ lemma case_2_subcase_6
 include ha hb hc h43ab h43ac h43bc htab htac htbc hg in
 lemma case_2
     (hd : 4 ≤ d) (hν : 0.66 < ν)
-    (hs₂ : s 2 < 0.3) (hδ : δ ≤ 0.004) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
+    (hs₂ : s 2 < 0.3) (hδ : δ ≤ 0.003) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3) :
     False := by
   suffices (0.73 < 4 * s 1 + 3 * s 2) ∨ (4 * s 1 + s 2 < 0.35) ∨
-      (s 2 ∈ Icc 0.066 0.204) ∨ (0.024 < 2 * s 1 - s 2) by
+      (s 2 ∈ Icc 0.07 0.199) ∨ (0.024 < 2 * s 1 - s 2) by
     obtain h | h | h | h := this
     · exact case_2_subcase_3 ha hb hc h43ab h43ac h43bc htab htac htbc hg (by omega) hν hs₂
         (by linear_combination hδ) hε₀ (by linear_combination hε) hba hcb h
-    · exact case_2_subcase_4 ha hb hc h43ab h43ac h43bc htab htac htbc hg hd hν hs₂ hδ hε₀ hε hba hcb h
-    · exact case_2_subcase_5 hν hs₂ h
+    · exact case_2_subcase_4 ha hb hc h43ab h43ac h43bc htab htac htbc hg hd hν hs₂
+        (by linear_combination hδ) hε₀ hε hba hcb h
+    · exact case_2_subcase_5 ha hb hc h43ab h43ac h43bc htab htac htbc hg hd hν hs₂
+        (by linear_combination hδ) hε₀ hε hba hcb h
     · exact case_2_subcase_6 hν hs₂ h
   by_contra! h
   simp only [mem_Icc, not_and_or, not_le] at h
@@ -1145,7 +1174,7 @@ lemma case_2
     linarith +splitHypotheses
 
 include ha hb hc h43ab h43ac h43bc h45a h45b hg htab htac htbc hfab in
-theorem thm_4_point_3 (hd : 6 ≤ d) (hδ : δ ≤ 0.001) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
+theorem thm_4_point_3 (hd : 6 ≤ d) (hδ : δ ≤ 0.003) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3) :
     ν ≤ 0.66 := by
   by_contra! hν
