@@ -135,7 +135,69 @@ def DeterminantBound (d : ℕ) (δ ν : ℝ) (a b : ℕ → ℝ) : Prop :=
   ν < sInf {1 + δ - a p - b q + min (a p / q) (b q / p) |
     (p : ℕ) (q : ℕ) (_ : p ∈ Ioc 1 d) (_ : q ∈ Ioc 1 d)}
 
+variable
+  (hdab : DeterminantBound d δ ν a b)
+  (hdac : DeterminantBound d δ ν a c)
+  (hdbc : DeterminantBound d δ ν b c)
+
 section
+
+-- KEEP THIS, it might be relevant for lean4#4615
+-- lemma determinantBound_set_finite :
+--     {1 + δ - a p - b q + min (a p / q) (b q / p) |
+--       (p : ℕ) (q : ℕ) (_ : p ∈ Ioc 1 d) (_ : q ∈ Ioc 1 d)}.Finite := by
+--   have :
+--       {1 + δ - a p - b q + min (a p / q) (b q / p) |
+--         (p : ℕ) (q : ℕ) (_ : p ∈ Ioc 1 d) (_ : q ∈ Ioc 1 d)} =
+--       Set.image2 (fun p q ↦ 1 + δ - a p - b q + min (a p / q) (b q / p)) (Ioc 1 d) (Ioc 1 d) := by
+--     ext x
+--     simp? [- mem_Ioc]
+--     simp only [exists_prop, exists_and_left, mem_setOf_eq, mem_image2]
+--   sorry
+
+lemma determinantBound_set_finite :
+    {1 + δ - a p - b q + min (a p / q) (b q / p) |
+      (p : ℕ) (q : ℕ) (_ : p ∈ Ioc 1 d) (_ : q ∈ Ioc 1 d)}.Finite := by
+  have :
+      {1 + δ - a p - b q + min (a p / q) (b q / p) |
+        (p : ℕ) (q : ℕ) (_ : p ∈ Ioc 1 d) (_ : q ∈ Ioc 1 d)} =
+      Set.image2 (fun p q ↦ 1 + δ - a p - b q + min (a p / q) (b q / p)) (Ioc 1 d) (Ioc 1 d) := by
+    ext x
+    simp only [exists_prop, exists_and_left, mem_setOf_eq, mem_image2]
+  exact this ▸ Set.Finite.image2 _ (finite_Ioc 1 d) (finite_Ioc 1 d)
+
+include hdab
+
+lemma DeterminantBound.symm : DeterminantBound d δ ν b a := by
+  refine hdab.trans_eq ?_
+  congr! 3 with x
+  constructor
+  all_goals
+    rintro ⟨p, q, hp, hq, rfl⟩
+    refine ⟨q, p, hq, hp, ?_⟩
+    rw [inf_comm]
+    ring
+
+include ha hdac
+
+/-- A particular application of the determinant bound used in subcase 2.1 -/
+lemma DeterminantBound.application (hd : 4 ≤ d) (M : ℝ)
+    (hM : M = sSup {max (b i) (c i) | i ∈ Icc 4 d}) :
+    ν < 1 + δ - a 3 - M + min (a 3 / 4) (M / 3) := by
+  have hM' : M ∈ {max (b i) (c i) | i ∈ Icc 4 d} := by
+    rw [hM]
+    exact ((nonempty_Icc.2 hd).image _).csSup_mem ((finite_Icc 4 d).image _)
+  obtain ⟨i, ⟨hi₁, hi₂⟩, hM'⟩ := hM'
+  wlog hbc : c i ≤ b i generalizing b c
+  · exact this hdac hdab (by simp [hM, max_comm]) (by simp [hM', max_comm]) (le_of_not_le hbc)
+  replace hM' : M = b i := by simp [← hM', hbc]
+  refine hdab.trans_le ?_
+  refine csInf_le_of_le determinantBound_set_finite.bddBelow
+    ⟨3, i, by simp; omega, by simp; omega, rfl⟩ ?_
+  simp only [hM']
+  gcongr _ + min (_ / ?_) _
+  · exact ha.nonneg 3
+  · simpa
 
 end
 
@@ -1035,15 +1097,57 @@ lemma bound_4_point_26
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3) :
     0.32 - 4 * δₛ - s 1 - 2 * δ ≤ a 3 := by
   obtain ⟨h₂, h₃⟩ := bound_4_point_26_aux ha hb htab hg hd hν hs₂ (by linear_combination hδ) hba hcb
-  have : a 3 + b 3 + c 3 = s 3 := rfl
-  linear_combination h₂ + h₃ + bound_4_point_20 ha hb hc hd - this
+  linear_combination h₂ + h₃ + bound_4_point_20 ha hb hc hd + s_apply a b c 3
 
+include ha hdab hdac in
+lemma case_2_subcase_1_large_sum
+    (hd : 4 ≤ d)
+    (hν : 0.66 < ν)
+    (hδ : δ ≤ 0.015)
+    (h : 0.32 ≤ a 3)
+    (hmax : ∃ i ∈ Icc 4 d, 3 / 4 * 0.09 < max (b i) (c i)) :
+    False := by
+  let M := sSup {x | ∃ i ∈ Icc 4 d, b i ⊔ c i = x}
+  have hM : 3 / 4 * 0.09 < M := by
+    obtain ⟨i, hi, h⟩ := hmax
+    exact lt_csSup_of_lt (Set.Finite.image _ (finite_Icc _ _)).bddAbove ⟨i, hi, rfl⟩ h
+  have hdet := hdab.application ha hdac hd M rfl
+  have : ν < 0.65 := by
+    linear_combination hdet + (min_le_right (a 3 / 4) (M / 3)) + (2 / 3) * hM + h + hδ
+  exact (hν.trans this).not_le (by norm_num)
+
+include ha hb hc h43ab h43ac h43bc htab htac htbc hg hdab hdac in
 lemma case_2_subcase_1
+    (hd : 4 ≤ d)
     (hν : 0.66 < ν)
     (hs₂ : s 2 < 0.3)
+    (hδ : δ ≤ 0.015)
     (h : 0.32 ≤ a 3) :
     False := by
+  by_cases hmax : ∃ i ∈ Icc 4 d, 3 / 4 * 0.09 < max (b i) (c i)
+  · exact case_2_subcase_1_large_sum ha hdab hdac hd hν (by linear_combination hδ) h hmax
+  have : ∀ i ∈ Icc 4 d, b i + c i ≤ 0.135 := by
+    intro i hi
+    have : b i + c i ≤ 2 * max (b i) (c i) := by
+      linear_combination le_max_left (b i) (c i) + le_max_right (b i) (c i)
+    simp only [not_exists, not_and, not_lt] at hmax
+    specialize hmax i hi
+    linear_combination this + 2 * hmax
+  have : ∑ i ≤ d, (i - 1) * (b i + c i) ≤ 4 / 3 + (δ_ d b + δ_ d c) := calc
+    _ = ∑ x ≤ d, x * b x - ∑ x ≤ d, b x + (∑ x ≤ d, x * c x - ∑ x ≤ d, c x) := by
+      simp only [mul_add, sub_one_mul, Finset.sum_add_distrib, Finset.sum_sub_distrib]
+    _ ≤ _ := by linear_combination hb.sum_bound + hc.sum_bound - sum_eq_δ_ d b - sum_eq_δ_ d c
   sorry
+
+    -- linear_combination
+    -- sorry
+
+    -- simp only [mem_Icc, not_exists, not_and, not_lt, and_imp] at hmax
+
+  -- have' := bound_4_point_12 ha hb htab
+  -- sorry
+
+#exit
 
 include ha hb hc h43ab h43ac h43bc htab htac htbc hg in
 lemma case_2_subcase_2
