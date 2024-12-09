@@ -54,6 +54,19 @@ theorem coe_ofNat_eq_mod (m n : ℕ) [NeZero m] :
     ((no_index (OfNat.ofNat n) : Fin m) : ℕ) = OfNat.ofNat n % m :=
   rfl
 
+lemma Iic_sdiff_Icc_eq_inter {α : Type*} [LinearOrder α]
+    [LocallyFiniteOrder α] [LocallyFiniteOrderBot α] {x y : α} :
+    Finset.Iic x \ Finset.Icc y x = Finset.Iic x ∩ Finset.Iio y := by
+  ext a; simp +contextual [- not_and]
+
+lemma Iic_sdiff_Icc_of_le {α : Type*}  [LinearOrder α]
+    [LocallyFiniteOrder α] [LocallyFiniteOrderBot α] {x y : α} (h : y ≤ x) :
+    Finset.Iic x \ Finset.Icc y x = Finset.Iio y := by
+  ext a
+  have : a < y → a < x := fun h₁ ↦ h₁.trans_le h
+  simp only [Finset.mem_sdiff, Finset.mem_Icc, not_and']
+  aesop (add unsafe forward le_of_lt)
+
 end
 
 structure baseAssumptions (d : ℕ) (a : ℕ → ℝ) : Prop where
@@ -86,6 +99,15 @@ def Bound4Point4 (d : ℕ) (δ ε : ℝ) (a b c : ℕ → ℝ) : Prop :=
   ∑ i ≤ d, (a i + b i + c i) ≤ 1 + δ - ε
 
 variable (h44 : Bound4Point4 d δ ε a b c)
+
+include h44
+lemma Bound4Point4.left_comm : Bound4Point4 d δ ε b a c :=
+  h44.trans_eq' <| Finset.sum_congr rfl fun x hx ↦ by ring_nf
+lemma Bound4Point4.right_comm : Bound4Point4 d δ ε a c b :=
+  h44.trans_eq' <| Finset.sum_congr rfl fun x hx ↦ by ring_nf
+lemma Bound4Point4.rotate : Bound4Point4 d δ ε b c a :=
+  h44.trans_eq' <| Finset.sum_congr rfl fun x hx ↦ by ring_nf
+omit h44
 
 -- we will later show that 4.5 can be safely assumed in context, after we've assumed 1.2 and 4.4
 structure Bound4Point5 (d : ℕ) (δ ε : ℝ) (a : ℕ → ℝ) : Prop where
@@ -261,6 +283,8 @@ lemma s_rotate : S b c a = s := by ext i; simp only [s_apply]; ring
 lemma s_left_comm : S b a c = s := by ext i; simp only [s_apply]; ring
 lemma s_right_comm : S a c b = s := by ext i; simp only [s_apply]; ring
 
+lemma Bound4Point4.s_version (h44 : Bound4Point4 d δ ε a b c) : ∑ i ≤ d, s i ≤ 1 + δ - ε := h44
+
 -- TODO: change geometry bound things to eqn 4.6 instead, and deduce this version from that.
 
 /--
@@ -270,13 +294,18 @@ statements in order to deduce bounds on `ν`.
 Elsewhere we will show that the bound holds, and thus its proof can be fed in to those lemmas
 which have it as an assumption.
 -/
-def GeometryBound (d : ℕ) (δ ν : ℝ) (a b c : ℕ → ℝ) : Prop :=
-  ν < δ + sInf
-    { max 1 (∑ i ∈ I, i * a i + ∑ i ∈ I', i * b i + ∑ i ∈ I'', i * c i) -
-      (∑ i ∈ I, a i + ∑ i ∈ I', b i + ∑ i ∈ I'', c i) |
-      (I ⊆ Finset.Icc 1 d) (I' ⊆ Finset.Icc 1 d) (I'' ⊆ Finset.Icc 1 d) }
+def GeometryBound (d : ℕ) (ε ν : ℝ) (a b c : ℕ → ℝ) : Prop :=
+  ∀ Ia ⊆ Finset.Icc 1 d, ∀ Ib ⊆ Finset.Icc 1 d, ∀ Ic ⊆ Finset.Icc 1 d,
+    ν < ε +
+      ((∑ i ∈ Finset.Iic d \ Ia, a i +
+        ∑ i ∈ Finset.Iic d \ Ib, b i +
+        ∑ i ∈ Finset.Iic d \ Ic, c i) +
+       max 0 (∑ i ∈ Ia, i * a i + ∑ i ∈ Ib, i * b i + ∑ i ∈ Ic, i * c i - 1))
 
-variable (hg : GeometryBound d δ ν a b c)
+      -- (max 1 (∑ i ∈ Ia, i * a i + ∑ i ∈ Ib, i * b i + ∑ i ∈ Ic, i * c i) -
+      --        (∑ i ∈ Ia, a i + ∑ i ∈ Ib, b i + ∑ i ∈ Ic, c i))
+
+variable (hg : GeometryBound d ε ν a b c)
 
 section
 
@@ -306,37 +335,50 @@ lemma geometryBound_set_finite :
 
 include hg
 
-lemma GeometryBound.special (I I' I'' : Finset ℕ)
-    (hI : I ⊆ Finset.Icc 1 d) (hI' : I' ⊆ Finset.Icc 1 d) (hI'' : I'' ⊆ Finset.Icc 1 d) :
-    ν < δ + (max 1 (∑ i ∈ I, i * a i + ∑ i ∈ I', i * b i + ∑ i ∈ I'', i * c i) -
-          (∑ i ∈ I, a i + ∑ i ∈ I', b i + ∑ i ∈ I'', c i)) := by
-  refine hg.trans_le ?_
-  gcongr
-  exact csInf_le (Set.Finite.bddBelow geometryBound_set_finite) ⟨I, hI, I', hI', I'', hI'', rfl⟩
+include h44 in
+lemma GeometryBound.special (Ia Ib Ic : Finset ℕ)
+    (hIa : Ia ⊆ Finset.Icc 1 d) (hIb : Ib ⊆ Finset.Icc 1 d) (hIc : Ic ⊆ Finset.Icc 1 d) :
+    ν < δ + (max 1 (∑ i ∈ Ia, i * a i + ∑ i ∈ Ib, i * b i + ∑ i ∈ Ic, i * c i) -
+             (∑ i ∈ Ia, a i + ∑ i ∈ Ib, b i + ∑ i ∈ Ic, c i)) := calc
+  _ < _ := hg _ hIa _ hIb _ hIc
+  _ = ε +
+    (∑ x ∈ Finset.Iic d, a x - ∑ x ∈ Ia, a x +
+    (∑ x ∈ Finset.Iic d, b x - ∑ x ∈ Ib, b x) +
+    (∑ x ∈ Finset.Iic d, c x - ∑ x ∈ Ic, c x) +
+    0 ⊔ (∑ i ∈ Ia, i * a i + ∑ i ∈ Ib, i * b i + ∑ i ∈ Ic, i * c i - 1)) := by
+    have : Finset.Icc 1 d ⊆ Finset.Iic d := Finset.Icc_subset_Iic_self
+    rw [Finset.sum_sdiff_eq_sub (hIa.trans this), Finset.sum_sdiff_eq_sub (hIb.trans this),
+      Finset.sum_sdiff_eq_sub (hIc.trans this)]
+  _ = ε + ∑ i ∈ Finset.Iic d, s i +
+        (max 0 (∑ i ∈ Ia, i * a i + ∑ i ∈ Ib, i * b i + ∑ i ∈ Ic, i * c i - 1)
+        - (∑ i ∈ Ia, a i + ∑ i ∈ Ib, b i + ∑ i ∈ Ic, c i)) := by
+    simp only [s_apply, Finset.sum_add_distrib]
+    ring
+  _ ≤ δ +
+        (1 + max 0 (∑ i ∈ Ia, i * a i + ∑ i ∈ Ib, i * b i + ∑ i ∈ Ic, i * c i - 1)
+        - (∑ i ∈ Ia, a i + ∑ i ∈ Ib, b i + ∑ i ∈ Ic, c i)) := by
+    linear_combination h44.s_version
+  _ = _ := by
+    rw [← max_add_add_left, add_zero, add_sub_cancel]
 
+  -- refine hg.trans_le ?_
+  -- gcongr
+  -- exact csInf_le (Set.Finite.bddBelow geometryBound_set_finite) ⟨I, hI, I', hI', I'', hI'', rfl⟩
+
+include h44 in
 lemma GeometryBound.special_s
     (I : Finset ℕ) (hI : I ⊆ Finset.Icc 1 d) :
     ν < δ + (max 1 (∑ i ∈ I, (i * s i)) - (∑ i ∈ I, s i)) := by
-  refine (hg.special I I I hI hI hI).trans_eq ?_
+  refine (hg.special h44 I I I hI hI hI).trans_eq ?_
   simp [s_apply, mul_add, Finset.sum_add_distrib]
 
-lemma GeometryBound.left_comm : GeometryBound d δ ν b a c := by
-  refine hg.trans_eq ?_
-  congr! 4 with x
-  constructor
-  all_goals
-    rintro ⟨I, hI, I', hI', I'', hI'', rfl⟩
-    exact ⟨I', hI', I, hI, I'', hI'', by ring_nf⟩
+lemma GeometryBound.left_comm : GeometryBound d ε ν b a c :=
+  fun Ia hIa Ib hIb Ic hIc ↦ (hg Ib hIb Ia hIa Ic hIc).trans_eq (by ring_nf)
 
-lemma GeometryBound.right_comm : GeometryBound d δ ν a c b := by
-  refine hg.trans_eq ?_
-  congr! 4 with x
-  constructor
-  all_goals
-    rintro ⟨I, hI, I', hI', I'', hI'', rfl⟩
-    exact ⟨I, hI, I'', hI'', I', hI', by ring_nf⟩
+lemma GeometryBound.right_comm : GeometryBound d ε ν a c b :=
+  fun Ia hIa Ib hIb Ic hIc ↦ (hg Ia hIa Ic hIc Ib hIb).trans_eq (by ring_nf)
 
-lemma GeometryBound.rotate : GeometryBound d δ ν b c a := hg.left_comm.right_comm
+lemma GeometryBound.rotate : GeometryBound d ε ν b c a := hg.left_comm.right_comm
 
 end
 
@@ -352,15 +394,13 @@ lemma bound_4_point_8 (h43 : Bound4Point3 d ε a b) : δ_ d a + δ_ d b ≤ 2 / 
 
 lemma bound_4_point_9_lower (hε : 0 < ε) (f : ℕ → ℝ) (h45 : Bound4Point5 d δ ε f) :
     - 2 / 300 - δ ≤ δ_ d f := by
-  replace h45 := h45.upper
-  norm_num [δ_] at h45 ⊢
-  linarith
+  rw [δ_]
+  linear_combination h45.upper + 1 / 2 * hε
 
 lemma bound_4_point_9_upper (hε : 0 < ε) (f : ℕ → ℝ) (h45 : Bound4Point5 d δ ε f) :
     δ_ d f ≤ 1 / 75 + δ + ε := by
-  replace h45 := h45.lower
-  norm_num [δ_] at h45 ⊢
-  linarith
+  rw [δ_]
+  linear_combination h45.lower + hε
 
 def delta_s (d : ℕ) (a b c : ℕ → ℝ) := δ_ d a + δ_ d b + δ_ d c
 local notation "δₛ" => delta_s d a b c
@@ -370,7 +410,7 @@ lemma δₛ_eq : δₛ = δ_ d a + δ_ d b + δ_ d c := rfl
 lemma bound_4_point_10_lower (hε : 0 < ε) (h44 : Bound4Point4 d δ ε a b c) :
     - δ < δₛ := by
   simp only [δₛ_eq, Bound4Point4, Finset.sum_add_distrib, δ_] at h44 ⊢
-  linarith
+  linear_combination h44 + hε
 
 lemma sum_s : ∑ i ≤ d, s i = 1 - δₛ := by
   simp [s_apply, δₛ_eq, Finset.sum_add_distrib, δ_]
@@ -484,13 +524,13 @@ lemma sum_s_4
   simp only [s_apply, mul_add, Finset.sum_add_distrib, δₛ_eq]
   linarith [bound_4_point_11_4 ha hd, bound_4_point_11_4 hb hd, bound_4_point_11_4 hc hd]
 
-include ha hb hc htab htac htbc hg in
+include ha hb hc h44 htab htac htbc hg in
 lemma bound_4_point_15
     (hδ : δ ≤ 0.06)
     (hν : 0.66 < ν) (hd : 2 ≤ d) :
     s 1 + s 2 ≤ 0.34 + δ := by
   have h₁ : ν < δ + (max 1 (s 1 + 2 * s 2) - (s 1 + s 2)) := by
-    have := hg.special_s {1, 2} (by simp [Finset.insert_subset_iff]; constructor <;> omega)
+    have := hg.special_s h44 {1, 2} (by simp [Finset.insert_subset_iff]; omega)
     simpa using this
   replace h₁ : ν < max (δ + (1 - (s 1 + s 2))) (δ + s 2) := calc
     _ < δ + (max 1 (s 1 + 2 * s 2) - (s 1 + s 2)) := h₁
@@ -514,7 +554,7 @@ lemma bound_4_point_15
 def SubSums (j : ℕ) (a b c : ℕ → ℝ) : Set ℝ :=
     {a j, b j, c j, a j + b j, a j + c j, b j + c j, a j + b j + c j}
 
-include hg in
+include h44 hg in
 lemma GeometryBound.subSums
     {τ : ℝ} (j : ℕ) (hj : j ∈ Icc 3 d) (hτ : τ ∈ SubSums j a b c) :
     ν < δ + (max 1 (s 1 + 2 * s 2 + j * τ) - (s 1 + s 2 + τ)) ∧
@@ -528,61 +568,61 @@ lemma GeometryBound.subSums
   have hj₁' : {1, j} ⊆ Finset.Icc 1 d := by simp [Finset.insert_subset_iff]; omega
   have hj₂' : {1, 2, j} ⊆ Finset.Icc 1 d := by simp [Finset.insert_subset_iff]; omega
   obtain rfl | rfl | rfl | rfl | rfl | rfl | rfl := hτ
-  · have h₁ := hg.special {1, j} {1} {1} ‹_› ‹_› ‹_›
-    have h₂ := hg.special {1, 2, j} {1, 2} {1, 2} ‹_› ‹_› ‹_›
+  · have h₁ := hg.special h44 {1, j} {1} {1} ‹_› ‹_› ‹_›
+    have h₂ := hg.special h44 {1, 2, j} {1, 2} {1, 2} ‹_› ‹_› ‹_›
     simp only [Finset.mem_singleton, hj₁, not_false_eq_true, Finset.sum_insert, Nat.cast_one,
       one_mul, Finset.sum_singleton, Finset.mem_insert, OfNat.one_ne_ofNat, or_self, hj₂,
       Nat.cast_ofNat] at h₁ h₂
     simp only [s_apply]
     exact ⟨h₂.trans_eq (by ring_nf), h₁.trans_eq (by ring_nf)⟩
-  · have h₁ := hg.special {1} {1, j} {1} ‹_› ‹_› ‹_›
-    have h₂ := hg.special {1, 2} {1, 2, j} {1, 2} ‹_› ‹_› ‹_›
+  · have h₁ := hg.special h44 {1} {1, j} {1} ‹_› ‹_› ‹_›
+    have h₂ := hg.special h44 {1, 2} {1, 2, j} {1, 2} ‹_› ‹_› ‹_›
     simp only [Finset.mem_singleton, hj₁, not_false_eq_true, Finset.sum_insert, Nat.cast_one,
       one_mul, Finset.sum_singleton, Finset.mem_insert, OfNat.one_ne_ofNat, or_self, hj₂,
       Nat.cast_ofNat] at h₁ h₂
     simp only [s_apply]
     exact ⟨h₂.trans_eq (by ring_nf), h₁.trans_eq (by ring_nf)⟩
-  · have h₁ := hg.special {1} {1} {1, j} ‹_› ‹_› ‹_›
-    have h₂ := hg.special {1, 2} {1, 2} {1, 2, j} ‹_› ‹_› ‹_›
+  · have h₁ := hg.special h44 {1} {1} {1, j} ‹_› ‹_› ‹_›
+    have h₂ := hg.special h44 {1, 2} {1, 2} {1, 2, j} ‹_› ‹_› ‹_›
     simp only [Finset.mem_singleton, hj₁, not_false_eq_true, Finset.sum_insert, Nat.cast_one,
       one_mul, Finset.sum_singleton, Finset.mem_insert, OfNat.one_ne_ofNat, or_self, hj₂,
       Nat.cast_ofNat] at h₁ h₂
     simp only [s_apply]
     exact ⟨h₂.trans_eq (by ring_nf), h₁.trans_eq (by ring_nf)⟩
-  · have h₁ := hg.special {1, j} {1, j} {1} ‹_› ‹_› ‹_›
-    have h₂ := hg.special {1, 2, j} {1, 2, j} {1, 2} ‹_› ‹_› ‹_›
+  · have h₁ := hg.special h44 {1, j} {1, j} {1} ‹_› ‹_› ‹_›
+    have h₂ := hg.special h44 {1, 2, j} {1, 2, j} {1, 2} ‹_› ‹_› ‹_›
     simp only [Finset.mem_singleton, hj₁, not_false_eq_true, Finset.sum_insert, Nat.cast_one,
       one_mul, Finset.sum_singleton, Finset.mem_insert, OfNat.one_ne_ofNat, or_self, hj₂,
       Nat.cast_ofNat] at h₁ h₂
     simp only [s_apply]
     exact ⟨h₂.trans_eq (by ring_nf), h₁.trans_eq (by ring_nf)⟩
-  · have h₁ := hg.special {1, j} {1} {1, j} ‹_› ‹_› ‹_›
-    have h₂ := hg.special {1, 2, j} {1, 2} {1, 2, j} ‹_› ‹_› ‹_›
+  · have h₁ := hg.special h44 {1, j} {1} {1, j} ‹_› ‹_› ‹_›
+    have h₂ := hg.special h44 {1, 2, j} {1, 2} {1, 2, j} ‹_› ‹_› ‹_›
     simp only [Finset.mem_singleton, hj₁, not_false_eq_true, Finset.sum_insert, Nat.cast_one,
       one_mul, Finset.sum_singleton, Finset.mem_insert, OfNat.one_ne_ofNat, or_self, hj₂,
       Nat.cast_ofNat] at h₁ h₂
     simp only [s_apply]
     exact ⟨h₂.trans_eq (by ring_nf), h₁.trans_eq (by ring_nf)⟩
-  · have h₁ := hg.special {1} {1, j} {1, j} ‹_› ‹_› ‹_›
-    have h₂ := hg.special {1, 2} {1, 2, j} {1, 2, j} ‹_› ‹_› ‹_›
+  · have h₁ := hg.special h44 {1} {1, j} {1, j} ‹_› ‹_› ‹_›
+    have h₂ := hg.special h44 {1, 2} {1, 2, j} {1, 2, j} ‹_› ‹_› ‹_›
     simp only [Finset.mem_singleton, hj₁, not_false_eq_true, Finset.sum_insert, Nat.cast_one,
       one_mul, Finset.sum_singleton, Finset.mem_insert, OfNat.one_ne_ofNat, or_self, hj₂,
       Nat.cast_ofNat] at h₁ h₂
     simp only [s_apply]
     exact ⟨h₂.trans_eq (by ring_nf), h₁.trans_eq (by ring_nf)⟩
-  · have h₁ := hg.special_s {1, j} ‹_›
-    have h₂ := hg.special_s {1, 2, j} ‹_›
+  · have h₁ := hg.special_s h44 {1, j} ‹_›
+    have h₂ := hg.special_s h44 {1, 2, j} ‹_›
     simp only [Finset.mem_singleton, hj₁, not_false_eq_true, Finset.sum_insert, Nat.cast_one,
       one_mul, Finset.sum_singleton, Finset.mem_insert, OfNat.one_ne_ofNat, or_self, hj₂,
       Nat.cast_ofNat, s_apply] at h₁ h₂
     simp only [s_apply]
     exact ⟨h₂.trans_eq (by ring_nf), h₁.trans_eq (by ring_nf)⟩
 
-include hg in
+include h44 hg in
 lemma bound_4_point_17 (τ : ℝ) {j : ℕ} (hτ : τ ∈ SubSums j a b c) (hν : 0.66 < ν)
     (hj : j ∈ Icc 3 d) :
     τ ∉ Icc (0.34 - s 1 - s 2 + δ) ((0.66 - s 2 - δ) / (j - 1)) := by
-  have h₁ := (hg.subSums j hj hτ).1
+  have h₁ := (hg.subSums h44 j hj hτ).1
   contrapose! h₁
   simp only [mem_Icc] at h₁
   rw [← max_sub_sub_right, ← max_add_add_left, max_le_iff]
@@ -596,17 +636,17 @@ lemma bound_4_point_17 (τ : ℝ) {j : ℕ} (hτ : τ ∈ SubSums j a b c) (hν 
     rw [le_div_iff₀ this] at h₁
     linarith
 
-include hg in
+include h44 hg in
 lemma bound_4_point_17_3 (τ : ℝ) (hτ : τ ∈ SubSums 3 a b c) (hν : 0.66 < ν) (hd : 3 ≤ d) :
     τ ∉ Icc (0.34 - s 1 - s 2 + δ) (0.33 - 1 / 2 * s 2 - 1 / 2 * δ) := by
-  have := bound_4_point_17 hg τ hτ hν (by simp [hd])
+  have := bound_4_point_17 h44 hg τ hτ hν (by simp [hd])
   convert this using 3
   ring
 
-include hg in
+include h44 hg in
 lemma bound_4_point_18_aux (τ : ℝ) (hτ : τ ∈ SubSums 3 a b c) (hν : 0.66 < ν) (hd : 3 ≤ d) :
     τ ∉ Icc (0.34 - s 1 + δ) (0.33 - 1 / 2 * δ) := by
-  have h₁ := (hg.subSums 3 (by simp [hd]) hτ).2
+  have h₁ := (hg.subSums h44 3 (by simp [hd]) hτ).2
   contrapose! h₁
   simp only [mem_Icc] at h₁
   rw [← max_sub_sub_right, ← max_add_add_left, max_le_iff]
@@ -616,12 +656,13 @@ lemma bound_4_point_18_aux (τ : ℝ) (hτ : τ ∈ SubSums 3 a b c) (hν : 0.66
   · linarith
   · linarith
 
-include hg in
+include h44 hg in
 lemma bound_4_point_18 (τ : ℝ) (hτ : τ ∈ SubSums 3 a b c) (hd : 3 ≤ d) (hν : 0.66 < ν) :
     τ ∉ Icc (0.34 - s 1 - s 2 + δ) (0.33 - 1 / 2 * s 2 - 1 / 2 * δ) ∪
         Icc (0.34 - s 1 + δ) (0.33 - 1 / 2 * δ) := by
   simp only [mem_union, not_or]
-  exact ⟨bound_4_point_17_3 hg τ hτ hν hd, bound_4_point_18_aux hg τ hτ hν hd⟩
+  exact ⟨bound_4_point_17_3 h44 hg τ hτ hν hd,
+         bound_4_point_18_aux h44 hg τ hτ hν hd⟩
 
 include ha in
 lemma bound_4_point_19_first (hd : 3 ≤ d) :
@@ -638,7 +679,7 @@ lemma bound_4_point_19_first (hd : 3 ≤ d) :
   have h₃ : a 1 + a 2 + a 3 + ∑ i ∈ Finset.Icc 4 d, a i = 1 / 3 - δ_ d a := by
     rw [← sum_eq_δ_, sum_Icc_eq_sum_range_add_sum_Icc hd']
     simp [Finset.sum_range, Fin.sum_univ_four, ha.zero]
-  linarith -- linear_combination h₁ + h₂ - h₃
+  linear_combination h₁ + h₂ - h₃
 
 include ha in
 lemma bound_4_point_19_second (hd : 4 ≤ d) :
@@ -675,10 +716,10 @@ lemma bound_4_point_21 (hd : 4 ≤ d) :
   linear_combination
     bound_4_point_19_second ha hd + bound_4_point_19_second hb hd + bound_4_point_19_second hc hd
 
-include ha hb hc htab htac htbc hg in
+include ha hb hc h44 htab htac htbc hg in
 lemma bound_4_point_22 (hν : 0.66 < ν) (hs₂ : 0.3 ≤ s 2) (hδ : δ ≤ 0.06) (hd : 2 ≤ d) :
     s 1 ≤ 0.04 + δ := by
-  linear_combination bound_4_point_15 ha hb hc htab htac htbc hg hδ hν hd + hs₂
+  linear_combination bound_4_point_15 ha hb hc h44 htab htac htbc hg hδ hν hd + hs₂
 
 include ha hb hc htab htac htbc in
 lemma case_1_helper (hν : 0.66 < ν) (hs₂ : 0.3 ≤ s 2) (hd : 4 ≤ d) :
@@ -687,7 +728,7 @@ lemma case_1_helper (hν : 0.66 < ν) (hs₂ : 0.3 ≤ s 2) (hd : 4 ≤ d) :
 
 macro "hack" : tactic => do `(tactic | (ring_nf; apply le_refl))
 
-include ha hb hc h43ab h43ac h43bc hg htab htac htbc hg in
+include ha hb hc h43ab h43ac h43bc h44 hg htab htac htbc hg in
 lemma subcase_1_point_1
     (hd : 4 ≤ d)
     (hν : 0.66 < ν)
@@ -704,12 +745,13 @@ lemma subcase_1_point_1
   have hbcs : b 3 + c 3 ∈ SubSums 3 a b c := by simp [SubSums]
   -- From 4.17, the upper bound strengthens
   have h₂ : b 3 + c 3 < 0.34 - s 1 - s 2 + δ := by
-    simpa [h₁.not_lt, -one_div] using bound_4_point_17_3 hg (b 3 + c 3) hbcs hν (by omega)
+    simpa [h₁.not_lt, -one_div] using
+      bound_4_point_17_3 h44 hg (b 3 + c 3) hbcs hν (by omega)
   -- Collect applications of earlier inequalities
   have h_4_20 : 1 - 5 / 2 * δₛ - 2 * s 1 - 3 / 2 * s 2 - 1 / 2 * s 4 ≤ s 3 :=
     bound_4_point_21 ha hb hc hd
   have h_4_21 : s 1 ≤ 0.04 + δ :=
-    bound_4_point_22 ha hb hc htab htac htbc hg hν hs₂ (by linear_combination hδ) (by omega)
+    bound_4_point_22 ha hb hc h44 htab htac htbc hg hν hs₂ (by linear_combination hδ) (by omega)
   have h_4_14 : s 2 + s 4 < 0.51 + 1.5 * δ :=
     bound_4_point_14_two_four ha hb hc htab htac htbc hd hν
 
@@ -739,16 +781,16 @@ lemma subcase_1_point_1
 
   exact h₄.not_lt this
 
-include hg in
+include h44 hg in
 lemma bound_4_point_23
     (hd : 3 ≤ d)
     (hν : 0.66 < ν)
     (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) :
     0.33 - 1 / 2 * s 2 - 1 / 2 * δ < b 3 := by
   have hbcs : b 3 ∈ SubSums 3 a b c := by simp [SubSums]
-  simpa [hb₃.le] using bound_4_point_17_3 hg _ hbcs hν (by omega)
+  simpa [hb₃.le] using bound_4_point_17_3 h44 hg _ hbcs hν (by omega)
 
-include ha hb hc h45b hg htab htac htbc in
+include ha hb hc h44 h45b hg htab htac htbc in
 lemma b4_bound
     (hd : 4 ≤ d) (hν : 0.66 < ν) (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) (hε₀ : 0 < ε) (hδ : δ ≤ 0.003)
     (hε : ε ≤ 1 / 10000) :
@@ -757,7 +799,7 @@ lemma b4_bound
     rw [s_apply]
     linear_combination ha.nonneg 1 + hc.nonneg 1
   have h₂ : s 1 ≤ 0.34 - s 2 + δ := by
-    linear_combination bound_4_point_15 ha hb hc htab htac htbc hg
+    linear_combination bound_4_point_15 ha hb hc h44 htab htac htbc hg
       (by linear_combination hδ) hν (by omega)
   have h₃ : ∑ i ∈ Finset.Icc 4 d, (i - 2) * b i ≤ 1 / 3 - b 3 + b 1 + 2 * δ_ d b := by
     have : b 3 + ∑ i ∈ Finset.Icc 4 d, (i - 2) * b i = ∑ i ∈ Finset.Icc 3 d, (i - 2) * b i := by
@@ -765,10 +807,10 @@ lemma b4_bound
       norm_num
     linear_combination bound_4_point_11_3 hb (by omega) + this
   have h₄ := bound_4_point_9_upper hε₀ b h45b
-  have h₅ := bound_4_point_23 hg (by omega) hν hb₃
+  have h₅ := bound_4_point_23 h44 hg (by omega) hν hb₃
   have h₆ : s 2 ≤ 0.34 + δ := by
     have : 0 ≤ s 1 := s_nonneg ha hb hc 1
-    linear_combination bound_4_point_15 ha hb hc htab htac htbc hg
+    linear_combination bound_4_point_15 ha hb hc h44 htab htac htbc hg
       (by linear_combination hδ) hν (by omega) + this
   calc b 4 ≤ 1 / 2 * (∑ i ∈ Finset.Icc 4 d, (i - 2) * b i) := by
         rw [Finset.mul_sum]
@@ -789,7 +831,7 @@ lemma b4_bound
       linear_combination 1 / 12 * h₆ + (13 / 6) * hδ + hε
     _ = (0.66 - s 2 - δ) / 3 := by ring
 
-include ha hb hc h45b hg htab htac htbc in
+include ha hb hc h44 h45b hg htab htac htbc in
 lemma b5_bound
     (hd : 5 ≤ d) (hν : 0.66 < ν) (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) (hε₀ : 0 < ε) (hδ : δ ≤ 0.003)
     (hε : ε ≤ 1 / 10000) :
@@ -798,7 +840,7 @@ lemma b5_bound
     rw [s_apply]
     linear_combination ha.nonneg 1 + hc.nonneg 1
   have h₂ : s 1 ≤ 0.34 - s 2 + δ := by
-    linear_combination bound_4_point_15 ha hb hc htab htac htbc hg
+    linear_combination bound_4_point_15 ha hb hc h44 htab htac htbc hg
       (by linear_combination hδ) hν (by omega)
   have h₃ : ∑ i ∈ Finset.Icc 4 d, (i - 2) * b i ≤ 1 / 3 - b 3 + b 1 + 2 * δ_ d b := by
     have : b 3 + ∑ i ∈ Finset.Icc 4 d, (i - 2) * b i = ∑ i ∈ Finset.Icc 3 d, (i - 2) * b i := by
@@ -806,11 +848,12 @@ lemma b5_bound
       norm_num
     linear_combination bound_4_point_11_3 hb (by omega) + this
   have h₄ := bound_4_point_9_upper hε₀ b h45b
-  have h₅ := bound_4_point_23 hg (by omega) hν hb₃
+  have h₅ := bound_4_point_23 h44 hg (by omega) hν hb₃
   have h₆ : s 2 ≤ 0.34 + δ := by
     have : 0 ≤ s 1 := s_nonneg ha hb hc 1
     linear_combination
-      bound_4_point_15 ha hb hc htab htac htbc hg (by linear_combination hδ) hν (by omega) + this
+      bound_4_point_15 ha hb hc h44 htab htac htbc hg (by linear_combination hδ) hν (by omega) +
+      this
   calc b 5 ≤ 1 / 3 * (∑ i ∈ Finset.Icc 4 d, (i - 2) * b i) := by
         rw [Finset.mul_sum]
         refine (Finset.single_le_sum (a := 5) ?_ (by simp; omega)).trans' ?_
@@ -830,7 +873,7 @@ lemma b5_bound
       linear_combination 1 / 12 * h₆ + (3 / 2) * hδ + (2 / 3) * hε
     _ = (0.66 - s 2 - δ) / 4 := by ring
 
-include ha hb hc h45b hg htab htac htbc in
+include ha hb hc h44 h45b hg htab htac htbc in
 lemma b6_bound
     (hd : 6 ≤ d) (hν : 0.66 < ν) (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) (hε₀ : 0 < ε) (hδ : δ ≤ 0.003)
     (hε : ε ≤ 1 / 10000) :
@@ -839,18 +882,18 @@ lemma b6_bound
     rw [s_apply]
     linear_combination ha.nonneg 1 + hc.nonneg 1
   have h₂ : s 1 ≤ 0.34 - s 2 + δ := by
-    linear_combination bound_4_point_15 ha hb hc htab htac htbc hg
-      (by linear_combination hδ) hν (by omega)
+    linear_combination bound_4_point_15 ha hb hc h44 htab htac htbc hg (by linear_combination hδ)
+      hν (by omega)
   have h₃ : ∑ i ∈ Finset.Icc 4 d, (i - 2) * b i ≤ 1 / 3 - b 3 + b 1 + 2 * δ_ d b := by
     have : b 3 + ∑ i ∈ Finset.Icc 4 d, (i - 2) * b i = ∑ i ∈ Finset.Icc 3 d, (i - 2) * b i := by
       rw [Finset.sum_Icc_succ_bot (show 3 ≤ d by omega)]
       norm_num
     linear_combination bound_4_point_11_3 hb (by omega) + this
   have h₄ := bound_4_point_9_upper hε₀ b h45b
-  have h₅ := bound_4_point_23 hg (by omega) hν hb₃
+  have h₅ := bound_4_point_23 h44 hg (by omega) hν hb₃
   have h₆ : s 2 ≤ 0.34 + δ := by
     have : 0 ≤ s 1 := s_nonneg ha hb hc 1
-    linear_combination bound_4_point_15 ha hb hc htab htac htbc hg
+    linear_combination bound_4_point_15 ha hb hc h44 htab htac htbc hg
       (by linear_combination hδ) hν (by omega) + this
   calc b 6 ≤ 1 / 4 * (∑ i ∈ Finset.Icc 4 d, (i - 2) * b i) := by
         rw [Finset.mul_sum]
@@ -871,37 +914,40 @@ lemma b6_bound
       linear_combination 3 / 40 * h₆ + (23 / 20) * hδ + (1 / 2) * hε
     _ = (0.66 - s 2 - δ) / 5 := by ring
 
-include ha hb hc h45a hg htab htac htbc in
+include ha hb hc h44 h45a hg htab htac htbc in
 lemma a4_bound
     (hd : 4 ≤ d) (hν : 0.66 < ν) (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) (hε₀ : 0 < ε) (hδ : δ ≤ 0.003)
     (hε : ε ≤ 1 / 10000) (hba : b 3 ≤ a 3) :
     a 4 < (0.66 - s 2 - δ) / 3 := by
-  refine (b4_bound hb ha hc h45a htab.symm htbc htac hg.left_comm hd hν ?_ hε₀ hδ hε).trans_le ?_
+  refine (b4_bound hb ha hc h44.left_comm h45a htab.symm htbc htac hg.left_comm hd hν ?_
+    hε₀ hδ hε).trans_le ?_
   · rw [s_left_comm]
     exact hb₃.trans_le hba
   · rw [s_left_comm]
 
-include ha hb hc h45a hg htab htac htbc in
+include ha hb hc h44 h45a hg htab htac htbc in
 lemma a5_bound
     (hd : 5 ≤ d) (hν : 0.66 < ν) (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) (hε₀ : 0 < ε) (hδ : δ ≤ 0.003)
     (hε : ε ≤ 1 / 10000) (hba : b 3 ≤ a 3) :
     a 5 < (0.66 - s 2 - δ) / 4 := by
-  refine (b5_bound hb ha hc h45a htab.symm htbc htac hg.left_comm hd hν ?_ hε₀ hδ hε).trans_le ?_
+  refine (b5_bound hb ha hc h44.left_comm h45a htab.symm htbc htac hg.left_comm hd hν ?_
+    hε₀ hδ hε).trans_le ?_
   · rw [s_left_comm]
     exact hb₃.trans_le hba
   · rw [s_left_comm]
 
-include ha hb hc h45a hg htab htac htbc in
+include ha hb hc h44 h45a hg htab htac htbc in
 lemma a6_bound
     (hd : 6 ≤ d) (hν : 0.66 < ν) (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) (hε₀ : 0 < ε) (hδ : δ ≤ 0.003)
     (hε : ε ≤ 1 / 10000) (hba : b 3 ≤ a 3) :
     a 6 < (0.66 - s 2 - δ) / 5 := by
-  refine (b6_bound hb ha hc h45a htab.symm htbc htac hg.left_comm hd hν ?_ hε₀ hδ hε).trans_le ?_
+  refine (b6_bound hb ha hc h44.left_comm h45a htab.symm htbc htac hg.left_comm hd hν ?_
+      hε₀ hδ hε).trans_le ?_
   · rw [s_left_comm]
     exact hb₃.trans_le hba
   · rw [s_left_comm]
 
-include ha hb hc h45a h45b hg htab htac htbc in
+include ha hb hc h44 h45a h45b hg htab htac htbc in
 lemma self_improve_bounds
     (hd : 6 ≤ d) (hν : 0.66 < ν) (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) (hε₀ : 0 < ε) (hδ : δ ≤ 0.003)
     (hε : ε ≤ 1 / 10000) (hba : b 3 ≤ a 3) :
@@ -911,40 +957,46 @@ lemma self_improve_bounds
   simp only [max_lt_iff]
   refine ⟨?_, ?_, ?_⟩
   · constructor
-    · have h₁ := bound_4_point_17 (j := 4) hg (a 4) (by simp [SubSums]) hν (by simp; omega)
-      have h₂ := a4_bound ha hb hc h45a htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε hba
+    · have h₁ := bound_4_point_17 (j := 4) h44 hg (a 4)
+        (by simp [SubSums]) hν (by simp; omega)
+      have h₂ := a4_bound ha hb hc h44 h45a htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε hba
       norm_num only [Nat.cast_ofNat, mem_Icc, not_and', not_le] at h₁ h₂
       specialize h₁ h₂.le
       norm_num1
       exact h₁
-    · have h₁ := bound_4_point_17 (j := 4) hg (b 4) (by simp [SubSums]) hν (by simp; omega)
-      have h₂ := b4_bound ha hb hc h45b htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε
-      norm_num only [Nat.cast_ofNat, mem_Icc, not_and', not_le] at h₁ h₂
-      specialize h₁ h₂.le
-      norm_num1
-      exact h₁
-  · constructor
-    · have h₁ := bound_4_point_17 (j := 5) hg (a 5) (by simp [SubSums]) hν (by simp; omega)
-      have h₂ := a5_bound ha hb hc h45a htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε hba
-      norm_num only [Nat.cast_ofNat, mem_Icc, not_and', not_le] at h₁ h₂
-      specialize h₁ h₂.le
-      norm_num1
-      exact h₁
-    · have h₁ := bound_4_point_17 (j := 5) hg (b 5) (by simp [SubSums]) hν (by simp; omega)
-      have h₂ := b5_bound ha hb hc h45b htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε
+    · have h₁ := bound_4_point_17 (j := 4) h44 hg (b 4)
+        (by simp [SubSums]) hν (by simp; omega)
+      have h₂ := b4_bound ha hb hc h44 h45b htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε
       norm_num only [Nat.cast_ofNat, mem_Icc, not_and', not_le] at h₁ h₂
       specialize h₁ h₂.le
       norm_num1
       exact h₁
   · constructor
-    · have h₁ := bound_4_point_17 (j := 6) hg (a 6) (by simp [SubSums]) hν (by simp; omega)
-      have h₂ := a6_bound ha hb hc h45a htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε hba
+    · have h₁ := bound_4_point_17 (j := 5) h44 hg (a 5)
+        (by simp [SubSums]) hν (by simp; omega)
+      have h₂ := a5_bound ha hb hc h44 h45a htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε hba
       norm_num only [Nat.cast_ofNat, mem_Icc, not_and', not_le] at h₁ h₂
       specialize h₁ h₂.le
       norm_num1
       exact h₁
-    · have h₁ := bound_4_point_17 (j := 6) hg (b 6) (by simp [SubSums]) hν (by simp; omega)
-      have h₂ := b6_bound ha hb hc h45b htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε
+    · have h₁ := bound_4_point_17 (j := 5) h44 hg (b 5)
+        (by simp [SubSums]) hν (by simp; omega)
+      have h₂ := b5_bound ha hb hc h44 h45b htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε
+      norm_num only [Nat.cast_ofNat, mem_Icc, not_and', not_le] at h₁ h₂
+      specialize h₁ h₂.le
+      norm_num1
+      exact h₁
+  · constructor
+    · have h₁ := bound_4_point_17 (j := 6) h44 hg (a 6)
+        (by simp [SubSums]) hν (by simp; omega)
+      have h₂ := a6_bound ha hb hc h44 h45a htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε hba
+      norm_num only [Nat.cast_ofNat, mem_Icc, not_and', not_le] at h₁ h₂
+      specialize h₁ h₂.le
+      norm_num1
+      exact h₁
+    · have h₁ := bound_4_point_17 (j := 6) h44 hg (b 6)
+        (by simp [SubSums]) hν (by simp; omega)
+      have h₂ := b6_bound ha hb hc h44 h45b htab htac htbc hg (by omega) hν hb₃ hε₀ hδ hε
       norm_num only [Nat.cast_ofNat, mem_Icc, not_and', not_le] at h₁ h₂
       specialize h₁ h₂.le
       norm_num1
@@ -1028,13 +1080,13 @@ lemma bound_4_point_24 (hd : 6 ≤ d) (hba : b 3 ≤ a 3) :
       simp [ha.zero, hb.zero, -min_add_max, hba]
       linear_combination 2 * h4 + 3 * h5 + 4 * h6
 
-include ha hb htab hg in
+include ha hb h44 htab hg in
 lemma subcase_1_point_2_aux (hd : 3 ≤ d) (hν : 0.66 < ν) (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) :
     4 * a 3 - b 3 ≤ 5 / 2 * s 2 - 0.29 + 13 / 2 * δ := by
   have h₁ := bound_4_point_12 ha hb htab 3 (by simpa) hν
-  linear_combination 4 * h₁ + 5 * bound_4_point_23 hg hd hν hb₃
+  linear_combination 4 * h₁ + 5 * bound_4_point_23 h44 hg hd hν hb₃
 
-include ha hb hc h43ab h45a h45b hg htab htac htbc hfab in
+include ha hb hc h43ab h44 h45a h45b hg htab htac htbc hfab in
 lemma subcase_1_point_2
     (hd : 6 ≤ d) (hν : 0.66 < ν) (hba : b 3 ≤ a 3) (hs₂ : 0.3 ≤ s 2)
     (hb₃ : 0.34 - s 1 - s 2 + δ < b 3) (hε₀ : 0 < ε) (hδ : δ ≤ 0.003) (hε : ε ≤ 1 / 10000) :
@@ -1046,27 +1098,27 @@ lemma subcase_1_point_2
   have h₂ := bound_4_point_8 h43ab
   have h₃ : ε ^ 2 ≤ 1 / 4000 := by nlinarith only [hε₀, hε]
   obtain ⟨h₄, h₅, h₆⟩ :=
-    self_improve_bounds ha hb hc h45a h45b htab htac htbc hg hd hν hb₃ hε₀ hδ hε hba
+    self_improve_bounds ha hb hc h44 h45a h45b htab htac htbc hg hd hν hb₃ hε₀ hδ hε hba
   have : 2 * ν - 1 - δ < (5 / 2) * δ + 0.2761 := calc
     2 * ν - 1 - δ < _ := bound_4_point_24 ha hb hfab hd hba
     _ ≤ 0.334 + 1 / 5 * (4 * a 3 - b 3 + 6 * δ + 2 * ε ^ 2) - 1 / 2 * s 2 := by
       linear_combination 1 / 5 * (h₁ + 3 * h₄ + 2 * h₅ + h₆ + 2 * h₂ + 7 / 2 * hs₂)
     _ ≤ 0.276 + δ * (5 / 2) + ε ^ 2 * (2 / 5) := by
-      linear_combination 1 / 5 * subcase_1_point_2_aux ha hb htab hg (by omega) hν hb₃
+      linear_combination 1 / 5 * subcase_1_point_2_aux ha hb h44 htab hg (by omega) hν hb₃
     _ ≤ (5 / 2) * δ + 0.2761 := by linear_combination (2 / 5) * h₃
   have : ν < 0.66 := by linear_combination 1 / 2 * this + (7 / 4) * hδ
   exact this.not_le (by linear_combination hν)
 
-include ha hb hc h43ab h43ac h43bc h45a h45b hg htab htac htbc hfab in
+include ha hb hc h43ab h43ac h43bc h44 h45a h45b hg htab htac htbc hfab in
 lemma case_1
     (hd : 6 ≤ d) (hν : 0.66 < ν) (hs₂ : 0.3 ≤ s 2) (hδ : δ ≤ 0.003)
     (hε₀ : 0 < ε) (hε : ε ≤ 1 / 10000)
     (hcb : c 3 ≤ b 3) (hba : b 3 ≤ a 3) :
     False := by
   obtain hb₃ | hb₃ := le_or_lt (b 3) (0.34 - s 1 - s 2 + δ)
-  · exact subcase_1_point_1 ha hb hc h43ab h43ac h43bc htab htac htbc hg (by omega) hν
+  · exact subcase_1_point_1 ha hb hc h43ab h43ac h43bc h44 htab htac htbc hg (by omega) hν
       (by linear_combination hδ) hcb hs₂ hε hε₀ hb₃
-  · exact subcase_1_point_2 ha hb hc h43ab h45a h45b hfab htab htac htbc hg hd hν hba hs₂ hb₃
+  · exact subcase_1_point_2 ha hb hc h43ab h44 h45a h45b hfab htab htac htbc hg hd hν hba hs₂ hb₃
       hε₀ hδ hε
 
 include ha hb htab in
@@ -1077,7 +1129,7 @@ lemma bound_4_point_25
     b 3 < 0.17 + 1 / 2 * δ := by
   linear_combination 1 / 2 * h + 1 / 2 * bound_4_point_12 ha hb htab 3 (by simp; omega) hν
 
-include ha hb htab hg in
+include ha hb h44 htab hg in
 lemma bound_4_point_26_aux
     (hd : 3 ≤ d) (hν : 0.66 < ν) (hs₂ : s 2 < 0.3) (hδ : δ ≤ 0.01)
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3) :
@@ -1087,16 +1139,17 @@ lemma bound_4_point_26_aux
     _ ≤ 0.33 - 1 / 2 * s 2 - 1 / 2 * δ := by linear_combination 1 / 2 * hs₂ + hδ
   have hb3 : b 3 ∈ SubSums 3 a b c := by simp [SubSums]
   have h₂ : b 3 < 0.34 - s 1 - s 2 + δ := by
-    simpa [h₁.not_lt, -one_div] using bound_4_point_17_3 hg _ hb3 hν hd
+    simpa [h₁.not_lt, -one_div] using bound_4_point_17_3 h44 hg _ hb3 hν hd
   have h₃ : c 3 < 0.34 - s 1 - s 2 + δ := hcb.trans_lt h₂
   exact ⟨h₂, h₃⟩
 
-include ha hb hc htab hg in
+include ha hb hc h44 htab hg in
 lemma bound_4_point_26
     (hd : 3 ≤ d) (hν : 0.66 < ν) (hs₂ : s 2 < 0.3) (hδ : δ ≤ 0.01)
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3) :
     0.32 - 4 * δₛ - s 1 - 2 * δ ≤ a 3 := by
-  obtain ⟨h₂, h₃⟩ := bound_4_point_26_aux ha hb htab hg hd hν hs₂ (by linear_combination hδ) hba hcb
+  obtain ⟨h₂, h₃⟩ := bound_4_point_26_aux ha hb h44 htab hg hd hν hs₂
+    (by linear_combination hδ) hba hcb
   linear_combination h₂ + h₃ + bound_4_point_20 ha hb hc hd + s_apply a b c 3
 
 include ha hdab hdac in
@@ -1116,81 +1169,210 @@ lemma case_2_subcase_1_large_sum
     linear_combination hdet + (min_le_right (a 3 / 4) (M / 3)) + (2 / 3) * hM + h + hδ
   exact (hν.trans this).not_le (by norm_num)
 
-include ha hb hc h43ab h43ac h43bc htab htac htbc hg hdab hdac in
-lemma case_2_subcase_1
+open Finset
+include ha hb hc hg in
+lemma GeometryBound.s21_application_basic
+    (hd : 4 ≤ d) :
+    ν < ε + a 3 + b 3 + min (b 4) (c 4) + ∑ i ∈ Finset.Icc 5 d, (b i + c i) +
+      0 ⊔ (∑ i ∈ Finset.Icc 1 d, i * a i + (b 1 + c 1) + 2 * (b 2 + c 2) -
+        3 * (a 3 - c 3) + 4 * max (b 4) (c 4) - 1) := by
+  have h : ∑ i ∈ Finset.Iic d \ (Finset.Icc 1 d).erase 3, a i = a 3 := by
+    rw [Finset.sdiff_erase (by simp; omega), Iic_sdiff_Icc_of_le (by omega),
+      Finset.sum_insert (by simp)]
+    simp only [add_right_eq_self]
+    rw [Nat.Iio_eq_range, Finset.range_one, Finset.sum_singleton, ha.zero]
+  have h₁₂ : {1, 2} ⊆ Finset.Icc 1 d := by simp [Finset.insert_subset_iff]; omega
+  have h₁₂₃ : {1, 2, 3} ⊆ Finset.Icc 1 d := by simp [Finset.insert_subset_iff]; omega
+  have h₁₂₄ : {1, 2, 4} ⊆ Finset.Icc 1 d := by simp [Finset.insert_subset_iff]; omega
+  have h₁₂₃₄ : {1, 2, 3, 4} ⊆ Finset.Icc 1 d := by simp [Finset.insert_subset_iff]; omega
+
+  have : ν < ε + a 3 + b 3 + c 4 + ∑ i ∈ Icc 5 d, (b i + c i) + 0 ⊔ (∑ x ∈ Icc 1 d, x * a x +
+          (b 1 + c 1) + 2 * (b 2 + c 2) - 3 * (a 3 - c 3) + (4 * b 4) - 1) ∧
+         ν < ε + a 3 + b 3 + b 4 + ∑ i ∈ Icc 5 d, (b i + c i) + 0 ⊔ (∑ x ∈ Icc 1 d, x * a x +
+          (b 1 + c 1) + 2 * (b 2 + c 2) - 3 * (a 3 - c 3) + (4 * c 4) - 1) := by
+    have h₁ := hg ((Finset.Icc 1 d).erase 3) (erase_subset _ _)
+      {1, 2, 4} h₁₂₄ {1, 2, 3} h₁₂₃
+    have h₂ := hg ((Finset.Icc 1 d).erase 3) (erase_subset _ _)
+      {1, 2} h₁₂ {1, 2, 3, 4} h₁₂₃₄
+    rw [h, sum_erase_eq_sub (by simp; omega)] at h₁ h₂
+    simp only
+      [sum_sdiff_eq_sub (h₁₂₄.trans Icc_subset_Iic_self),
+       sum_sdiff_eq_sub (h₁₂₃.trans Icc_subset_Iic_self),
+       sum_sdiff_eq_sub (h₁₂₃₄.trans Icc_subset_Iic_self),
+       sum_sdiff_eq_sub (h₁₂.trans Icc_subset_Iic_self)] at h₁ h₂
+    simp only [sum_Icc_eq_sum_range_add_sum_Icc (d := d) (t := 5) (by omega)] at h₁ h₂
+    simp only [Finset.sum_add_distrib]
+    simp [sum_range, Fin.sum_univ_five, ha.zero, hb.zero, hc.zero] at h₁ h₂
+    ring_nf at h₁ h₂ ⊢
+    constructor
+    · exact h₁
+    · exact h₂
+
+  obtain h4 | h4 := le_total (b 4) (c 4)
+  · rw [min_eq_left h4, max_eq_right h4]
+    exact this.2
+  · rw [min_eq_right h4, max_eq_left h4]
+    exact this.1
+
+lemma min_le_half_add {x y : ℝ} : min x y ≤ (x + y) / 2 := by
+  rw [min_le_iff]
+  by_contra! h
+  linarith
+
+include ha hb hc h43bc htab in
+lemma case_2_subcase_1_subsubcase_1
+    (hd : 5 ≤ d)
+    (hν : 0.66 < ν)
+    (h₅ : b 5 + c 5 ≤ 0.135)
+    (hε₀ : 0 ≤ ε)
+    (hε : ε ≤ 1 / 10000)
+    (hδ : δ ≤ 0.005)
+    (h : ∑ i ≤ d, (i - 1) * (b i + c i) ≤ 4 / 3 + (δ_ d b + δ_ d c)) :
+    a 3 + b 3 + min (b 4) (c 4) + ∑ i ∈ Icc 5 d, (b i + c i) < 0.645 := by
+  calc
+    _ ≤ a 3 + b 3 + 1 / 2 * (b 4 + c 4) + (b 5 + c 5) + ∑ i ∈ Icc 6 d, (b i + c i) := by
+        rw [sum_Icc_succ_bot hd, ← add_assoc]
+        linear_combination min_le_half_add (x := b 4) (y := c 4)
+    _ ≤ a 3 + b 3 + 1 / 2 * (b 4 + c 4) + (b 5 + c 5) +
+          1 / 5 * ∑ i ∈ Icc 6 d, (i - 1) * (b i + c i) := by
+        simp only [Finset.mul_sum, ← mul_assoc]
+        gcongr with i hi
+        simp only [Finset.mem_Icc] at hi
+        have : (1 : ℝ) ≤ 1 / 5 * (i - 1) := by
+          rw [mul_comm, mul_one_div, one_le_div₀ (by norm_num), le_sub_iff_add_le]
+          exact mod_cast hi.1
+        exact le_mul_of_one_le_left (add_nonneg (hb.nonneg _) (hc.nonneg _)) this
+    _ ≤ a 3 + b 3 + 1 / 2 * (b 4 + c 4) + (b 5 + c 5) + 1 / 5 * (∑ i ≤ d, (i - 1) * (b i + c i) -
+          ∑ i ∈ range 6, (i - 1) * (b i + c i)) := by
+        gcongr
+        rw [le_sub_iff_add_le', ← sum_Icc_eq_sum_range_add_sum_Icc]
+        simp [hd]
+    _ ≤ a 3 + b 3 + 1 / 2 * (b 4 + c 4) + 1 / 5 * ((4 / 3 + δ_ d b + δ_ d c) - (b 2 + c 2) -
+          2 * (b 3 + c 3) - 3 * (b 4 + c 4) + (b 5 + c 5)) := by
+        rw [Finset.sum_range]
+        simp [Fin.sum_univ_six, hb.zero, hc.zero]
+        linear_combination 1 / 5 * h
+    _ ≤ a 3 + b 3 + 1 / 5 * ((4 / 3 + δ_ d b + δ_ d c) + (b 5 + c 5)) := by
+        linear_combination (hb.nonneg 2 + hc.nonneg 2 + 2 * (hb.nonneg 3 + hc.nonneg 3)) / 5 +
+          1 / 10 * (hb.nonneg 4 + hc.nonneg 4)
+    _ < _ := by
+        have h := bound_4_point_12 ha hb htab 3 (by simp; omega) hν
+        have h' := bound_4_point_8 h43bc
+        have h'' : ε ^ 2 ≤ 1 / 10000 := by nlinarith only [hε, hε₀]
+        linear_combination h + 1 / 5 * h' + 1 / 5 * h₅ + hδ + 1 / 5 * h''
+
+include ha hb hc h45b h45c htac in
+lemma case_2_subcase_1_subsubcase_2
     (hd : 4 ≤ d)
     (hν : 0.66 < ν)
     (hs₂ : s 2 < 0.3)
-    (hδ : δ ≤ 0.015)
+    (h₄ : max (b 4) (c 4) ≤ 3 / 4 * 0.09)
+    (hε₀ : 0 < ε)
+    (hδ : δ ≤ 0.005)
+    (h : 0.32 ≤ a 3) :
+    a 3 + b 3 + min (b 4) (c 4) + ∑ i ∈ Finset.Icc 5 d, (b i + c i) +
+      (∑ i ∈ Finset.Icc 1 d, i * a i + (b 1 + c 1) + 2 * (b 2 + c 2) -
+        3 * (a 3 - c 3) + 4 * max (b 4) (c 4) - 1) < 0.61 := by calc
+    _ ≤ a 3 + b 3 + min (b 4) (c 4) + ∑ i ∈ Finset.Icc 5 d, (b i + c i) +
+        ((b 1 + c 1) + 2 * (b 2 + c 2) - 3 * (a 3 - c 3) + 4 * max (b 4) (c 4)) := by
+      linear_combination ha.sum_restrict_bound
+    _ = a 3 + b 3 + min (b 4) (c 4) + ((2 / 3 - δ_ d b - δ_ d c) - ∑ i ∈ range 5, (b i + c i)) +
+        ((b 1 + c 1) + 2 * (b 2 + c 2) - 3 * (a 3 - c 3) + 4 * max (b 4) (c 4)) := by
+      congr 2
+      rw [eq_sub_iff_add_eq', ← sum_Icc_eq_sum_range_add_sum_Icc (by omega), sum_add_distrib,
+        sum_eq_δ_, sum_eq_δ_]
+      ring_nf
+    _ = 2 / 3 - δ_ d b - δ_ d c - 2 * (a 3 - c 3) + b 2 + c 2 + 3 * (b 4 ⊔ c 4) := by
+      rw [Finset.sum_range, Fin.sum_univ_five]
+      simp [hb.zero, hc.zero]
+      linear_combination min_add_max (b 4) (c 4)
+    _ ≤ 11 / 30 - δ_ d b - δ_ d c + 3 * (b 4 ⊔ c 4) + 2 * δ := by
+      have : a 3 + c 3 < 0.34 + δ := bound_4_point_12 ha hc htac 3 (by simp; omega) hν
+      linear_combination hs₂ - s_apply a b c 2 + ha.nonneg 2 + 2 * this + 4 * h
+    _ < 0.61 := by
+      have h := bound_4_point_9_lower hε₀ b h45b
+      have h' := bound_4_point_9_lower hε₀ _ h45c
+      linear_combination h + h' + 3 * h₄ + 4 * hδ
+
+
+include ha hb hc h43bc h45b h45c htab htac hg hdab hdac in
+lemma case_2_subcase_1
+    (hd : 5 ≤ d)
+    (hν : 0.66 < ν)
+    (hs₂ : s 2 < 0.3)
+    (hδ : δ ≤ 0.005)
+    (hε₀ : 0 < ε)
+    (hε : ε ≤ 1 / 10000)
     (h : 0.32 ≤ a 3) :
     False := by
-  by_cases hmax : ∃ i ∈ Icc 4 d, 3 / 4 * 0.09 < max (b i) (c i)
-  · exact case_2_subcase_1_large_sum ha hdab hdac hd hν (by linear_combination hδ) h hmax
-  have : ∀ i ∈ Icc 4 d, b i + c i ≤ 0.135 := by
+  by_cases hmax : ∃ i ∈ Set.Icc 4 d, 3 / 4 * 0.09 < max (b i) (c i)
+  · exact case_2_subcase_1_large_sum ha hdab hdac (by omega) hν (by linear_combination hδ) h hmax
+  simp only [not_exists, not_and, not_lt] at hmax
+  have h₁ : ∀ i ∈ Set.Icc 4 d, b i + c i ≤ 0.135 := by
     intro i hi
     have : b i + c i ≤ 2 * max (b i) (c i) := by
       linear_combination le_max_left (b i) (c i) + le_max_right (b i) (c i)
-    simp only [not_exists, not_and, not_lt] at hmax
     specialize hmax i hi
     linear_combination this + 2 * hmax
-  have : ∑ i ≤ d, (i - 1) * (b i + c i) ≤ 4 / 3 + (δ_ d b + δ_ d c) := calc
+  have h₂ : ∑ i ≤ d, (i - 1) * (b i + c i) ≤ 4 / 3 + (δ_ d b + δ_ d c) := calc
     _ = ∑ x ≤ d, x * b x - ∑ x ≤ d, b x + (∑ x ≤ d, x * c x - ∑ x ≤ d, c x) := by
       simp only [mul_add, sub_one_mul, Finset.sum_add_distrib, Finset.sum_sub_distrib]
     _ ≤ _ := by linear_combination hb.sum_bound + hc.sum_bound - sum_eq_δ_ d b - sum_eq_δ_ d c
-  sorry
+  have := hg.s21_application_basic ha hb hc (by omega)
+  rw [← max_add_add_left, lt_max_iff, add_zero] at this
+  obtain (h' | h') := this
+  · have := case_2_subcase_1_subsubcase_1 ha hb hc h43bc htab hd hν (h₁ _ (by simp [hd])) hε₀.le hε
+      (by linear_combination hδ) h₂
+    have : (0.66 : ℝ) < 0.6451 := by linear_combination hν + h' + this + hε
+    norm_num1 at this
+  · have := case_2_subcase_1_subsubcase_2 ha hb hc h45b h45c htac (by omega) hν hs₂
+      (hmax _ (by simp; omega)) hε₀ hδ h
+    have : (0.66 : ℝ) < 0.6101 := by linear_combination hν + h' + this + hε
+    norm_num1 at this
 
-    -- linear_combination
-    -- sorry
-
-    -- simp only [mem_Icc, not_exists, not_and, not_lt, and_imp] at hmax
-
-  -- have' := bound_4_point_12 ha hb htab
-  -- sorry
-
-#exit
-
-include ha hb hc h43ab h43ac h43bc htab htac htbc hg in
+include ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg in
 lemma case_2_subcase_2
-    (hd : 4 ≤ d)
+    (hd : 5 ≤ d)
     (hν : 0.66 < ν)
     (hs₂ : s 2 < 0.3)
-    (hδ : δ ≤ 0.01)
+    (hδ : δ ≤ 0.005)
     (hε₀ : 0 < ε)
     (hε : ε ≤ 1 / 10000)
     (h : b 3 + c 3 < 0.33 - 1 / 2 * s 2 - 1 / 2 * δ) :
     False := by
   have h₁ : b 3 + c 3 < 0.34 - s 1 - s 2 + δ := by
-    have := bound_4_point_17_3 hg (b 3 + c 3) (by simp [SubSums]) hν (by omega)
+    have := bound_4_point_17_3 h44 hg (b 3 + c 3) (by simp [SubSums]) hν (by omega)
     contrapose! this
     exact ⟨this, h.le⟩
   suffices h₂ : 0.34 - s 1 + δ < a 3 by
-    apply case_2_subcase_1 hν hs₂
-    have h₃ := bound_4_point_18_aux hg (a 3) (by simp [SubSums]) hν (by omega)
+    refine case_2_subcase_1 ha hb hc h43bc h45b h45c hdab hdac htab htac hg hd hν hs₂
+      (by linear_combination hδ) hε₀ hε ?_
+    have h₃ := bound_4_point_18_aux h44 hg (a 3) (by simp [SubSums]) hν (by omega)
     contrapose! h₃
     exact ⟨h₂.le, by linear_combination h₃ + 1 / 2 * hδ⟩
-  have h421 := bound_4_point_21 ha hb hc hd
+  have h421 := bound_4_point_21 ha hb hc (by omega)
   have h410 := bound_4_point_10_upper hε₀ (by linear_combination hε) h43ab h43ac h43bc
-  have h414 := bound_4_point_14_two_four ha hb hc htab htac htbc hd hν
+  have h414 := bound_4_point_14_two_four ha hb hc htab htac htbc (by omega) hν
   linear_combination s_apply a b c 3 + h₁ +
     h421 + 5 / 2 * h410 + 1 / 2 * h414 + 11 / 4 * hδ + 5 / 2 * hε
 
-include ha hb hc h43ab h43ac h43bc htab htac htbc hg in
+include ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg in
 lemma case_2_subcase_3
-    (hd : 4 ≤ d) (hν : 0.66 < ν) (hs₂ : s 2 < 0.3)
-    (hδ : δ ≤ 0.004) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 10000)
+    (hd : 5 ≤ d) (hν : 0.66 < ν) (hs₂ : s 2 < 0.3)
+    (hδ : δ ≤ 0.003) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 10000)
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3)
     (h : 0.73 < 4 * s 1 + 3 * s 2) :
     False := by
   suffices b 3 + c 3 < 0.33 - 1 / 2 * s 2 - 1 / 2 * δ from
-    case_2_subcase_2 ha hb hc h43ab h43ac h43bc htab htac htbc hg (by omega) hν hs₂
-      (by linear_combination hδ) hε₀ hε this
-  obtain ⟨h₁, h₂⟩ := bound_4_point_26_aux ha hb htab hg (by omega) hν hs₂
+    case_2_subcase_2 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg (by omega)
+      hν hs₂ (by linear_combination hδ) hε₀ hε this
+  obtain ⟨h₁, h₂⟩ := bound_4_point_26_aux ha hb h44 htab hg (by omega) hν hs₂
     (by linear_combination hδ) hba hcb
   linear_combination h₁ + h₂ + 1 / 2 * h + 5 / 2 * hδ
 
-include ha hb hc h43ab h43ac h43bc htab htac htbc hg in
+include ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg in
 lemma case_2_subcase_4
-    (hd : 4 ≤ d)
+    (hd : 5 ≤ d)
     (hν : 0.66 < ν)
     (hs₂ : s 2 < 0.3)
     (hδ : δ ≤ 0.004)
@@ -1201,7 +1383,7 @@ lemma case_2_subcase_4
     (h : 4 * s 1 + s 2 < 0.35) :
     False := by
   suffices b 3 + c 3 < 0.33 - 1 / 2 * s 2 - 1 / 2 * δ from
-    case_2_subcase_2 ha hb hc h43ab h43ac h43bc htab htac htbc hg (by omega) hν hs₂
+    case_2_subcase_2 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg hd hν hs₂
       (by linear_combination hδ) hε₀ (by linear_combination hε) this
   have h₁ : b 3 ≤ 0.34 - a 3 + δ := by
     linear_combination bound_4_point_12 ha hb htab 3 (by simp; omega) hν
@@ -1209,13 +1391,13 @@ lemma case_2_subcase_4
     linear_combination bound_4_point_12 ha hc htac 3 (by simp; omega) hν
   have : 0.34 - a 3 + δ < 0.15 - 1 / 4 * s 2 + 3 * δ + 4 * ε := by
     linear_combination
-      bound_4_point_26 ha hb hc htab hg (by omega) hν hs₂ (by linear_combination hδ) hba hcb +
+      bound_4_point_26 ha hb hc h44 htab hg (by omega) hν hs₂ (by linear_combination hδ) hba hcb +
       1 / 4 * h + 4 * bound_4_point_10_upper hε₀ (by linear_combination hε) h43ab h43ac h43bc
   linear_combination h₁ + h₂ + 2 * this + 8 * hε + 13 / 2 * hδ
 
-include ha hb hc h43ab h43ac h43bc htab htac htbc hg in
+include ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg in
 lemma case_2_subcase_5
-    (hd : 4 ≤ d)
+    (hd : 5 ≤ d)
     (hν : 0.66 < ν)
     (hs₂ : s 2 < 0.3)
     (hδ : δ ≤ 0.003)
@@ -1223,22 +1405,22 @@ lemma case_2_subcase_5
     (hε : ε ≤ 1 / 100000)
     (hba : b 3 ≤ a 3)
     (hcb : c 3 ≤ b 3)
-    (h : s 2 ∈ Icc 0.07 0.199) :
+    (h : s 2 ∈ Set.Icc 0.07 0.199) :
     False := by
 
   suffices b 3 + c 3 < 0.33 - 1 / 2 * s 2 - 1 / 2 * δ from
-    case_2_subcase_2 ha hb hc h43ab h43ac h43bc htab htac htbc hg (by omega) hν hs₂
+    case_2_subcase_2 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg (by omega) hν hs₂
       (by linear_combination hδ) hε₀ (by linear_combination hε) this
 
-  simp only [mem_Icc] at h
+  simp only [Set.mem_Icc] at h
   have h426 :=
-    bound_4_point_26 ha hb hc htab hg (by omega) hν hs₂ (by linear_combination hδ) hba hcb
+    bound_4_point_26 ha hb hc h44 htab hg (by omega) hν hs₂ (by linear_combination hδ) hba hcb
   have h410 :=
     bound_4_point_10_upper hε₀ (by linear_combination hε) h43ab h43ac h43bc
   have h₁ : a 3 > 0.34 - s 1 - s 2 + δ := by
     linear_combination h426 + 4 * h410 + h.1 + 3 * hδ + 4 * hε
   replace h₁ : a 3 > 0.33 - 1 / 2 * s 2 - 1 / 2 * δ := by
-    have := bound_4_point_17_3 hg (a 3) (by simp [SubSums]) hν (by omega)
+    have := bound_4_point_17_3 h44 hg (a 3) (by simp [SubSums]) hν (by omega)
     contrapose! this
     exact ⟨h₁.le, this⟩
 
@@ -1247,47 +1429,58 @@ lemma case_2_subcase_5
 
   linear_combination h₂ + h₃ + 2 * h₁ + (3 / 2) * h.2 + (7 / 2) * hδ
 
+include h44 hg in
 lemma case_2_subcase_6
+    (hd : 5 ≤ d)
     (hν : 0.66 < ν)
+    (hδ : δ ≤ 0.001)
     (hs₂ : s 2 < 0.3)
-    (h : 0.024 < 2 * s 1 - s 2) :
+    (h : 0.025 < 2 * s 1 - s 2) :
     False := by
+  have (τ) (hτ : τ ∈ SubSums 3 a b c) : τ ∉ Set.Icc (0.34 - s 1 - s 2 + δ) (0.33 - 1 / 2 * δ) := by
+    intro h'
+    apply bound_4_point_18 h44 hg τ hτ (by omega) hν
+    simp only [Set.mem_union, Set.mem_Icc, h'.1, h'.2, true_and, and_true]
+    have : 0.34 - s 1 + δ ≤ 0.33 - 1 / 2 * s 2 - 1 / 2 * δ := by
+      linear_combination 1 / 2 * h + 3 / 2 * hδ
+    by_contra!
+    linarith
   sorry
 
-include ha hb hc h43ab h43ac h43bc htab htac htbc hg in
+include ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg in
 lemma case_2
-    (hd : 4 ≤ d) (hν : 0.66 < ν)
-    (hs₂ : s 2 < 0.3) (hδ : δ ≤ 0.003) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
+    (hd : 5 ≤ d) (hν : 0.66 < ν)
+    (hs₂ : s 2 < 0.3) (hδ : δ ≤ 0.001) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3) :
     False := by
   suffices (0.73 < 4 * s 1 + 3 * s 2) ∨ (4 * s 1 + s 2 < 0.35) ∨
-      (s 2 ∈ Icc 0.07 0.199) ∨ (0.024 < 2 * s 1 - s 2) by
+      (s 2 ∈ Set.Icc 0.07 0.199) ∨ (0.025 < 2 * s 1 - s 2) by
     obtain h | h | h | h := this
-    · exact case_2_subcase_3 ha hb hc h43ab h43ac h43bc htab htac htbc hg (by omega) hν hs₂
-        (by linear_combination hδ) hε₀ (by linear_combination hε) hba hcb h
-    · exact case_2_subcase_4 ha hb hc h43ab h43ac h43bc htab htac htbc hg hd hν hs₂
-        (by linear_combination hδ) hε₀ hε hba hcb h
-    · exact case_2_subcase_5 ha hb hc h43ab h43ac h43bc htab htac htbc hg hd hν hs₂
-        (by linear_combination hδ) hε₀ hε hba hcb h
-    · exact case_2_subcase_6 hν hs₂ h
+    · exact case_2_subcase_3 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg
+        (by omega) hν hs₂ (by linear_combination hδ) hε₀ (by linear_combination hε) hba hcb h
+    · exact case_2_subcase_4 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg
+        hd hν hs₂ (by linear_combination hδ) hε₀ hε hba hcb h
+    · exact case_2_subcase_5 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg
+        hd hν hs₂ (by linear_combination hδ) hε₀ hε hba hcb h
+    · exact case_2_subcase_6 h44 hg (by omega) hν hδ hs₂ h
   by_contra! h
-  simp only [mem_Icc, not_and_or, not_le] at h
+  simp only [Set.mem_Icc, not_and_or, not_le] at h
   obtain ⟨h₁, h₂, (h₃ | h₃), h₄⟩ := h
   all_goals
     norm_num1 at *
     linarith +splitHypotheses
 
-include ha hb hc h43ab h43ac h43bc h45a h45b hg htab htac htbc hfab in
-theorem thm_4_point_3 (hd : 6 ≤ d) (hδ : δ ≤ 0.003) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
+include ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hdab hdac htab htac htbc hfab hg in
+theorem thm_4_point_3 (hd : 6 ≤ d) (hδ : δ ≤ 0.001) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3) :
     ν ≤ 0.66 := by
   by_contra! hν
   cases le_or_lt 0.3 (s 2)
   case inl hs₂ =>
-    exact case_1 ha hb hc h43ab h43ac h43bc h45a h45b hfab htab htac htbc hg hd hν hs₂
-      (by linear_combination hδ) hε₀ (by linear_combination hε) hcb hba
+    exact case_1 ha hb hc h43ab h43ac h43bc h44 h45a h45b hfab htab htac htbc hg hd hν
+      hs₂ (by linear_combination hδ) hε₀ (by linear_combination hε) hcb hba
   case inr hs₂ =>
-    exact case_2 ha hb hc h43ab h43ac h43bc htab htac htbc hg (by omega) hν hs₂
-      (by linear_combination hδ) hε₀ hε hba hcb
+    exact case_2 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg (by omega) hν
+      hs₂ (by linear_combination hδ) hε₀ hε hba hcb
 
 end
