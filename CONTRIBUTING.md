@@ -27,25 +27,6 @@ The following instructions detail the process for claiming and completing tasks.
 
 Once you are assigned to an issue, begin working on the corresponding task. You should create a new branch from the `main` branch to develop your solution.
 
-> [!WARNING]
-> Before pushing any changes, you have the following options:
->
-> - You might want to install the git pre-push hook by running:
->
->   ```bash
->   scripts/install_pre-push.sh
->   ```
->   This will automatically run checks before every push, reducing the risk of CI check failures.
->
-> - You can manually run the following script before pushing, reducing the risk of CI check failures:
->
->   ```bash
->   scripts/run_before_push.sh
->   ```
->   This requires manual execution and won't stop the push if skipped.
->
-> - You may push your changes without any safeguards, increasing the risk of CI check failures.
-
 ### 4. Submitting a Pull Request
 
 - When you are ready to submit your solution, create a PR from your working branch to the project’s `main` branch.
