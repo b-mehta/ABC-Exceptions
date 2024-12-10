@@ -1619,8 +1619,7 @@ theorem thm_4_point_3_asymm (hd : 6 ≤ d) (hδ : δ ≤ 0.001) (hε₀ : 0 < ε
     exact case_2 ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hfab hfac hfbc hdab hdac htab htac
       htbc hg (by omega) hν hs₂ (by linear_combination hδ) hε₀ hε hba hcb
 
-include
-  ha hb hc
+include ha hb hc
   h43ab h43ac h43bc
   h44
   h45a h45b h45c
