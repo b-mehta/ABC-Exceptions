@@ -1432,16 +1432,14 @@ lemma case_2_subcase_5
 -- example {a b c : ℝ} : a + b - c = b + (a - c) := by
 --   rw [add_sub_assoc', add_comm]
 
-include ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hfab hdab hdac htab htac htbc hg in
+include ha hb h45a h45b hfab in
 lemma case_2_subcase_6_end_ab
     (hd : 5 ≤ d)
-    (hν : 0.66 < ν)
-    (hs₂ : s 2 < 0.3)
     (hδ : δ ≤ 0.001)
     (hε₀ : 0 < ε)
     (hε : ε ≤ 1 / 100000)
-    (h : 0.025 < 2 * s 1 - s 2) :
-    False := by
+    (hba : b 3 ≤ a 3) :
+    ν ≤ 0.78451 + 1 / 3 * (a 2 ⊔ b 2 - a 3) - 1 / 2 * b 3 := by
   have h₁ : ∑ i ≤ d, a i ⊔ b i ≤ 2 / 3 - δ_ d a - δ_ d b - a 1 ⊓ b 1 - a 2 ⊓ b 2 - a 3 ⊓ b 3 := calc
     _ ≤ ∑ i in range 4, a i ⊔ b i + ∑ i in Icc 4 d, a i ⊔ b i := by
       rw [sum_Icc_eq_sum_range_add_sum_Icc (t := 4) (by omega)]
@@ -1479,29 +1477,51 @@ lemma case_2_subcase_6_end_ab
   have hmin : -2 / 300 - δ ≤ δ_ d a ⊓ δ_ d b := by
     rw [le_inf_iff]
     exact ⟨bound_4_point_9_lower hε₀ a h45a, bound_4_point_9_lower hε₀ b h45b⟩
+  have h2min : 0 ≤ a 2 ⊓ b 2 := le_min (ha.nonneg 2) (hb.nonneg 2)
 
-  -- have h₄ := bound_4_point_9_lower hε₀ a h45a
-  -- have h₅ := bound_4_point_9_upper hε₀ a h45a
+  simp only [hba, sup_of_le_left, inf_of_le_right] at h₁ h₂ h₃
+  linear_combination 1 / 2 * (h₁ + h₂ + h₃ + min_add_max (δ_ d a) (δ_ d b) + 1 / 3 * hmax +
+    hmin + h2min) + 1 / 6 * hε + 7 / 6 * hδ
 
-  have : 2 * ν - 1 - δ ≤ 0.295 + 2 / 3 * (a 2 ⊔ b 2) - a 2 ⊓ b 2 := by calc
-    _ ≤ ∑ i ≤ d, a i ⊔ b i - a 3 ⊔ b 3 := h₂
-    _ ≤ 2 / 3 - δ_ d a - δ_ d b - a 1 ⊓ b 1 - a 2 ⊓ b 2 - a 3 ⊓ b 3 - a 3 ⊔ b 3 := by gcongr
-    _ ≤ 2 / 3 - δ_ d a - δ_ d b -
-        1 / 3 * (1 / 3 - 2 * (a 2 ⊔ b 2) - a 3 ⊔ b 3 - 4 * (δ_ d a ⊔ δ_ d b)) - a 2 ⊓ b 2 -
-        a 3 ⊓ b 3 - a 3 ⊔ b 3 := by gcongr
-    _ = 5 / 9 + 2 / 3 * (a 2 ⊔ b 2) + 1 / 3 * (δ_ d a ⊔ δ_ d b) - (δ_ d a ⊓ δ_ d b) -
-        a 2 ⊓ b 2 - a 3 ⊓ b 3 - 2 / 3 * (a 3 ⊔ b 3) := by
-      linear_combination min_add_max (δ_ d a) (δ_ d b)
-    _ = 17 / 30 + 2 / 3 * (a 2 ⊔ b 2) - a 2 ⊓ b 2 - a 3 ⊓ b 3 - 2 / 3 * (a 3 ⊔ b 3) +
-        4 / 3 * δ + 1 / 3 * ε := by
-      ring
-    _ ≤ _ := _
+include ha hb hc h45a h45b h45c hfab hfac hfbc in
+lemma case_2_subcase_6_end_ec
+    (hd : 5 ≤ d)
+    (hν : 0.66 < ν)
+    (hδ : δ ≤ 0.001)
+    (hε₀ : 0 < ε)
+    (hε : ε ≤ 1 / 100000)
+    (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3)
+    (hbc3' : 0.33 - 1 / 2 * δ ≤ b 3 + c 3)
+    (hs2 : s 2 ≤ 0.07) :
+    False := by
+  set e : ℕ → ℝ := if a 2 < b 2 then a else b with he
+  have he' : e = a ∨ e = b := ite_eq_or_eq _ _ _
+  clear_value e
+  have he2 : e 2 = a 2 ⊓ b 2 := by
+    rw [he, ite_apply, min_comm, min_def, ← ite_not]
+    simp
+  have he3 : c 3 ≤ e 3 := by
+    simp only [he]
+    split
+    · exact hcb.trans hba
+    · exact hcb
+  have he'' : baseAssumptions d e := by rcases he' with rfl | rfl <;> assumption
+  have h45e : Bound4Point5 d δ ε e := by rcases he' with rfl | rfl <;> assumption
+  have hfec : FourierBound d δ ν e c := by rcases he' with rfl | rfl <;> assumption
+  have h₁ := case_2_subcase_6_end_ab ha hb h45a h45b hfab hd hδ hε₀ hε hba
+  have h₂ := case_2_subcase_6_end_ab he'' hc h45e h45c hfec hd hδ hε₀ hε he3
+  replace h₂ : ν ≤ 0.78451 + 1 / 3 * (e 2 ⊔ c 2 - e 3) - 1 / 2 * c 3 := by simpa [he3] using h₂
+  have h₃ : a 2 ⊔ b 2 + e 2 ⊔ c 2 ≤ s 2 := by
+    rw [← max_add_add_left, he2, max_add_min, ← max_add_add_right, sup_le_iff, sup_le_iff, s_apply]
+    simp [ha.nonneg 2, hb.nonneg 2, hc.nonneg 2]
+  have h₄ : b 3 + c 3 ≤ a 3 + e 3 := by linear_combination he3 + hba
+  have : ν ≤ 0.6589 := by
+    linear_combination
+      1 / 2 * (h₁ + h₂) + 1 / 6 * h₃ + 1 / 6 * h₄ + 5 / 12 * hbc3' + 1 / 6 * hs2 + 5 / 24 * hδ
+  have := hν.trans_le this
+  norm_num1 at this
 
-  -- have : ν < 1 / 2 * (1 + δ + ∑ i ≤ d with i ≠ 3, max (a i) (b i)) := by
-  --   refine hfab.trans_le ?_
-
-
-include ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg in
+include ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hfab hfac hfbc hdab hdac htab htac htbc hg in
 lemma case_2_subcase_6
     (hd : 5 ≤ d)
     (hν : 0.66 < ν)
@@ -1559,19 +1579,10 @@ lemma case_2_subcase_6
   have hbc3' : 0.33 - 1 / 2 * δ ≤ b 3 + c 3 := by
     by_contra!
     exact hτ (b 3 + c 3) (by simp [SubSums]) ⟨hbc3, this.le⟩
-  have : s 1 + s 2 ≤ 0.1763 := by
-    linear_combination 1 / 2 * hbc3' + 1 / 2 * hcb + ha3' + hba + 5 / 4 * hδ
-  have hb3 : b 3 < 0.171 := by
-    have := bound_4_point_12 ha hb htab 3 (by simp; omega) hν
-    linear_combination 1 / 2 * hba + 1 / 2 * this + 1 / 2 * hδ
-  have hc3 : 0.158 ≤ c 3 := by
-    linear_combination hbc3' + hb3 + 1 / 2 * hδ
-  sorry
+  exact case_2_subcase_6_end_ec ha hb hc h45a h45b h45c hfab hfac hfbc hd hν hδ hε₀
+    hε hba hcb hbc3' hs2
 
-
-#exit
-
-include ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg in
+include ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hfab hfac hfbc hdab hdac htab htac htbc hg in
 lemma case_2
     (hd : 5 ≤ d) (hν : 0.66 < ν)
     (hs₂ : s 2 < 0.3) (hδ : δ ≤ 0.001) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
@@ -1586,7 +1597,8 @@ lemma case_2
         hd hν hs₂ (by linear_combination hδ) hε₀ hε hba hcb h
     · exact case_2_subcase_5 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg
         hd hν hs₂ (by linear_combination hδ) hε₀ hε hba hcb h
-    · exact case_2_subcase_6 h44 hg (by omega) hν hδ hs₂ h
+    · exact case_2_subcase_6 ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hfab hfac hfbc hdab hdac
+        htab htac htbc hg hd hν hs₂ hδ hε₀ hε hba hcb h
   by_contra! h
   simp only [Set.mem_Icc, not_and_or, not_le] at h
   obtain ⟨h₁, h₂, (h₃ | h₃), h₄⟩ := h
@@ -1594,8 +1606,8 @@ lemma case_2
     norm_num1 at *
     linarith +splitHypotheses
 
-include ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hdab hdac htab htac htbc hfab hg in
-theorem thm_4_point_3 (hd : 6 ≤ d) (hδ : δ ≤ 0.001) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
+include ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hfab hfac hfbc hdab hdac htab htac htbc hfab hg in
+theorem thm_4_point_3_asymm (hd : 6 ≤ d) (hδ : δ ≤ 0.001) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3) :
     ν ≤ 0.66 := by
   by_contra! hν
@@ -1604,7 +1616,34 @@ theorem thm_4_point_3 (hd : 6 ≤ d) (hδ : δ ≤ 0.001) (hε₀ : 0 < ε) (hε
     exact case_1 ha hb hc h43ab h43ac h43bc h44 h45a h45b hfab htab htac htbc hg hd hν
       hs₂ (by linear_combination hδ) hε₀ (by linear_combination hε) hcb hba
   case inr hs₂ =>
-    exact case_2 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg (by omega) hν
-      hs₂ (by linear_combination hδ) hε₀ hε hba hcb
+    exact case_2 ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hfab hfac hfbc hdab hdac htab htac
+      htbc hg (by omega) hν hs₂ (by linear_combination hδ) hε₀ hε hba hcb
+
+include
+  ha hb hc
+  h43ab h43ac h43bc
+  h44
+  h45a h45b h45c
+  hfab hfac hfbc
+  hdab hdac hdbc
+  htab htac htbc
+  hfab hfac hfbc
+  hg in
+theorem thm_4_point_3
+    (hd : 6 ≤ d) (hδ : δ ≤ 0.001)
+    (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000) :
+    ν ≤ 0.66 := by
+  wlog hba : b 3 ≤ a 3 generalizing a b
+  · exact this hb ha h43ab.symm h43bc h43ac h44.left_comm h45b h45a hfab.symm hfbc hfac hdab.symm
+      hdbc hdac htab.symm htbc htac hg.left_comm (le_of_not_le hba)
+  wlog hcb : c 3 ≤ b 3 generalizing a b c
+  · obtain hca | hac := le_total (c 3) (a 3)
+    · exact this hb h45b ha hc h43ac h43ab h43bc.symm h44.right_comm h45a h45c hfac hfab hfbc.symm
+        hdac hdab hdbc.symm htac htab htbc.symm hg.right_comm hca (le_of_not_le hcb)
+    · exact this hb h45b hc ha h43ac.symm h43bc.symm h43ab h44.right_comm.left_comm h45c h45a
+        hfac.symm hfbc.symm hfab hdac.symm hdbc.symm hdab htac.symm htbc.symm htab
+        hg.right_comm.left_comm hac hba
+  exact thm_4_point_3_asymm ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hfab hfac hfbc hdab hdac
+    htab htac htbc hg hd hδ hε₀ hε hba hcb
 
 end
