@@ -1647,9 +1647,9 @@ $b_3+c_3<0.33-\frac{s_2}{2}-\frac{\delta}{2}$.}
   $\nu \leq 0.66$ in the case $s_2<0.3$ and $2s_1-s_2>0.025$.
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{lem:SubSumGeometry, lem:Subcase2.3, lem:Subcase2.4, lem:Subcase2.5, lem:Subcase2.1,
     lem:ThreeLowerBounds, lem:deltaBounds, prop:FourierBound}
-  % TODO(BM): add correct deps
 
 In this case we note that the intervals in
 \eqref{eq:Geotau3}  overlap, since $\delta\leq 0.001$.
@@ -1741,9 +1741,12 @@ This completes the proof.
 \end{proof}
 
 \begin{theorem}\label{thm:ABCExponentNu}
+  \lean{thm_4_point_3}
+  \leanok
   $\nu \le 0.66$.
 \end{theorem}
 \begin{proof}
+  \leanok
   \uses{lem:Case1, lem:Case2}
   Immediate from Lemmas~\ref{lem:Case1} and~\ref{lem:Case2}.
 \end{proof}
