@@ -1650,82 +1650,94 @@ $b_3+c_3<0.33-\frac{s_2}{2}-\frac{\delta}{2}$.}
   \uses{lem:SubSumGeometry, lem:Subcase2.3, lem:Subcase2.4, lem:Subcase2.5, lem:Subcase2.1,
     lem:ThreeLowerBounds, lem:deltaBounds, prop:FourierBound}
   % TODO(BM): add correct deps
-  In this case we note that the intervals in~\eqref{eq:Geotau3} overlap, since $\delta\leq 0.001$.
-  Hence for any $\tau_3$ belonging to the set~\eqref{eq:taujdef}, we have
-  \begin{equation}\label{eq:tau3S6}
-    \tau_3\in
-    \left(0.34-s_1-s_2+ \delta, \;
-    0.33-\frac{\delta}{2}\right)
-    \Longrightarrow
-    \nu < 0.66.
-  \end{equation}
-  Furthermore, in the light of Subcases $\mathbf{2.3}$ and $\mathbf{2.4}$, we may assume that
-  $4s_1+3s_2\leq 0.71$ and $4s_1+s_2\geq 0.4$. In particular, these imply
-  that $s_1\leq \frac{0.71}{4}\leq 0.1775$ and
-  $s_2 \leq \frac{1}{3}(0.71 - 4s_1) \leq \frac{1}{3}(0.71-0.4+s_2)$, so that $s_2\leq 0.155$.
-  Then, on appealing to Subcase $\mathbf{S}_5$, we may assume that $s_2< 0.066$.
-  Similarly, it follows from Subcase $\mathbf{S}_1$ that we may also assume $a_3<0.32$.
-  Thus~\eqref{eq:tau3S6} and the bound $\delta\leq 0.001$ imply that we may assume $a_3< 0.34-s_1-s_2+ \delta$.
 
-  If we also had $b_3+c_3<0.34-s_1-s_2+\delta$, then we would have $s_3 = a_3 + b_3 +c_3 < 0.68-2s_1-2s_2+2\delta$.
-  Combining this with ~\eqref{eq:s3>s12}, we would then conclude that
-  \[
-    0.68-2s_1-2s_2+2\delta>
-    s_3 \ge 1-4\delta_s-3s_1-2s_2,
-  \]
-  which implies that
-  $s_1>0.32-4\delta_s-2\delta$.
-  Recalling~\eqref{eq:robin3} and the inequalities
-  $s_1\leq 0.1775$ and $\delta\leq 0.001$, this is a contradiction.
-  Hence we may assume that $b_3+c_3\ge 0.34-s_1-s_2+ \delta$, and by~\eqref{eq:tau3S6}, we may assume $\tau_3=b_3+c_3\geq 0.33-\frac{\delta}{2}$, so $b_3>0.165-\frac{\delta}{4}> 0.164$. Thus we have $a_3,b_3\in [0.164, 0.341-s_1-s_2]$,
-  since $\delta\leq 0.001$.
-  In particular the interval is nontrivial, so $s_1+s_2\le 0.1775$.
+In this case we note that the intervals in
+\eqref{eq:Geotau3}  overlap, since $\delta\leq 0.001$.
+Hence for any $\tau_3$ belonging to the set \eqref{eq:taujdef}, we have
+\begin{equation}\label{eq:tau3S6}
+\tau_3\in
+ \left(0.34-s_1-s_2+ \delta, \;
+ 0.33-\frac{\delta}{2}\right)
+ \Longrightarrow
+\nu < 0.66.
+\end{equation}
+Furthermore,
+in the light of Subcases $\mathbf{S_3}$ and $\mathbf{S_4}$, we may assume that
+ $4s_1+3s_2\leq 0.71$ and $4s_1+s_2\geq 0.4$. In particular, these imply
+ that $s_1\leq  \frac{0.71}{4}\leq 0.1775$ and
+  $s_2 \leq  \frac{1}{3}(0.71 - 4s_1) \leq  \frac{1}{3}(0.71-0.4+s_2)$,  so that $s_2\leq 0.155$. Then, on appealing to Subcase
+ $\mathbf{S}_5$, we  may assume that $s_2< 0.066$. Similarly, it follows from Subcase $\mathbf{S}_1$ that we may also assume $a_3<0.32$. Thus  \eqref{eq:tau3S6} and the bound $\delta\leq 0.001$ imply that we may assume $a_3< 0.34-s_1-s_2+ \delta$.
+
+If we also had  $b_3+c_3<0.34-s_1-s_2+\delta$,  then we would have $s_3 = a_3 + b_3 +c_3 < 0.68-2s_1-2s_2+2\delta$. Combining this with
+ \eqref{eq:s3>s12}, we would then conclude that
+$$
+0.68-2s_1-2s_2+2\delta>
+s_3 \ge 1-4\delta_s-3s_1-2s_2,
+$$
+which implies that
+$s_1>0.32-4\delta_s-2\delta$.
+Recalling  \eqref{eq:robin3} and the inequalities
+$s_1\leq 0.1775
+ $ and $\delta\leq 0.001$, this is  a contradiction.
+   Hence we may assume that  $b_3+c_3\ge 0.34-s_1-s_2+ \delta$, and by \eqref{eq:tau3S6}, we may assume $\tau_3=b_3+c_3\geq  0.33-\frac{\delta}{2}$, so $b_3>0.165-\frac{\delta}{4}> 0.164$. Thus we have $a_3,b_3\in [0.164, 0.341-s_1-s_2]$,
+   since $\delta\leq 0.001$.
+    In particular the interval is nontrivial, so $s_1+s_2\le 0.1775$.
 
 
-  Letting $M_i = \max(a_i, b_i)$ and $m_i = \min(a_i, b_i)$, it follows from the Fourier bound that
-  \begin{align*}
-    \nu &< \frac{1}{2}\Big(1+\delta+\sum_{i}\max(a_i, b_i) - \max(a_3,b_3)\Big) = \frac{1}{2}\Big(1+\delta+\sum_{i\neq3}M_i\Big).
-  \end{align*}
-  It follows from~\eqref{eq:ai1/3} that
-  $\sum_i (M_i+m_i)=\frac{2}{3}-\delta_{ab}$, and so
-  \begin{align*}
-    2\nu-1 -\delta\le \sum_{i\neq3}M_i
-    &\le M_1+M_2 + \sum_{i\ge4}(M_i+m_i)\\
-    &= M_1+M_2 + \Big(\frac{2}{3} - \delta_{ab} - \sum_{i\le3}(M_i+m_i)\Big)\\
-    & \le \frac{2}{3} - \delta_{ab} - m_1 - m_2 - m_3 - M_3.
-  \end{align*}
+Letting $M_i = \max(a_i, b_i)$ and  $m_i = \min(a_i, b_i)$, it follows from  the Fourier bound that
+\begin{align*}
+\nu &< \frac{1}{2}\Big(1+\delta+\sum_{i}\max(a_i, b_i) - \max(a_3,b_3)\Big) = \frac{1}{2}\Big(1+\delta+\sum_{i\neq3}M_i\Big).
+\end{align*}
+It follows from \eqref{eq:ai1/3} that
+$\sum_i (M_i+m_i)=\frac{2}{3}-\delta_{ab}$, and so
+\begin{align*}
+2\nu-1 -\delta\le \sum_{i\neq3}M_i
+&\le M_1+M_2 + \sum_{i\ge4}(M_i+m_i)\\
+&= M_1+M_2 + \Big(\frac{2}{3} - \delta_{ab} - \sum_{i\le3}(M_i+m_i)\Big)\\
+& \le \frac{2}{3} - \delta_{ab} - m_1 - m_2  - m_3 - M_3.
+\end{align*}
 
-  By~\eqref{eq:black1} we have $3a_1 + 2a_2 + a_3 \ge \frac{1}{3}-4\delta_a$, and similarly,
-  $3b_1 + 2b_2 +b_3 \ge \frac{1}{3}-4\delta_b$. Thus $m_1 \ge \frac{1}{3}(\frac{1}{3}-2M_2 - M_3-4\max(\delta_a,\delta_b))$.
-  This together with the bounds $\delta\leq 0.001$, $a_3,b_3>0.164$ and~\eqref{eq:robin1} leads to the upper bound
-  \begin{align*}
-    2\nu-1 -\delta
-    & \le \frac{2}{3}
-    -\delta_{ab}
-    + \frac{1}{3}(2M_2 + M_3-\frac{1}{3}+4\max(\delta_a,\delta_b)) - m_2 - m_3 - M_3 \\
-    & = \frac{5}{9} + \frac{2}{3}M_2
-    +\frac{1}{3}\max(\delta_a,\delta_b)- \min(\delta_a,\delta_b)
-    - m_3 - \frac{2}{3}M_3 \\
-    &\le \frac{5}{9} + \frac{2}{3}M_2+
-    \frac{1}{3}(0.01\bar{3}+\delta+\eps) + (0.00\bar{6}+\delta)
-    - \frac{5}{3}(0.164)\\
-    &\le 0.295+\frac{2}{3}M_2,
-  \end{align*}
-  using $\delta_a,\delta_b\in [-0.00\bar{6}-\delta,\, 0.01\bar{3}+\delta+\eps]$.
-  Thus
-  \[
-  \nu\leq \frac{1.296}{2}+\frac{1}{3}M_2.
-  \]
-  It follows that
-  $\nu< 0.66$ provided $M_2 < 0.036$.
-  Otherwise, we may assume that $M_2=\max(a_2,b_2) \geq 0.036$.
-  A similar argument with $(a_i,c_i)$ and $(b_i,c_i)$ gives
-  \begin{align*}
-  \nu
-  \leq \frac{1.296}{2}+\frac{1}{3}\max(a_2,c_2),\qquad
-  \nu & \leq \frac{1.296}{2}+ \frac{1}{3}\max(b_2,c_2).
-  \end{align*}
-  Hence we may assume that two of $a_2,b_2,c_2$ are $\geq 0.036$. But then $s_2 \geq 2( 0.036) = 0.072$, which contradicts the fact that $s_2< 0.066$.
+
+By \eqref{eq:black1} we have $3a_1 + 2a_2 + a_3 \ge \frac{1}{3}-4\delta_a$, and similarly,
+$3b_1 + 2b_2 +b_3 \ge \frac{1}{3}-4\delta_b$. Thus $m_1 \ge \frac{1}{3}(\frac{1}{3}-2M_2 - M_3-4\max(\delta_a,\delta_b))$.
+This together with the bounds $\delta\leq 0.001$ and \eqref{eq:robin1} lead to the upper bound
+\begin{align*}
+2\nu-1 -\delta
+& \le \frac{2}{3}
+-\delta_{ab}
++ \frac{1}{3}(2M_2 + M_3-\frac{1}{3}+4\max(\delta_a,\delta_b)) - m_2 - m_3 - M_3 \\
+& \le \frac{5}{9} +  \frac{2}{3}M_2
++\frac{1}{3}\max(\delta_a,\delta_b)- \min(\delta_a,\delta_b)
+- m_3 - \frac{2}{3}M_3  \\
+&\le \frac{5}{9} +  \frac{2}{3}M_2+
+\frac{1}{3}(0.01\bar{3}+\delta+\eps) + (0.00\bar{6}+\delta)
+- m_3 - \frac{2}{3}M_3\\
+&\le 0.568+\frac{2}{3}(M_2-M_3)- m_3,
+\end{align*}
+using $\delta_a,\delta_b\in [-0.00\bar{6}-\delta,\, 0.01\bar{3}+\delta+\eps]$ and $b_3 + c_3 \ge 0.33 - \frac{\delta}{2}$. Thus we have
+\begin{align}\label{eq:nuleqM2}
+\nu & \le 0.784 + \frac{1}{3}\big(\max(a_2,b_2)-\max(a_3,b_3)\big) - \frac{1}{2}\min(a_3,b_3) \nonumber\\
+&\le 0.784 + \frac{1}{3}\big(\max(a_2,b_2)-a_3\big) - \frac{1}{2}b_3
+\end{align}
+
+
+Next, if $a_2<b_2$, let $e_i := a_i$ for all $i\ge1$, otherwise let $e_i := b_i$ for all $i\ge1$. In particular, note $e_2 = \min(a_2,b_2)$ and $e_3 \ge \min(a_3,b_3)\ge c_3$. By a similar argument with $(a_i,b_i)_i$ replaced by $(e_i,c_i)_i$, we have
+\begin{align*}
+\nu &\le 0.784 + \frac{1}{3}\big(\max(e_2,c_2)-\max(e_3,c_3)\big) - \frac{1}{2}\min(e_3,c_3)\\
+&\le 0.784 + \frac{1}{3}\big(\max(e_2,c_2)-e_3\big) - \frac{1}{2}c_3.
+\end{align*}
+
+Averaging the bound with \eqref{eq:nuleqM2}, we obtain
+\begin{align}
+\nu &\le 0.784 + \frac{1}{6}\big(\max(a_2,b_2)+\max(e_2,c_2)-a_3-e_3\big) - \frac{1}{4}(b_3+c_3) \nonumber\\
+&\le 0.784 + \frac{1}{6}s_2 - \frac{5}{12}(b_3+c_3) \nonumber\\
+&\le 0.784 + \frac{1}{6}(0.066) - \frac{5}{12}(0.33 - \tfrac{\delta}{2})
+ \le 0.658.
+\end{align}
+Here we used $\max(a_2,b_2)+\max(e_2,c_2) = \max\big(a_2+b_2, \, \max(a_2,b_2) + c_2\big) \le s_2$ and $a_3+e_3 \ge b_3+c_3 \ge 0.33 - \frac{\delta}{2}$.
+
+This completes the proof.
+
 \end{proof}
 
 \begin{theorem}\label{thm:ABCExponentNu}
