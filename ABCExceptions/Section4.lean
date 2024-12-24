@@ -1,73 +1,13 @@
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Tactic.NormNum.BigOperators
+import ABCExceptions.ForMathlib.Misc
 
 noncomputable section
 
 open Set
 
 variable {d : ℕ} {δ ε ν : ℝ} {a b c : ℕ → ℝ}
-
--- TODO (BM): move everything in this section to mathlib
-section
-
-lemma Nat.Iic_eq_Icc (n : ℕ) : Finset.Iic n = Finset.Icc 0 n := by simp [Finset.Iic_eq_Icc]
-
-theorem Finset.Ico_union_Icc_eq_Icc {α : Type*} [LinearOrder α] [DecidableEq α]
-    [LocallyFiniteOrder α] {a b c : α} (h₁ : a ≤ b) (h₂ : b ≤ c) :
-    Ico a b ∪ Icc b c = Icc a c := by
-  simp [← Finset.coe_inj, Set.Ico_union_Icc_eq_Icc h₁ h₂]
-
-theorem Nat.Ico_union_Icc_eq_Icc {a b c : ℕ} (h₁ : a ≤ b) (h₂ : b ≤ c + 1) :
-    Finset.Ico a b ∪ Finset.Icc b c = Finset.Icc a c := by
-  ext i
-  simp only [Finset.mem_union, Finset.mem_Ico, Finset.mem_Icc]
-  omega
-
-theorem Nat.Icc_union_Icc_eq_Icc {a b c : ℕ} (h₁ : a ≤ b) (h₂ : b ≤ c) :
-    Finset.Icc a b ∪ Finset.Icc (b + 1) c = Finset.Icc a c := by
-  ext i
-  simp only [Finset.mem_union, Finset.mem_Icc]
-  omega
-
-@[to_additive]
-theorem Finset.prod_Icc_succ_bot {M : Type*} [CommMonoid M] {a b : ℕ}
-    (hab : a ≤ b) (f : ℕ → M) :
-    (∏ k in Icc a b, f k) = f a * (∏ k in Icc (a + 1) b, f k) := by
-  rw [← Nat.Icc_insert_succ_left hab, prod_insert]
-  simp
-
-lemma Finset.finite_subsets (s : Finset ℕ) : {a | a ⊆ s}.Finite := by
-  simpa using s.powerset.finite_toSet
-
-@[to_additive]
-lemma prod_Icc_eq_prod_range_mul_prod_Icc {α : Type*} [CommMonoid α] {f : ℕ → α} {t : ℕ}
-    (ht : t ≤ d + 1) :
-    ∏ i ≤ d, f i = (∏ i ∈ Finset.range t, f i) * ∏ i ∈ Finset.Icc t d, f i := by
-  rw [Nat.Iic_eq_Icc, ← Nat.Ico_union_Icc_eq_Icc (zero_le _) ht, Nat.Ico_zero_eq_range,
-    Finset.prod_union]
-  simp +contextual [Finset.disjoint_left]
-
--- See note [no_index around OfNat.ofNat]
-@[simp]
-theorem coe_ofNat_eq_mod (m n : ℕ) [NeZero m] :
-    ((no_index (OfNat.ofNat n) : Fin m) : ℕ) = OfNat.ofNat n % m :=
-  rfl
-
-lemma Iic_sdiff_Icc_eq_inter {α : Type*} [LinearOrder α]
-    [LocallyFiniteOrder α] [LocallyFiniteOrderBot α] {x y : α} :
-    Finset.Iic x \ Finset.Icc y x = Finset.Iic x ∩ Finset.Iio y := by
-  ext a; simp +contextual [- not_and]
-
-lemma Iic_sdiff_Icc_of_le {α : Type*}  [LinearOrder α]
-    [LocallyFiniteOrder α] [LocallyFiniteOrderBot α] {x y : α} (h : y ≤ x) :
-    Finset.Iic x \ Finset.Icc y x = Finset.Iio y := by
-  ext a
-  have : a < y → a < x := fun h₁ ↦ h₁.trans_le h
-  simp only [Finset.mem_sdiff, Finset.mem_Icc, not_and']
-  aesop (add unsafe forward le_of_lt)
-
-end
 
 structure baseAssumptions (d : ℕ) (a : ℕ → ℝ) : Prop where
 (nonneg : ∀ i, 0 ≤ a i)
@@ -1429,8 +1369,7 @@ lemma case_2_subcase_5
 
   linear_combination h₂ + h₃ + 2 * h₁ + (3 / 2) * h.2 + (7 / 2) * hδ
 
--- example {a b c : ℝ} : a + b - c = b + (a - c) := by
---   rw [add_sub_assoc', add_comm]
+-- lemma Nat.Iic_add_one {a : ℕ} : Finset.Iic (a + 1) = insert a (Finset.Iic a) := by sorry
 
 include ha hb h45a h45b hfab in
 lemma case_2_subcase_6_end_ab
@@ -1440,23 +1379,15 @@ lemma case_2_subcase_6_end_ab
     (hε : ε ≤ 1 / 100000)
     (hba : b 3 ≤ a 3) :
     ν ≤ 0.78451 + 1 / 3 * (a 2 ⊔ b 2 - a 3) - 1 / 2 * b 3 := by
-  have h₁ : ∑ i ≤ d, a i ⊔ b i ≤ 2 / 3 - δ_ d a - δ_ d b - a 1 ⊓ b 1 - a 2 ⊓ b 2 - a 3 ⊓ b 3 := calc
-    _ ≤ ∑ i in range 4, a i ⊔ b i + ∑ i in Icc 4 d, a i ⊔ b i := by
-      rw [sum_Icc_eq_sum_range_add_sum_Icc (t := 4) (by omega)]
-    _ ≤ ∑ i in range 4, (a i ⊔ b i) + ∑ i in Icc 4 d, (a i + b i) := by
-      gcongr with i
-      apply max_le_add_of_nonneg (ha.nonneg i) (hb.nonneg i)
-    _ = ∑ i in range 4, (a i + b i - a i ⊓ b i) + ∑ i in Icc 4 d, (a i + b i) := by
-      congr with i
-      linear_combination min_add_max (a i) (b i)
-    _ = ∑ i ≤ d, (a i + b i) - ∑ i in range 4, (a i ⊓ b i) := by
-      rw [sum_Icc_eq_sum_range_add_sum_Icc (t := 4) (by omega), Finset.sum_sub_distrib]
-      ring
-    _ ≤ ∑ i ≤ d, (a i + b i) - (a 1 ⊓ b 1 + a 2 ⊓ b 2 + a 3 ⊓ b 3) := by
-      simp [Finset.sum_range, Fin.sum_univ_four, ha.zero, hb.zero]
-    _ = _ := by
-      rw [Finset.sum_add_distrib, δ_, δ_]
-      ring_nf
+  have h₁ : ∑ i ≤ d, a i ⊔ b i + a 1 ⊓ b 1 + a 2 ⊓ b 2 + a 3 ⊓ b 3 ≤ 2 / 3 - δ_ d a - δ_ d b := by calc
+    _ = ∑ i ≤ d, a i ⊔ b i + ∑ i in range 4, a i ⊓ b i := by
+      simp [Finset.sum_range_succ, ha.zero, hb.zero, add_assoc]
+    _ ≤ ∑ i ≤ d, a i ⊔ b i + ∑ i ≤ d, a i ⊓ b i := by
+      gcongr
+      · simp [ha.nonneg, hb.nonneg]
+      · intro i; simp; omega
+    _ ≤ ∑ i ≤ d, (a i + b i) := by simp [← Finset.sum_add_distrib]
+    _ = _ := by simp [Finset.sum_add_distrib, δ_, min_add_max]; ring
 
   have h₂ : 2 * ν - 1 - δ ≤ ∑ i ≤ d, a i ⊔ b i - a 3 ⊔ b 3 := by
     linear_combination 2 * hfab.three (by omega)
