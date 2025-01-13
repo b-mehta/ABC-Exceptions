@@ -1,7 +1,9 @@
 import Mathlib.Algebra.GCDMonoid.Nat
 import Mathlib.Algebra.Squarefree.Basic
 import Mathlib.Data.Nat.PrimeFin
+import Mathlib.RingTheory.Coprime.Lemmas
 import Mathlib.RingTheory.Radical
+import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 
 lemma Nat.primeFactors_eq (n : ℕ) :
     UniqueFactorizationMonoid.primeFactors n = Nat.primeFactors n := by
@@ -159,5 +161,3 @@ theorem disjoint_normalizedFactors' {a b : R} (hc : IsCoprime a b) :
   disjoint_normalizedFactors hc.isRelPrime
 
 end UniqueFactorizationMonoid
-
-#min_imports
