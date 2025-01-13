@@ -1,4 +1,10 @@
-import Mathlib
+import Mathlib.Algebra.GCDMonoid.Nat
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Data.Real.StarOrdered
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.RingTheory.Radical
+import Mathlib.RingTheory.SimpleModule
+import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 
 open UniqueFactorizationMonoid
 
