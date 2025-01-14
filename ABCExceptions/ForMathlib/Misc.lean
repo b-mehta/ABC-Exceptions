@@ -1,4 +1,4 @@
-import Mathlib.Algebra.BigOperators.Group.Finset
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.Order.Ring.Nat
 import Mathlib.Order.Interval.Finset.Nat
 
