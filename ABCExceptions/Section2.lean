@@ -1,4 +1,5 @@
 import Mathlib.Algebra.GCDMonoid.Nat
+import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Order.CompletePartialOrder
@@ -6,11 +7,13 @@ import Mathlib.RingTheory.Radical
 import Mathlib.RingTheory.SimpleModule
 import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 
+import ABCExceptions.ForMathlib.RingTheory.Radical
+
 open UniqueFactorizationMonoid
 
 open Classical in
 noncomputable def ABCTriples_finset (μ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ) :=
-  (Finset.Icc (2, 2, 2) (X, X, X)).filter fun ⟨a, b, c⟩ ↦
+  (Finset.Icc (1, 1, 1) (X, X, X)).filter fun ⟨a, b, c⟩ ↦
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
     a + b = c ∧
     radical (a * b * c) < (c ^ μ : ℝ)
@@ -21,24 +24,25 @@ theorem mem_ABCTriples (μ : ℝ) (X : ℕ) (a b c : ℕ) :
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
     a + b = c ∧
     radical (a * b * c) < (c ^ μ : ℝ) ∧
-    (a, b, c) ∈ Set.Icc (2, 2, 2) (X, X, X) := by
-  sorry
+    (a, b, c) ∈ Set.Icc (1, 1, 1) (X, X, X) := by
+  simp [ABCTriples_finset]
+  aesop
 
 def ABCTriples (μ : ℝ) (X : ℕ) : Set (ℕ × ℕ × ℕ) :=
   { (a, b, c) : ℕ × ℕ × ℕ |
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
     a + b = c ∧
     radical (a * b * c) < (c ^ μ : ℝ) ∧
-    (a, b, c) ∈ Set.Icc (2, 2, 2) (X, X, X) }
+    (a, b, c) ∈ Set.Icc (1, 1, 1) (X, X, X) }
 
 noncomputable def countTriples (μ : ℝ) (X : ℕ) : ℕ :=
   (ABCTriples μ X).ncard
 
 lemma countTriples_eq (μ : ℝ) (X : ℕ) :
     countTriples μ X =
-      ({ (a, b, c) | 1 < a ∧ 1 < b ∧ 1 < c ∧ a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧ a + b = c ∧
+      ({(a, b, c) | 0 < a ∧ 0 < b ∧ 0 < c ∧ a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧ a + b = c ∧
          radical (a * b * c) < (c ^ μ : ℝ) } ∩
-       Set.Icc (2, 2, 2) (X, X, X)).ncard := by
+       Set.Icc (1, 1, 1) (X, X, X)).ncard := by
   rw [countTriples, ABCTriples]
   congr 1
   ext ⟨a, b, c⟩
@@ -47,11 +51,12 @@ lemma countTriples_eq (μ : ℝ) (X : ℕ) :
 
 lemma ABCTriples_eq_ABCTriples_finset (μ : ℝ) (X : ℕ) :
     ABCTriples μ X = ABCTriples_finset μ X := by
-  sorry
+  ext ⟨a, b, c⟩
+  simp [ABCTriples]
 
 lemma countTriples_eq_finset_card (μ : ℝ) (X : ℕ) :
     countTriples μ X = (ABCTriples_finset μ X).card := by
-  sorry
+  rw [countTriples, ← Set.ncard_coe_Finset, ABCTriples_eq_ABCTriples_finset]
 
 def ABCConjecture : Prop := ∀ ε : ℝ, 0 < ε →
   Set.Finite
@@ -88,7 +93,6 @@ lemma forall_increasing {α : Type*} (f : ℕ → Set α) (hf : Monotone f) (hf'
 /- This proof broke because we changed the definition of countTriples to have 2 ≤ a, b, c. -/
 lemma abcConjecture_iff :
     ABCConjecture ↔ ∀ μ > 0, μ < 1 → (countTriples μ · : ℕ → ℝ) =O[atTop] (fun _ ↦ (1 : ℝ)) := by
-  stop
   simp only [isBigO_one_nat_atTop_iff]
 
   constructor
@@ -201,27 +205,29 @@ theorem Nat.two_le_radical  {n : ℕ} (hn : 2 ≤ n) : 2 ≤ radical n := by
   · apply Nat.le_of_dvd
     · apply Nat.pos_of_ne_zero
       exact radical_ne_zero n
-    sorry
+    rw [dvd_radical_iff_of_irreducible hp.1.prime.irreducible (by omega)]
+    exact hp.2
 
 theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
     ABCTriples_finset μ X ⊆
-      (Finset.Icc 1 (Nat.log 2 X)).biUnion fun i ↦
-      (Finset.Icc 1 (Nat.log 2 X)).biUnion fun j ↦
-      (Finset.Icc 1 (Nat.log 2 X)).biUnion fun k ↦
+      (Finset.Icc 0 (Nat.log 2 X)).biUnion fun i ↦
+      (Finset.Icc 0 (Nat.log 2 X)).biUnion fun j ↦
+      (Finset.Icc 0 (Nat.log 2 X)).biUnion fun k ↦
       (Finset.Icc 1 (Nat.log 2 X)).biUnion fun n ↦
         dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n) := by
   rintro ⟨a, b, c⟩
   simp only [mem_ABCTriples, Set.mem_Icc, Prod.mk_le_mk, Finset.mem_biUnion,
     Finset.mem_Icc, mem_dyadicPoints, Nat.cast_pow, Nat.cast_ofNat, and_imp]
   intro hab hac hbc habc hrad h1a h1b h1c haX hbX hcX
-  -- refine ⟨hab, hac, hbc, habc, ?_⟩
-  have {a : ℕ} (h2a : 2 ≤ a) (haX : a ≤ X) : 1 ≤ Nat.log 2 (radical a) ∧ Nat.log 2 (radical a) ≤ Nat.log 2 X := by
+  have h {a : ℕ} (h2a : 2 ≤ a) (haX : a ≤ X) : 1 ≤ Nat.log 2 a ∧ Nat.log 2 a ≤ Nat.log 2 X := by
     constructor
     · apply Nat.le_log_of_pow_le (by norm_num)
-      simp [Nat.two_le_radical h2a]
-    · apply Nat.log_mono_right
-      apply (Nat.radical_le_self (by omega)).trans haX
-  refine ⟨Nat.log 2 (radical a), this h1a haX, Nat.log 2 (radical b), this h1b hbX, Nat.log 2 (radical c), this h1c hcX,  Nat.log 2 c, sorry, ?_⟩
+      simp [h2a]
+    · apply Nat.log_mono_right haX
+  have {a : ℕ} (ha : 1 ≤ a) (haX : a ≤ X) : Nat.log 2 (radical a) ≤ Nat.log 2 X := by
+    apply Nat.log_mono_right ((Nat.radical_le_self (by omega)).trans haX)
+  simp only [zero_le, true_and]
+  refine ⟨Nat.log 2 (radical a), this h1a haX, Nat.log 2 (radical b), this h1b hbX, Nat.log 2 (radical c), this h1c hcX,  Nat.log 2 c, h (by omega) hcX, ?_⟩
   have {a c : ℕ} (hc : 2 ≤ c) : ((2:ℝ) ^ (Nat.log 2 c)) ^ ((↑(Nat.log 2 (radical a))) / (↑(Nat.log 2 c) ) : ℝ) =
       2^(Nat.log 2 (radical a)) := by
     rw [← Real.rpow_natCast_mul (by norm_num)]
@@ -262,26 +268,26 @@ theorem sum_le_card_mul_sup {ι : Type*} (f : ι → ℕ) (s : Finset ι) :
     simp
 
 theorem card_union_dyadicPoints_le_log_pow_mul_sup (X : ℕ) :
-  ((Finset.Icc 1 (Nat.log 2 X)).biUnion fun i ↦
-    (Finset.Icc 1 (Nat.log 2 X)).biUnion fun j ↦
-    (Finset.Icc 1 (Nat.log 2 X)).biUnion fun k ↦
+  ((Finset.Icc 0 (Nat.log 2 X)).biUnion fun i ↦
+    (Finset.Icc 0 (Nat.log 2 X)).biUnion fun j ↦
+    (Finset.Icc 0 (Nat.log 2 X)).biUnion fun k ↦
     (Finset.Icc 1 (Nat.log 2 X)).biUnion fun n ↦
       dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)).card  ≤
-  (Nat.log 2 X)^4 *
-  (Finset.Icc 1 (Nat.log 2 X)).sup fun i ↦
-  (Finset.Icc 1 (Nat.log 2 X)).sup fun j ↦
-  (Finset.Icc 1 (Nat.log 2 X)).sup fun k ↦
+  (Nat.log 2 X+1)^3 * (Nat.log 2 X) *
+  (Finset.Icc 0 (Nat.log 2 X)).sup fun i ↦
+  (Finset.Icc 0 (Nat.log 2 X)).sup fun j ↦
+  (Finset.Icc 0 (Nat.log 2 X)).sup fun k ↦
   (Finset.Icc 1 (Nat.log 2 X)).sup fun n ↦
     refinedCountTriplesStar (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n) := by
 
-  have : ((Finset.Icc 1 (Nat.log 2 X)).biUnion fun i ↦
-    (Finset.Icc 1 (Nat.log 2 X)).biUnion fun j ↦
-    (Finset.Icc 1 (Nat.log 2 X)).biUnion fun k ↦
+  have : ((Finset.Icc 0 (Nat.log 2 X)).biUnion fun i ↦
+    (Finset.Icc 0 (Nat.log 2 X)).biUnion fun j ↦
+    (Finset.Icc 0 (Nat.log 2 X)).biUnion fun k ↦
     (Finset.Icc 1 (Nat.log 2 X)).biUnion fun n ↦
       dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)) =
-    (Finset.Icc 1 (Nat.log 2 X) ×ˢ
-      Finset.Icc 1 (Nat.log 2 X) ×ˢ
-      Finset.Icc 1 (Nat.log 2 X) ×ˢ
+    (Finset.Icc 0 (Nat.log 2 X) ×ˢ
+      Finset.Icc 0 (Nat.log 2 X) ×ˢ
+      Finset.Icc 0 (Nat.log 2 X) ×ˢ
       Finset.Icc 1 (Nat.log 2 X)).biUnion fun ⟨i, j, k, n⟩ ↦ dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)
     := by
     simp_rw [Finset.product_biUnion]
@@ -290,24 +296,59 @@ theorem card_union_dyadicPoints_le_log_pow_mul_sup (X : ℕ) :
   apply (Finset.card_biUnion_le ..).trans
   simp only
   apply (sum_le_card_mul_sup _ _).trans
-  simp only [Finset.card_product, Nat.card_Icc, add_tsub_cancel_right]
-  gcongr
+  simp only [Finset.card_product, Nat.card_Icc, tsub_zero, add_tsub_cancel_right]
+  gcongr ?_ * ?_
   · apply le_of_eq
     ring
   apply le_of_eq
   simp_rw [refinedCountTriplesStar]
   simp_rw [Finset.sup_product_left]
 
-
-/- Note: Here we're assuming for now that the implicit constant is 1. -/
-theorem countTriples_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) : countTriples μ X ≤
-  (Nat.log 2 X)^4 *
-  (Finset.Icc 1 (Nat.log 2 X)).sup fun i ↦
-  (Finset.Icc 1 (Nat.log 2 X)).sup fun j ↦
-  (Finset.Icc 1 (Nat.log 2 X)).sup fun k ↦
+/- I think there's an issue here: don't we need α + β + γ ≤ μ? As it stands I believe we can only prove
+  α + β + γ ≤ (1+1/n) * γ, but that's only because we changed X/2 ≤ c ≤ X to c ~ X. -/
+noncomputable def dyadicSupBound (X : ℕ) : ℕ :=
+  (Finset.Icc 0 (Nat.log 2 X)).sup fun i ↦
+  (Finset.Icc 0 (Nat.log 2 X)).sup fun j ↦
+  (Finset.Icc 0 (Nat.log 2 X)).sup fun k ↦
   (Finset.Icc 1 (Nat.log 2 X)).sup fun n ↦
-    refinedCountTriplesStar (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n) := by
-  simp_rw [countTriples_eq_finset_card, refinedCountTriplesStar]
+    refinedCountTriplesStar (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)
+
+theorem countTriples_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) : countTriples μ X ≤
+  (Nat.log 2 X+1)^3 * (Nat.log 2 X) * dyadicSupBound X := by
+  simp_rw [countTriples_eq_finset_card, dyadicSupBound, refinedCountTriplesStar]
   apply le_trans _ (card_union_dyadicPoints_le_log_pow_mul_sup X)
   apply Finset.card_le_card
   exact ABCTriples_subset_union_dyadicPoints μ X
+
+theorem Nat.log_isBigO_log (b : ℕ) :
+    (fun x : ℕ ↦ (Nat.log b x : ℝ)) =O[atTop] (fun x : ℕ ↦ Real.log x) := by
+  rw [isBigO_iff]
+  use (Real.log b)⁻¹
+  filter_upwards with x
+  simp only [RCLike.norm_natCast, Real.norm_eq_abs]
+  rw [abs_of_nonneg]
+  apply Real.natLog_le_logb _ _ |>.trans
+  simp [← Real.log_div_log]
+  apply le_of_eq
+  · ring
+  positivity
+
+theorem countTriples_isBigO_dyadicSup :
+    (fun ⟨X, μ⟩ ↦ (countTriples μ X : ℝ)) =O[atTop ×ˢ ⊤]
+      (fun ⟨X, _⟩ ↦ (Real.log X)^4 * dyadicSupBound X) := by
+  trans fun ⟨X, μ⟩ ↦ (Nat.log 2 X+1:ℝ)^3 * (Nat.log 2 X) * dyadicSupBound X
+  · simp only
+    apply IsBigO.of_norm_le
+    simp only [Real.norm_natCast, Prod.forall]
+    exact_mod_cast fun a b ↦ countTriples_le_log_pow_mul_sup b a
+  · simp only
+    apply IsBigO.mul _ (isBigO_refl ..)
+    apply Asymptotics.IsBigO.comp_fst (g := fun x : ℕ ↦ (Real.log x)^4) (f := fun x ↦ (Nat.log 2 x+1:ℝ)^3 * Nat.log 2 x)
+    simp_rw [pow_succ _ 3]
+    apply IsBigO.mul
+    · apply IsBigO.pow
+      apply IsBigO.add
+      · exact Nat.log_isBigO_log 2
+      apply IsLittleO.isBigO
+      apply Real.isLittleO_const_log_atTop.natCast_atTop
+    · exact Nat.log_isBigO_log _
