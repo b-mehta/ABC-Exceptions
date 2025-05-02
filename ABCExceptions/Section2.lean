@@ -173,7 +173,7 @@ noncomputable def dyadicPoints (α β γ : ℝ) (X : ℕ) : Finset (ℕ × ℕ �
       a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
       a + b = c ∧
       (radical a : ℕ) ~ (X ^ α : ℝ) ∧ (radical b : ℕ) ~ (X ^ β : ℝ) ∧ (radical c : ℕ) ~ (X ^ γ : ℝ) ∧
-      c ~ X
+      X / 2 ≤ c ∧ c ≤ X
 
 @[simp]
 theorem mem_dyadicPoints (α β γ : ℝ) (X : ℕ) (a b c : ℕ) :
@@ -181,13 +181,11 @@ theorem mem_dyadicPoints (α β γ : ℝ) (X : ℕ) (a b c : ℕ) :
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
       a + b = c ∧
       (radical a : ℕ) ~ (X ^ α : ℝ) ∧ (radical b : ℕ) ~ (X ^ β : ℝ) ∧ (radical c : ℕ) ~ (X ^ γ : ℝ) ∧
-      c ~ X := by
+      X / 2 ≤ c ∧ c ≤ X := by
   simp only [dyadicPoints, Finset.mem_filter, Finset.mem_Icc, Prod.mk_le_mk,
     and_iff_right_iff_imp, and_imp]
-  intro _ _ _ habc _ _ _ hc
+  intro _ _ _ habc _ _ _ hc hc'
   simp only [zero_le, and_self, true_and]
-  simp only [similar, Set.mem_Icc, Nat.cast_le] at hc
-  norm_cast at hc
   omega
 
 noncomputable def refinedCountTriplesStar (α β γ : ℝ) (X : ℕ) : ℕ :=
@@ -208,17 +206,51 @@ theorem Nat.two_le_radical  {n : ℕ} (hn : 2 ≤ n) : 2 ≤ radical n := by
     rw [dvd_radical_iff_of_irreducible hp.1.prime.irreducible (by omega)]
     exact hp.2
 
+open Classical in
+private noncomputable def indexSet (μ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ × ℕ) :=
+  (Finset.Icc 0 (Nat.log 2 X)) ×ˢ (Finset.Icc 0 (Nat.log 2 X)) ×ˢ
+  (Finset.Icc 0 (Nat.log 2 X)) ×ˢ (Finset.Icc 1 (Nat.log 2 X+1)) |>.filter fun ⟨i, j, k, n⟩ ↦
+    i + j + k ≤ μ * n
+
+private theorem card_indexSet_le (μ : ℝ) (X : ℕ) :
+    (indexSet μ X).card ≤ (Nat.log 2 X + 1)^4 := by
+  apply (Finset.card_filter_le ..).trans
+  simp
+  apply le_of_eq
+  ring
+
+@[simp]
+private theorem mem_indexSet (μ : ℝ) (X : ℕ) (i j k n : ℕ) :
+    ⟨i, j, k, n⟩ ∈ indexSet μ X ↔
+      i ≤ Nat.log 2 X ∧ j ≤ Nat.log 2 X ∧ k ≤ Nat.log 2 X ∧ 1 ≤ n ∧ n ≤ Nat.log 2 X + 1 ∧ i + j + k ≤ μ * n := by
+  simp [indexSet]
+  norm_cast
+  aesop
+
+theorem Nat.Coprime.isRelPrime (a b : ℕ) (h : a.Coprime b) : IsRelPrime a b := by
+  rw [← Nat.coprime_iff_isRelPrime]
+  exact h
+
 theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
     ABCTriples_finset μ X ⊆
-      (Finset.Icc 0 (Nat.log 2 X)).biUnion fun i ↦
-      (Finset.Icc 0 (Nat.log 2 X)).biUnion fun j ↦
-      (Finset.Icc 0 (Nat.log 2 X)).biUnion fun k ↦
-      (Finset.Icc 1 (Nat.log 2 X)).biUnion fun n ↦
+      (indexSet μ X).biUnion fun ⟨i, j, k, n⟩ ↦
         dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n) := by
   rintro ⟨a, b, c⟩
-  simp only [mem_ABCTriples, Set.mem_Icc, Prod.mk_le_mk, Finset.mem_biUnion,
-    Finset.mem_Icc, mem_dyadicPoints, Nat.cast_pow, Nat.cast_ofNat, and_imp]
+  simp only [mem_ABCTriples, Set.mem_Icc, Prod.mk_le_mk, Finset.mem_biUnion, mem_dyadicPoints,
+    Nat.cast_pow, Nat.cast_ofNat, Prod.exists, mem_indexSet, and_imp]
   intro hab hac hbc habc hrad h1a h1b h1c haX hbX hcX
+  have hμ : 0 ≤ μ := by
+    by_contra hμ
+    have : (1:ℝ) ≤ (radical (a * b * c) : ℕ) := by
+      norm_cast
+      have := radical_ne_zero (a * b * c)
+      omega
+    have : (c : ℝ) ^ μ < 1 := by
+      apply Real.rpow_lt_one_of_one_lt_of_neg
+      · norm_cast
+        omega
+      · linarith
+    linarith
   have h {a : ℕ} (h2a : 2 ≤ a) (haX : a ≤ X) : 1 ≤ Nat.log 2 a ∧ Nat.log 2 a ≤ Nat.log 2 X := by
     constructor
     · apply Nat.le_log_of_pow_le (by norm_num)
@@ -226,20 +258,55 @@ theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
     · apply Nat.log_mono_right haX
   have {a : ℕ} (ha : 1 ≤ a) (haX : a ≤ X) : Nat.log 2 (radical a) ≤ Nat.log 2 X := by
     apply Nat.log_mono_right ((Nat.radical_le_self (by omega)).trans haX)
-  simp only [zero_le, true_and]
-  refine ⟨Nat.log 2 (radical a), this h1a haX, Nat.log 2 (radical b), this h1b hbX, Nat.log 2 (radical c), this h1c hcX,  Nat.log 2 c, h (by omega) hcX, ?_⟩
-  have {a c : ℕ} (hc : 2 ≤ c) : ((2:ℝ) ^ (Nat.log 2 c)) ^ ((↑(Nat.log 2 (radical a))) / (↑(Nat.log 2 c) ) : ℝ) =
+  let n := Nat.log 2 c + 1
+  refine ⟨Nat.log 2 (radical a), Nat.log 2 (radical b), Nat.log 2 (radical c), n,
+  ⟨this h1a haX, this h1b hbX, this h1c hcX, by omega, ?_, ?_⟩, hab, hac, hbc, habc, ?_⟩
+  · simp [n, Nat.log_mono_right hcX]
+  · -- Here we prove that α + β + γ ≤ μ
+    have : radical (a * b * c) = radical a * radical b * radical c := by
+      rw [radical_mul (a := a*b) (b := c), radical_mul]
+      · convert hab.isRelPrime
+      exact hac.mul hbc |>.isRelPrime
+    rw [this] at hrad
+    clear this
+    have := calc
+      (2:ℝ) ^ (Nat.log 2 (radical a) + Nat.log 2 (radical b) + Nat.log 2 (radical c)) ≤
+        (radical a : ℕ) * (radical b : ℕ) * (radical c : ℕ) := by
+        norm_cast
+        simp_rw [Nat.pow_add]
+        gcongr <;>
+        · apply Nat.pow_log_le_self
+          exact radical_ne_zero _
+      _ ≤ ↑c ^ μ := by
+        exact_mod_cast hrad.le
+      _ ≤ (2:ℝ) ^ (n * μ) := by
+        norm_cast
+        rw [Real.rpow_natCast_mul (by norm_num)]
+        gcongr
+        norm_cast
+        simp [n]
+        apply le_of_lt
+        rw [Nat.lt_pow_iff_log_lt]
+        · omega
+        · norm_num
+        · omega
+    rw [← Real.rpow_le_rpow_left_iff (show 1 < (2 : ℝ) by norm_num)]
+    norm_cast at this ⊢
+    convert this using 1
+    ring_nf
+  have {a : ℕ} : ((2:ℝ) ^ n) ^ ((↑(Nat.log 2 (radical a))) / ↑(n)  : ℝ) =
       2^(Nat.log 2 (radical a)) := by
     rw [← Real.rpow_natCast_mul (by norm_num)]
-    have : ↑(Nat.log 2 c) * (↑(Nat.log 2 (radical a)) / ↑(Nat.log 2 c):ℝ) = Nat.log 2 (radical a) := by
+    have : ↑(n) * (↑(Nat.log 2 (radical a)) / ↑(n):ℝ) = Nat.log 2 (radical a) := by
       rw [mul_div_cancel₀]
-      simp [hc]
+      simp [n]
+      norm_cast
     rw [this]
-    norm_cast
+    simp
   have hc2 : 2 ≤ c := by
     omega
-  simp_rw [this hc2]
-  have {a : ℕ} :  (radical a : ℕ) ~ 2 ^ (Nat.log 2 (radical a)) := by
+  simp_rw [this]
+  have radical_similar {a : ℕ} :  (radical a : ℕ) ~ 2 ^ (Nat.log 2 (radical a)) := by
     simp [similar]
     norm_cast
     constructor
@@ -248,13 +315,12 @@ theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
     · rw [mul_comm, ← Nat.pow_succ]
       apply (Nat.lt_pow_succ_log_self ..).le
       norm_num
-  refine ⟨hab, hac, hbc, habc, this, this, this, ?_⟩
-  simp [similar]
-  norm_cast
+  refine ⟨radical_similar, radical_similar, radical_similar, ?_⟩
+  simp [n, similar, Nat.pow_succ]
   refine ⟨?_, ?_⟩
   · apply Nat.pow_log_le_self
     omega
-  · rw [mul_comm, ← Nat.pow_succ]
+  · rw [← Nat.pow_succ]
     apply (Nat.lt_pow_succ_log_self ..).le
     norm_num
 
@@ -267,56 +333,26 @@ theorem sum_le_card_mul_sup {ι : Type*} (f : ι → ℕ) (s : Finset ι) :
   _ = s.card * s.sup f := by
     simp
 
-theorem card_union_dyadicPoints_le_log_pow_mul_sup (X : ℕ) :
-  ((Finset.Icc 0 (Nat.log 2 X)).biUnion fun i ↦
-    (Finset.Icc 0 (Nat.log 2 X)).biUnion fun j ↦
-    (Finset.Icc 0 (Nat.log 2 X)).biUnion fun k ↦
-    (Finset.Icc 1 (Nat.log 2 X)).biUnion fun n ↦
-      dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)).card  ≤
-  (Nat.log 2 X+1)^3 * (Nat.log 2 X) *
-  (Finset.Icc 0 (Nat.log 2 X)).sup fun i ↦
-  (Finset.Icc 0 (Nat.log 2 X)).sup fun j ↦
-  (Finset.Icc 0 (Nat.log 2 X)).sup fun k ↦
-  (Finset.Icc 1 (Nat.log 2 X)).sup fun n ↦
+theorem card_union_dyadicPoints_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) :
+  ((indexSet μ X).biUnion fun ⟨i, j, k, n⟩ ↦
+    dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)).card ≤
+  (Nat.log 2 X+1)^4 * (indexSet μ X).sup fun ⟨i, j, k, n⟩ ↦
     refinedCountTriplesStar (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n) := by
-
-  have : ((Finset.Icc 0 (Nat.log 2 X)).biUnion fun i ↦
-    (Finset.Icc 0 (Nat.log 2 X)).biUnion fun j ↦
-    (Finset.Icc 0 (Nat.log 2 X)).biUnion fun k ↦
-    (Finset.Icc 1 (Nat.log 2 X)).biUnion fun n ↦
-      dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)) =
-    (Finset.Icc 0 (Nat.log 2 X) ×ˢ
-      Finset.Icc 0 (Nat.log 2 X) ×ˢ
-      Finset.Icc 0 (Nat.log 2 X) ×ˢ
-      Finset.Icc 1 (Nat.log 2 X)).biUnion fun ⟨i, j, k, n⟩ ↦ dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)
-    := by
-    simp_rw [Finset.product_biUnion]
-  rw [this]
-  clear this
   apply (Finset.card_biUnion_le ..).trans
   simp only
   apply (sum_le_card_mul_sup _ _).trans
-  simp only [Finset.card_product, Nat.card_Icc, tsub_zero, add_tsub_cancel_right]
-  gcongr ?_ * ?_
-  · apply le_of_eq
-    ring
-  apply le_of_eq
-  simp_rw [refinedCountTriplesStar]
-  simp_rw [Finset.sup_product_left]
+  gcongr
+  · apply card_indexSet_le
+  · rfl
 
-/- I think there's an issue here: don't we need α + β + γ ≤ μ? As it stands I believe we can only prove
-  α + β + γ ≤ (1+1/n) * γ, but that's only because we changed X/2 ≤ c ≤ X to c ~ X. -/
-noncomputable def dyadicSupBound (X : ℕ) : ℕ :=
-  (Finset.Icc 0 (Nat.log 2 X)).sup fun i ↦
-  (Finset.Icc 0 (Nat.log 2 X)).sup fun j ↦
-  (Finset.Icc 0 (Nat.log 2 X)).sup fun k ↦
-  (Finset.Icc 1 (Nat.log 2 X)).sup fun n ↦
+noncomputable def dyadicSupBound (μ : ℝ) (X : ℕ) : ℕ :=
+  (indexSet μ X).sup fun ⟨i, j, k, n⟩ ↦
     refinedCountTriplesStar (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)
 
 theorem countTriples_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) : countTriples μ X ≤
-  (Nat.log 2 X+1)^3 * (Nat.log 2 X) * dyadicSupBound X := by
+  (Nat.log 2 X+1)^4 * dyadicSupBound μ X := by
   simp_rw [countTriples_eq_finset_card, dyadicSupBound, refinedCountTriplesStar]
-  apply le_trans _ (card_union_dyadicPoints_le_log_pow_mul_sup X)
+  apply le_trans _ (card_union_dyadicPoints_le_log_pow_mul_sup μ X)
   apply Finset.card_le_card
   exact ABCTriples_subset_union_dyadicPoints μ X
 
@@ -335,20 +371,16 @@ theorem Nat.log_isBigO_log (b : ℕ) :
 
 theorem countTriples_isBigO_dyadicSup :
     (fun ⟨X, μ⟩ ↦ (countTriples μ X : ℝ)) =O[atTop ×ˢ ⊤]
-      (fun ⟨X, _⟩ ↦ (Real.log X)^4 * dyadicSupBound X) := by
-  trans fun ⟨X, μ⟩ ↦ (Nat.log 2 X+1:ℝ)^3 * (Nat.log 2 X) * dyadicSupBound X
+      (fun ⟨X, μ⟩ ↦ (Real.log X)^4 * dyadicSupBound μ X) := by
+  trans fun ⟨X, μ⟩ ↦ (Nat.log 2 X+1:ℝ)^4 * dyadicSupBound μ X
   · simp only
     apply IsBigO.of_norm_le
     simp only [Real.norm_natCast, Prod.forall]
     exact_mod_cast fun a b ↦ countTriples_le_log_pow_mul_sup b a
-  · simp only
-    apply IsBigO.mul _ (isBigO_refl ..)
-    apply Asymptotics.IsBigO.comp_fst (g := fun x : ℕ ↦ (Real.log x)^4) (f := fun x ↦ (Nat.log 2 x+1:ℝ)^3 * Nat.log 2 x)
-    simp_rw [pow_succ _ 3]
-    apply IsBigO.mul
-    · apply IsBigO.pow
-      apply IsBigO.add
-      · exact Nat.log_isBigO_log 2
-      apply IsLittleO.isBigO
-      apply Real.isLittleO_const_log_atTop.natCast_atTop
-    · exact Nat.log_isBigO_log _
+  · apply IsBigO.mul _ (isBigO_refl ..)
+    apply Asymptotics.IsBigO.comp_fst (g := fun x : ℕ ↦ (Real.log x)^4) (f := fun x ↦ (Nat.log 2 x+1:ℝ)^4)
+    apply IsBigO.pow
+    apply IsBigO.add
+    · exact Nat.log_isBigO_log 2
+    apply IsLittleO.isBigO
+    apply Real.isLittleO_const_log_atTop.natCast_atTop
