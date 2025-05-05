@@ -264,6 +264,7 @@ theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
   · simp [n, Nat.log_mono_right hcX]
   · -- Here we prove that α + β + γ ≤ μ
     have : radical (a * b * c) = radical a * radical b * radical c := by
+      stop
       rw [radical_mul (a := a*b) (b := c), radical_mul]
       · convert hab.isRelPrime
       exact hac.mul hbc |>.isRelPrime
@@ -385,21 +386,51 @@ theorem countTriples_isBigO_dyadicSup :
     apply IsLittleO.isBigO
     apply Real.isLittleO_const_log_atTop.natCast_atTop
 
-set_option autoImplicit false
-def B_set (d : ℕ) (C : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) :
-  Set ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ)) :=
-  { (x, y, z, c) : _ |
+def dyadicTuples {d : ℕ} (X : Fin d → ℕ) : Finset (Fin d → ℕ) :=
+  Fintype.piFinset (fun i ↦ Finset.Icc (X i) (2 * X i))
+
+@[simp]
+theorem mem_dyadicTuples {d : ℕ} (X x : Fin d → ℕ) :
+  x ∈ dyadicTuples X ↔ ∀ i, x i ~ X i := by
+  simp [dyadicTuples, similar]
+  norm_cast
+
+open Classical in
+noncomputable def B_finset (d : ℕ) (C : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) :
+  Finset ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ)) :=
+  ((dyadicTuples X) ×ˢ (dyadicTuples Y) ×ˢ (dyadicTuples Z) ×ˢ {C}).filter fun ⟨x, y, z, c⟩ ↦
+    c 0 * ∏ i, (x i)^(i:ℕ) + c 1 * ∏ i, (y i)^(i:ℕ) = c 2 * ∏ i, (z i)^(i:ℕ) ∧
+    Nat.gcd (c 0 * ∏ i, (x i)) (c 1 * ∏ i, (y i)) = 1 ∧
+    Nat.gcd (c 0 * ∏ i, (x i)) (c 2 * ∏ i, (z i)) = 1 ∧
+    Nat.gcd (c 1 * ∏ i, (y i)) (c 2 * ∏ i, (z i)) = 1
+
+theorem mem_B_finset (d : ℕ) (C : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) (x y z : Fin d → ℕ) (c : Fin 3 → ℕ) :
+  (x, y, z, c) ∈ B_finset d C X Y Z ↔
     C = c ∧
     (∀ i, x i ~ X i) ∧ (∀ i, y i ~ Y i) ∧ (∀ i, z i ~ Z i) ∧
     c 0 * ∏ i, (x i)^(i:ℕ) + c 1 * ∏ i, (y i)^(i:ℕ) = c 2 * ∏ i, (z i)^(i:ℕ) ∧
     Nat.gcd (c 0 * ∏ i, (x i)) (c 1 * ∏ i, (y i)) = 1 ∧
     Nat.gcd (c 0 * ∏ i, (x i)) (c 2 * ∏ i, (z i)) = 1 ∧
-    Nat.gcd (c 1 * ∏ i, (y i)) (c 2 * ∏ i, (z i)) = 1 }
+    Nat.gcd (c 1 * ∏ i, (y i)) (c 2 * ∏ i, (z i)) = 1 := by
+  simp only [B_finset, Fin.isValue, Finset.mem_singleton, Finset.mem_filter, Finset.mem_product,
+    mem_dyadicTuples, Function.Embedding.coeFn_mk, Prod.mk.injEq]
+  tauto
 
-theorem B_set_finite (d : ℕ) (c : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) : Set.Finite (B_set d c X Y Z) := by
-  sorry
+noncomputable def B (d : ℕ) (c : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) : ℕ := (B_finset d c X Y Z).card
 
-noncomputable def B (d : ℕ) (c : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) : ℕ := (B_set d c X Y Z).ncard
+theorem Nat.factorization_le_right (p n : ℕ) (hp : p.Prime) : n.factorization p ≤ n := by
+  refine factorization_le_of_le_pow ?_
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    have : 1 ≤ p ^ n := by
+      apply Nat.one_le_pow
+      apply hp.pos
+    have : 2 ≤ p := hp.two_le
+    rw [pow_succ]
+    calc _ ≤ p^n + p^n := by gcongr
+      _ = p^n * 2 := by ring
+      _ ≤ p^n * p := by gcongr
 
 theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2) {n X : ℕ} (h2n : 2 ≤ n) (hnX : n ≤ X) :
   ∃ (x : (Fin ⌊5/2 * ε⁻¹^2⌋₊) → ℕ), ∃ c : ℕ,
@@ -410,16 +441,34 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
 
   let K := ⌈ε⁻¹⌉₊
   set M := ⌊5/2 * ε⁻¹^2⌋₊
-  let y (j : ℕ) := ∏ p ∈ {p ∈ n.primeFactors | n.factorization p = j}, p^(n.factorization p)
+  let y (j : ℕ) := ∏ p ∈ {p ∈ n.primeFactors | n.factorization p = j}, p
   /- This is just the fiberwise product along the factorization. -/
   have : ∏ m ∈ Finset.Icc 1 n, y m ^ m = n := by
-    sorry
+    simp_rw [y]
+    conv =>
+      rhs
+      rw [← Nat.factorization_prod_pow_eq_self (show n ≠ 0 by omega)]
+    simp_rw [← Finset.prod_pow]
+    rw [Nat.prod_factorization_eq_prod_primeFactors]
+    convert Finset.prod_fiberwise_of_maps_to  (f := fun p ↦ p ^ n.factorization p)
+      (g := n.factorization) (s := n.primeFactors) (t := Finset.Icc 1 n) ?_ using 1
+    · apply Finset.prod_congr rfl
+      intro k hk
+      apply Finset.prod_congr rfl
+      simp only [Finset.mem_filter, Nat.mem_primeFactors, ne_eq, and_imp, y]
+      rintro _ _ _ _ rfl
+      rfl
+    · simp only [Nat.mem_primeFactors, ne_eq, Finset.mem_Icc, and_imp, y]
+      intro p hp hpn hn'
+      refine ⟨(Nat.Prime.dvd_iff_one_le_factorization hp hn').mp hpn, Nat.factorization_le_right p n hp⟩
   have p_dvd_y_iff (i : ℕ) (p : ℕ) (hp : p.Prime) : p ∣ y i → n.factorization p = i := by
     rw [Prime.dvd_finset_prod_iff hp.prime]
     simp only [Finset.mem_filter, Nat.mem_primeFactors, ne_eq]
     rintro ⟨q, ⟨⟨hq, _⟩, rfl⟩, hpq⟩
-    sorry
-  have (i j : ℕ) (hij : i ≠ j) : Nat.gcd (y i) (y j) = 1 := by
+    congr
+    rw [eq_comm, ← hq.dvd_iff_eq hp.ne_one]
+    exact hpq
+  have hy_cop (i j : ℕ) (hij : i ≠ j) : Nat.Coprime (y i) (y j) := by
     apply Nat.coprime_of_dvd
     intro p hp hpi hpj
     apply p_dvd_y_iff _ _ hp at hpi
@@ -428,15 +477,60 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
     exact hij rfl
 
   let x (j : Fin M) : ℕ :=
-    if j = K then y j * (∏ m ∈ Finset.Ioc M n, y m ^ (m / K)) else y j
+    y j * if j = K then (∏ m ∈ Finset.Icc M n, y m ^ (m / K)) else 1
 
   have x_pairwise_coprime (i j : Fin M) (hij : i ≠ j) : Nat.gcd (x i) (x j) = 1 := by
-    sorry
+    have hij' : i.val ≠ j.val := by
+      simp [Fin.val_inj, hij]
+    simp_rw [x]
+    rw [← Nat.coprime_iff_gcd_eq_one]
+    split_ifs with hik hjk
+    · rw [← hik] at hjk
+      exact (hij'.symm hjk).elim
+    · rw [Nat.coprime_mul_iff_left, mul_one]
+      refine ⟨hy_cop _ _ hij', ?_⟩
+      rw [Nat.coprime_prod_left_iff]
+      simp only [Finset.mem_Icc, and_imp, x]
+      intro m hMm hmn
+      apply Nat.Coprime.pow_left
+      apply hy_cop
+      omega
+    · /- deduce from above? -/
+      sorry
+    · simp_rw [mul_one]
+      apply hy_cop i j hij'
 
-  let c : ℕ := ∏ m ∈ Finset.Ioc M n, y m ^ (m % K)
+  let c : ℕ := ∏ m ∈ Finset.Icc M n, y m ^ (m % K)
 
   have c_mul_prod_x_eq_n : c * ∏ j, x j ^ (j : ℕ) = n := by
-    sorry
+    simp_rw [c, x]
+    simp_rw [mul_pow, Finset.prod_mul_distrib]
+    simp only [ite_pow, one_pow]
+    have hM_ne_zero : NeZero M := by
+      sorry
+    have hKM : K < M := by
+      sorry
+    have {x : Fin M} : x.val = K ↔ x = (K : Fin M) := by
+      constructor
+      · intro hxK
+        refine Fin.eq_of_val_eq ?_
+        simp only [Fin.val_natCast, *]
+        rw [Nat.mod_eq_of_lt hKM]
+      · intro hxK
+        refine (Fin.eq_mk_iff_val_eq (hk := hKM) ).mp ?_
+        rw [hxK]
+        refine Fin.eq_mk_iff_val_eq.mpr ?_
+        simp
+        rw [Nat.mod_eq_of_lt hKM]
+    simp_rw [this]
+    simp only [Finset.prod_ite_eq', Finset.mem_univ, ↓reduceIte, Fin.val_natCast]
+    rw [Fin.prod_univ_eq_prod_range (fun i ↦ y i ^ i)]
+    rw [mul_comm, mul_assoc, ← Finset.prod_pow, ← Finset.prod_mul_distrib]
+    simp_rw [← pow_mul, ← pow_add, Nat.mod_eq_of_lt hKM, mul_comm _ K, Nat.div_add_mod]
+    rw [← Finset.prod_union]
+    · sorry
+    · sorry
+
 
   have : ∏ m ∈ Finset.Icc M n, y m ≤ (X:ℝ) ^ (M⁻¹ : ℝ) := by
     sorry
@@ -470,6 +564,8 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
 
   refine ⟨x, c, c_mul_prod_x_eq_n.symm, c_le_X_pow, x_pairwise_coprime, X_pow_mul_prod_le_radical, radical_le_X_pow_mul_prod⟩
 
+
+
 def const (ε : ℝ) : ℝ := sorry
 
 -- surjective map S*_α β γ (X) <- ⋃_{c, X, Y ,Z} B (c, X, Y, Z)
@@ -478,7 +574,9 @@ def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ
     ⟨c 0 * ∏ i, X i, c 1 * ∏ i, Y i, c 2 * ∏ i, Z i⟩
 
 
--- def indexSet' (α β γ : ℝ) : ()
+
+-- def indexSet' (α β γ : ℝ) {d : ℕ} (X Y Z : Fin d → ℕ) (c : Fin 3 → ℕ) :
+
 
 /-- -/
 -- def dyadicSet_covered
@@ -498,8 +596,8 @@ theorem refinedCountTriplesStar_isBigO_B
 
   ∃ d ≥ (1 : ℕ), ∃ X Y Z : Fin d → ℕ,
     (x:ℝ)^(α - ε) ≤ ∏ j, X j ∧ ∏ j, X j ≤ (x : ℝ) ^ (α + ε) ∧
-    (x:ℝ)^(β - ε) ≤ ∏ j, Y j ∧ ∏ j, X j ≤ (x : ℝ) ^ (β + ε) ∧
-    (x:ℝ)^(γ - ε) ≤ ∏ j, Z j ∧ ∏ j, X j ≤ (x : ℝ) ^ (γ + ε) ∧
+    (x:ℝ)^(β - ε) ≤ ∏ j, Y j ∧ ∏ j, Y j ≤ (x : ℝ) ^ (β + ε) ∧
+    (x:ℝ)^(γ - ε) ≤ ∏ j, Z j ∧ ∏ j, Z j ≤ (x : ℝ) ^ (γ + ε) ∧
     ∏ i, X i ^ (i : ℕ) ≤ x ∧
     ∏ i, Y i ^ (i : ℕ) ≤ x ∧
     ∏ i, Z i ^ (i : ℕ) ≤ x ∧
