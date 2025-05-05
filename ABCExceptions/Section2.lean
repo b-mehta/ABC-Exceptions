@@ -384,3 +384,129 @@ theorem countTriples_isBigO_dyadicSup :
     · exact Nat.log_isBigO_log 2
     apply IsLittleO.isBigO
     apply Real.isLittleO_const_log_atTop.natCast_atTop
+
+set_option autoImplicit false
+def B_set (d : ℕ) (C : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) :
+  Set ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ)) :=
+  { (x, y, z, c) : _ |
+    C = c ∧
+    (∀ i, x i ~ X i) ∧ (∀ i, y i ~ Y i) ∧ (∀ i, z i ~ Z i) ∧
+    c 0 * ∏ i, (x i)^(i:ℕ) + c 1 * ∏ i, (y i)^(i:ℕ) = c 2 * ∏ i, (z i)^(i:ℕ) ∧
+    Nat.gcd (c 0 * ∏ i, (x i)) (c 1 * ∏ i, (y i)) = 1 ∧
+    Nat.gcd (c 0 * ∏ i, (x i)) (c 2 * ∏ i, (z i)) = 1 ∧
+    Nat.gcd (c 1 * ∏ i, (y i)) (c 2 * ∏ i, (z i)) = 1 }
+
+theorem B_set_finite (d : ℕ) (c : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) : Set.Finite (B_set d c X Y Z) := by
+  sorry
+
+noncomputable def B (d : ℕ) (c : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) : ℕ := (B_set d c X Y Z).ncard
+
+theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2) {n X : ℕ} (h2n : 2 ≤ n) (hnX : n ≤ X) :
+  ∃ (x : (Fin ⌊5/2 * ε⁻¹^2⌋₊) → ℕ), ∃ c : ℕ,
+    n = c * ∏ j, x j ^ (j:ℕ) ∧
+    c ≤ (X:ℝ)^(ε) ∧
+    (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
+    (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j := by
+
+  let K := ⌈ε⁻¹⌉₊
+  set M := ⌊5/2 * ε⁻¹^2⌋₊
+  let y (j : ℕ) := ∏ p ∈ {p ∈ n.primeFactors | n.factorization p = j}, p^(n.factorization p)
+  /- This is just the fiberwise product along the factorization. -/
+  have : ∏ m ∈ Finset.Icc 1 n, y m ^ m = n := by
+    sorry
+  have p_dvd_y_iff (i : ℕ) (p : ℕ) (hp : p.Prime) : p ∣ y i → n.factorization p = i := by
+    rw [Prime.dvd_finset_prod_iff hp.prime]
+    simp only [Finset.mem_filter, Nat.mem_primeFactors, ne_eq]
+    rintro ⟨q, ⟨⟨hq, _⟩, rfl⟩, hpq⟩
+    sorry
+  have (i j : ℕ) (hij : i ≠ j) : Nat.gcd (y i) (y j) = 1 := by
+    apply Nat.coprime_of_dvd
+    intro p hp hpi hpj
+    apply p_dvd_y_iff _ _ hp at hpi
+    apply p_dvd_y_iff _ _ hp at hpj
+    subst hpi hpj
+    exact hij rfl
+
+  let x (j : Fin M) : ℕ :=
+    if j = K then y j * (∏ m ∈ Finset.Ioc M n, y m ^ (m / K)) else y j
+
+  have x_pairwise_coprime (i j : Fin M) (hij : i ≠ j) : Nat.gcd (x i) (x j) = 1 := by
+    sorry
+
+  let c : ℕ := ∏ m ∈ Finset.Ioc M n, y m ^ (m % K)
+
+  have c_mul_prod_x_eq_n : c * ∏ j, x j ^ (j : ℕ) = n := by
+    sorry
+
+  have : ∏ m ∈ Finset.Icc M n, y m ≤ (X:ℝ) ^ (M⁻¹ : ℝ) := by
+    sorry
+
+  have c_le_X_pow := calc
+    c ≤ ∏ m ∈ Finset.Icc M n, (y m : ℝ) ^ K := by
+      sorry
+    _ ≤ (X:ℝ) ^ (K/M : ℝ) := by
+      sorry
+    _ ≤ X ^ ε := by
+      sorry
+
+  have radical_le_X_pow_mul_prod := calc
+    (radical n : ℕ) ≤ ((radical c : ℕ) : ℝ)* ∏ j, (radical (x j) : ℕ) := by
+      sorry
+    _ ≤ (X : ℝ)^ε * ∏ i, x i := by
+      sorry
+
+  have : NeZero M := sorry
+
+  have x_K_le_X_pow : x K ≤ (X : ℝ) ^ ε := by
+    sorry
+
+  have X_pow_mul_prod_le_radical := calc
+    (X : ℝ) ^ (-ε) * ∏ j, x j ≤ ∏ (j : Fin M), if j ≠ K then x j else 1 := by
+      sorry
+    _ ≤ ∏ m ∈ Finset.Icc 1 n, y m := by
+      sorry
+    _ ≤ (radical n : ℕ) := by
+      sorry
+
+  refine ⟨x, c, c_mul_prod_x_eq_n.symm, c_le_X_pow, x_pairwise_coprime, X_pow_mul_prod_le_radical, radical_le_X_pow_mul_prod⟩
+
+def const (ε : ℝ) : ℝ := sorry
+
+-- surjective map S*_α β γ (X) <- ⋃_{c, X, Y ,Z} B (c, X, Y, Z)
+def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ) → ℕ × ℕ × ℕ :=
+  fun ⟨X, Y, Z, c⟩ ↦
+    ⟨c 0 * ∏ i, X i, c 1 * ∏ i, Y i, c 2 * ∏ i, Z i⟩
+
+
+-- def indexSet' (α β γ : ℝ) : ()
+
+/-- -/
+-- def dyadicSet_covered
+--   {α β γ : ℝ}
+--   (hα_pos : 0 < α) (hβ_pos : 0 < β) (hγ_pos : 0 < γ)
+--   (hα1 : α ≤ 1) (hβ1 : β ≤ 1) (hγ1 : γ ≤ 1)
+--   {x : ℕ} (h2X : 2 ≤ x) {ε : ℝ} (hε_pos : 0 < ε) :
+--       (dyadicPoints α β γ x)
+--   -- dyadicPoints α β γ x  := by
+--   sorry := sorry
+
+theorem refinedCountTriplesStar_isBigO_B
+  {α β γ : ℝ}
+  (hα_pos : 0 < α) (hβ_pos : 0 < β) (hγ_pos : 0 < γ)
+  (hα1 : α ≤ 1) (hβ1 : β ≤ 1) (hγ1 : γ ≤ 1)
+  {x : ℕ} (h2X : 2 ≤ x) {ε : ℝ} (hε_pos : 0 < ε) :
+
+  ∃ d ≥ (1 : ℕ), ∃ X Y Z : Fin d → ℕ,
+    (x:ℝ)^(α - ε) ≤ ∏ j, X j ∧ ∏ j, X j ≤ (x : ℝ) ^ (α + ε) ∧
+    (x:ℝ)^(β - ε) ≤ ∏ j, Y j ∧ ∏ j, X j ≤ (x : ℝ) ^ (β + ε) ∧
+    (x:ℝ)^(γ - ε) ≤ ∏ j, Z j ∧ ∏ j, X j ≤ (x : ℝ) ^ (γ + ε) ∧
+    ∏ i, X i ^ (i : ℕ) ≤ x ∧
+    ∏ i, Y i ^ (i : ℕ) ≤ x ∧
+    ∏ i, Z i ^ (i : ℕ) ≤ x ∧
+    (x : ℝ) ^ (1 - ε^2) ≤ ∏ i, Z i ^ (i : ℕ) ∧
+    ∃ c : Fin 3 → ℕ,
+    (∀ i, 1 ≤ c i) ∧
+    (∀ i, (c i : ℝ) ≤ (x : ℝ) ^ ε) ∧
+    refinedCountTriplesStar α β γ x ≤ const ε * (x : ℝ) ^ ε * B d c X Y Z := by
+
+  sorry
