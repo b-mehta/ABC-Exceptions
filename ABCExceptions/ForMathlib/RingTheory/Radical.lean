@@ -16,7 +16,7 @@ namespace UniqueFactorizationMonoid
 variable {M : Type*} [CancelCommMonoidWithZero M] [NormalizationMonoid M]
   [UniqueFactorizationMonoid M]
 
-variable {R : Type*} [CommRing R] [IsDomain R] [NormalizationMonoid R]
+variable {R : Type*} [CommSemiring R] [IsDomain R] [NormalizationMonoid R]
   [UniqueFactorizationMonoid R]
 
 @[simp] lemma mem_primeFactors {x y : M} : x ∈ primeFactors y ↔ x ∈ normalizedFactors y := by
@@ -160,4 +160,32 @@ theorem disjoint_normalizedFactors' {a b : R} (hc : IsCoprime a b) :
     Disjoint (normalizedFactors a) (normalizedFactors b) :=
   disjoint_normalizedFactors hc.isRelPrime
 
+
+/- The following three theorems exist in mathlib but in the generality of a CommRing instead of
+  a CommSemiring. -/
+theorem disjoint_primeFactors {a b : R} (hc : IsRelPrime a b) :
+    Disjoint (primeFactors a) (primeFactors b) := by
+  classical
+  exact Multiset.disjoint_toFinset.mpr (disjoint_normalizedFactors hc)
+
+theorem mul_primeFactors_disjUnion {a b : R} (ha : a ≠ 0) (hb : b ≠ 0)
+    (hc : IsRelPrime a b) :
+    primeFactors (a * b) =
+    (primeFactors a).disjUnion (primeFactors b) (disjoint_primeFactors hc) := by
+  classical
+  rw [Finset.disjUnion_eq_union]
+  simp_rw [primeFactors]
+  rw [normalizedFactors_mul ha hb, Multiset.toFinset_add]
+
+theorem radical_mul {a b : R} (hc : IsRelPrime a b) :
+    radical (a * b) = radical a * radical b := by
+  by_cases ha : a = 0
+  · subst ha; rw [isRelPrime_zero_left] at hc
+    simp only [zero_mul, radical_zero_eq, one_mul, radical_of_isUnit hc]
+  by_cases hb : b = 0
+  · subst hb; rw [isRelPrime_zero_right] at hc
+    simp only [mul_zero, radical_zero_eq, mul_one, radical_of_isUnit hc]
+  simp_rw [radical]
+  rw [mul_primeFactors_disjUnion ha hb hc]
+  rw [Finset.prod_disjUnion (disjoint_primeFactors hc)]
 end UniqueFactorizationMonoid

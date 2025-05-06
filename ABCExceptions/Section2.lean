@@ -264,7 +264,6 @@ theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
   · simp [n, Nat.log_mono_right hcX]
   · -- Here we prove that α + β + γ ≤ μ
     have : radical (a * b * c) = radical a * radical b * radical c := by
-      stop
       rw [radical_mul (a := a*b) (b := c), radical_mul]
       · convert hab.isRelPrime
       exact hac.mul hbc |>.isRelPrime
@@ -588,12 +587,16 @@ def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ
 --   -- dyadicPoints α β γ x  := by
 --   sorry := sorry
 
+/- Here's what I think is happening in this proof: Every point in S* α β γ corresponds to a tuple in some B-set
+  by taking the dyadic factorization. Specifically we can guarantee that the X, Y, Z, C corresponding to that
+  B-set satisfy these nice properties. This gives us a cover of S* with one set for every point.
+  BUT: because these B-sets have nice dyadic properties, we can find a subcover of size << (log X)^{3d} -/
+
 theorem refinedCountTriplesStar_isBigO_B
   {α β γ : ℝ}
   (hα_pos : 0 < α) (hβ_pos : 0 < β) (hγ_pos : 0 < γ)
   (hα1 : α ≤ 1) (hβ1 : β ≤ 1) (hγ1 : γ ≤ 1)
   {x : ℕ} (h2X : 2 ≤ x) {ε : ℝ} (hε_pos : 0 < ε) :
-
   ∃ d ≥ (1 : ℕ), ∃ X Y Z : Fin d → ℕ,
     (x:ℝ)^(α - ε) ≤ ∏ j, X j ∧ ∏ j, X j ≤ (x : ℝ) ^ (α + ε) ∧
     (x:ℝ)^(β - ε) ≤ ∏ j, Y j ∧ ∏ j, Y j ≤ (x : ℝ) ^ (β + ε) ∧
