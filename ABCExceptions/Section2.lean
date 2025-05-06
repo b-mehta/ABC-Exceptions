@@ -1,5 +1,6 @@
 import Mathlib.Algebra.GCDMonoid.Nat
 import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Order.CompletePartialOrder
@@ -431,6 +432,31 @@ theorem Nat.factorization_le_right (p n : ℕ) (hp : p.Prime) : n.factorization 
       _ = p^n * 2 := by ring
       _ ≤ p^n * p := by gcongr
 
+theorem Nat.ceil_lt_floor (a b : ℝ) (ha : 0 ≤ a) (hab : a + 2 ≤ b) : ⌈a⌉₊ < ⌊b⌋₊ := by
+  exact_mod_cast calc
+    ⌈a⌉₊ < a + 1 := by
+      exact ceil_lt_add_one ha
+    _ ≤ b - 1 := by
+      linarith
+    _ < ⌊b⌋₊ := by
+      exact sub_one_lt_floor b
+
+theorem Finset.Ico_union_Icc_eq_Icc {α : Type*} [LinearOrder α] [LocallyFiniteOrder α] (a b c : α)
+  (hab : a ≤ b) (hbc : b ≤ c) :
+    Finset.Ico a b ∪ Finset.Icc b c = Finset.Icc a c := by
+  ext x
+  simp
+  constructor
+  · rintro (⟨hax, hxb⟩ | ⟨hbx, hxc⟩)
+    · refine ⟨hax, hxb.le.trans hbc⟩
+    · refine ⟨hab.trans hbx, hxc⟩
+  rintro ⟨hax, hxc⟩
+  by_cases hxb : x < b
+  · left
+    refine ⟨hax, hxb⟩
+  right
+  refine ⟨le_of_not_gt hxb, hxc⟩
+
 theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2) {n X : ℕ} (h2n : 2 ≤ n) (hnX : n ≤ X) :
   ∃ (x : (Fin ⌊5/2 * ε⁻¹^2⌋₊) → ℕ), ∃ c : ℕ,
     n = c * ∏ j, x j ^ (j:ℕ) ∧
@@ -438,11 +464,60 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
     (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
     (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j := by
 
+  have two_lt_eps_inv : 2 < ε⁻¹ := by
+    rw [← inv_inv 2]
+    gcongr
+    linarith only [hε]
+
   let K := ⌈ε⁻¹⌉₊
   set M := ⌊5/2 * ε⁻¹^2⌋₊
+  have hK_pos : 0 < K := by
+    rw [Nat.ceil_pos]
+    simp [hε_pos]
+
+  have hM_pos : 0 < M := by
+    rw [Nat.floor_pos]
+    nlinarith only [two_lt_eps_inv]
+
+  have hM_ne_zero : NeZero M := by
+    simp_rw [M, neZero_iff]
+    apply ne_of_gt hM_pos
+
+  have hKM : K < M := by
+    simp_rw [K, M]
+    rw [Nat.lt_iff_add_one_le]
+    apply Nat.ceil_lt_floor
+    · positivity
+    nlinarith
+
+  have hK_div_M : (K / M : ℝ) ≤ ε := by
+    rw [div_le_iff₀ (mod_cast hM_pos)]
+    simp only [K, M]
+    calc
+      _ ≤ ε⁻¹ + 1 := by
+        apply le_of_lt
+        apply Nat.ceil_lt_add_one
+        positivity
+      _ ≤ 5 / 2 * ε⁻¹ - ε := by
+        linarith
+      _ = ε * (5/2 * ε⁻¹^2 - 1) := by
+        field_simp
+        ring
+      _ ≤ _ := by
+        gcongr
+        apply le_of_lt
+        apply Nat.sub_one_lt_floor
+
   let y (j : ℕ) := ∏ p ∈ {p ∈ n.primeFactors | n.factorization p = j}, p
-  /- This is just the fiberwise product along the factorization. -/
-  have : ∏ m ∈ Finset.Icc 1 n, y m ^ m = n := by
+
+  have hy_pos (j : ℕ) : 0 < y j := by
+    apply Finset.prod_pos
+    simp only [Finset.mem_filter, Nat.mem_primeFactors, ne_eq, and_imp, y]
+    intro p hp _ _ _
+    exact hp.pos
+
+  have prod_y_pow_eq_n_subset {s : Finset ℕ} (hs : ∀ p, p.Prime → p ∣ n → n.factorization p ∈ s) :
+      ∏ m ∈ s, y m ^ m = n := by
     simp_rw [y]
     conv =>
       rhs
@@ -450,7 +525,7 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
     simp_rw [← Finset.prod_pow]
     rw [Nat.prod_factorization_eq_prod_primeFactors]
     convert Finset.prod_fiberwise_of_maps_to  (f := fun p ↦ p ^ n.factorization p)
-      (g := n.factorization) (s := n.primeFactors) (t := Finset.Icc 1 n) ?_ using 1
+      (g := n.factorization) (s := n.primeFactors) (t := s) ?_ using 1
     · apply Finset.prod_congr rfl
       intro k hk
       apply Finset.prod_congr rfl
@@ -459,7 +534,17 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
       rfl
     · simp only [Nat.mem_primeFactors, ne_eq, Finset.mem_Icc, and_imp, y]
       intro p hp hpn hn'
-      refine ⟨(Nat.Prime.dvd_iff_one_le_factorization hp hn').mp hpn, Nat.factorization_le_right p n hp⟩
+      apply hs p hp hpn
+  have prod_y_pow_eq_n : ∏ m ∈ (Finset.range M) ∪ (Finset.Icc M n), y m ^ m = n := by
+    apply prod_y_pow_eq_n_subset
+    intro p hp hpn
+    simp only [Finset.mem_union, Finset.mem_range, Finset.mem_Icc]
+    have : n.factorization p ≤ n := by
+      apply Nat.factorization_le_right p n hp
+    have : n.factorization p < M ∨ M ≤ n.factorization p := by
+      exact Nat.lt_or_ge (n.factorization p) M
+    tauto
+
   have p_dvd_y_iff (i : ℕ) (p : ℕ) (hp : p.Prime) : p ∣ y i → n.factorization p = i := by
     rw [Prime.dvd_finset_prod_iff hp.prime]
     simp only [Finset.mem_filter, Nat.mem_primeFactors, ne_eq]
@@ -485,7 +570,7 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
     rw [← Nat.coprime_iff_gcd_eq_one]
     split_ifs with hik hjk
     · rw [← hik] at hjk
-      exact (hij'.symm hjk).elim
+      exact (hij.symm hjk).elim
     · rw [Nat.coprime_mul_iff_left, mul_one]
       refine ⟨hy_cop _ _ hij', ?_⟩
       rw [Nat.coprime_prod_left_iff]
@@ -505,50 +590,89 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
     simp_rw [c, x]
     simp_rw [mul_pow, Finset.prod_mul_distrib]
     simp only [ite_pow, one_pow]
-    have hM_ne_zero : NeZero M := by
-      sorry
-    have hKM : K < M := by
-      sorry
-    have {x : Fin M} : x.val = K ↔ x = (K : Fin M) := by
-      constructor
-      · intro hxK
-        refine Fin.eq_of_val_eq ?_
-        simp only [Fin.val_natCast, *]
-        rw [Nat.mod_eq_of_lt hKM]
-      · intro hxK
-        refine (Fin.eq_mk_iff_val_eq (hk := hKM) ).mp ?_
-        rw [hxK]
-        refine Fin.eq_mk_iff_val_eq.mpr ?_
-        simp
-        rw [Nat.mod_eq_of_lt hKM]
-    simp_rw [this]
     simp only [Finset.prod_ite_eq', Finset.mem_univ, ↓reduceIte, Fin.val_natCast]
     rw [Fin.prod_univ_eq_prod_range (fun i ↦ y i ^ i)]
     rw [mul_comm, mul_assoc, ← Finset.prod_pow, ← Finset.prod_mul_distrib]
     simp_rw [← pow_mul, ← pow_add, Nat.mod_eq_of_lt hKM, mul_comm _ K, Nat.div_add_mod]
+    conv => rhs; rw [← prod_y_pow_eq_n]
     rw [← Finset.prod_union]
-    · sorry
-    · sorry
+    refine Finset.disjoint_left.mpr ?_
+    simp +contextual
 
 
-  have : ∏ m ∈ Finset.Icc M n, y m ≤ (X:ℝ) ^ (M⁻¹ : ℝ) := by
-    sorry
+  have : ∏ m ∈ Finset.Icc M n, y m ≤ (X:ℝ) ^ (M⁻¹ : ℝ) := calc
+    _ ≤ (∏ m ∈ Finset.Icc M n, y m ^ m : ℝ) ^ (M⁻¹ : ℝ) := by
+      rw [← Real.finset_prod_rpow]
+      · push_cast
+        apply Finset.prod_le_prod
+        · intros; positivity
+        simp only [Finset.mem_Icc, and_imp]
+        intro i hMi hin
+        conv => lhs; rw [← Real.rpow_one (y i : ℝ)]
+        rw [← Real.rpow_natCast_mul (by simp)]
+        gcongr
+        · norm_cast
+          apply hy_pos
+        · rw [le_mul_inv_iff₀]
+          · simp [hMi]
+          · simp [hM_pos]
+      intros; positivity
+    _ ≤ (n:ℝ) ^ (M⁻¹ : ℝ) := by
+      gcongr
+      norm_cast
+      conv => rhs; rw [← prod_y_pow_eq_n]
+      apply Finset.prod_le_prod_of_subset_of_one_le'
+      · simp
+      simp only [Finset.mem_union, Finset.mem_range, Finset.mem_Icc, not_and, not_le, y]
+      intro i hi _
+      erw [Nat.succ_le]
+      simp only [Nat.zero_eq, M, K, x, c]
+      by_cases hi0 : i = 0
+      · simp [hi0]
+      apply pow_pos (hy_pos ..)
+    _ ≤ _ := by
+      gcongr
+
 
   have c_le_X_pow := calc
     c ≤ ∏ m ∈ Finset.Icc M n, (y m : ℝ) ^ K := by
-      sorry
-    _ ≤ (X:ℝ) ^ (K/M : ℝ) := by
-      sorry
+      simp_rw [c]
+      push_cast
+      apply Finset.prod_le_prod
+      · intros; positivity
+      simp only [Finset.mem_Icc, and_imp]
+      intro x hMx hxn
+      gcongr
+      · simp only [Nat.one_le_cast, *]
+        apply hy_pos
+      · apply (Nat.mod_lt ..).le
+        exact hK_pos
+    _ ≤ (X ^ (M⁻¹ : ℝ)) ^ (K:ℝ) := by
+      simp only [Real.rpow_natCast]
+      rw [Finset.prod_pow]
+      gcongr
+      exact_mod_cast this
+    _ = (X:ℝ) ^ (K/M : ℝ) := by
+      rw [← Real.rpow_mul]
+      ring_nf
+      positivity
     _ ≤ X ^ ε := by
-      sorry
+      gcongr
+      · norm_cast
+        linarith
 
   have radical_le_X_pow_mul_prod := calc
     (radical n : ℕ) ≤ ((radical c : ℕ) : ℝ)* ∏ j, (radical (x j) : ℕ) := by
       sorry
-    _ ≤ (X : ℝ)^ε * ∏ i, x i := by
-      sorry
+    _ ≤ (X : ℝ)^ε * ∏ j, x j := by
+      gcongr
+      · calc
+          _ ≤ ↑c := by
 
-  have : NeZero M := sorry
+            sorry
+          _ ≤ (_:ℝ) := by
+            apply c_le_X_pow
+      sorry
 
   have x_K_le_X_pow : x K ≤ (X : ℝ) ^ ε := by
     sorry
@@ -590,7 +714,13 @@ def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ
 /- Here's what I think is happening in this proof: Every point in S* α β γ corresponds to a tuple in some B-set
   by taking the dyadic factorization. Specifically we can guarantee that the X, Y, Z, C corresponding to that
   B-set satisfy these nice properties. This gives us a cover of S* with one set for every point.
-  BUT: because these B-sets have nice dyadic properties, we can find a subcover of size << (log X)^{3d} -/
+  BUT: because these B-sets have nice dyadic properties, we can find a subcover of size << (log X)^{3d}.
+
+  Nevermind, this doesn't work. You can't guarantee a subcover of the stated size: consider points
+    {(i, X-i) | 0 ≤ i ≤ X} - with a dyadic set extending upwards at every point. Each point is covered
+    by only one set, so there is no O(log^2 x)-sized subcover. If we change B(X,Y,Z,c) to extend in both
+    directions - i.e. X i / 2 ≤ x i ≤ 2 * X i - then this should work: divide [1, X]^{3d} into (log X)^{3d}
+    dyadic cells. Then any good point (x, y, z) lies in some cell and that cell is covered by B(x, y, z) -/
 
 theorem refinedCountTriplesStar_isBigO_B
   {α β γ : ℝ}
