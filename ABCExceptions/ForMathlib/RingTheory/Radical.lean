@@ -188,4 +188,42 @@ theorem radical_mul {a b : R} (hc : IsRelPrime a b) :
   simp_rw [radical]
   rw [mul_primeFactors_disjUnion ha hb hc]
   rw [Finset.prod_disjUnion (disjoint_primeFactors hc)]
+
+theorem primeFactors_mul_eq_union [DecidableEq R] {a b  : R} (ha : a ≠ 0) (hb : b ≠ 0)  :
+    primeFactors (a * b) = primeFactors a ∪ primeFactors b := by
+  ext p
+  simp [mem_normalizedFactors_iff', ha, hb]
+
+theorem radical_dvd_iff_primeFactors_subset (a b : R) (hb : b ≠ 0):
+    radical a ∣ b ↔ primeFactors a ⊆ primeFactors b := by
+  by_cases ha : a = 0
+  · simp [ha]
+  constructor
+  · intro h
+    intro p
+    simp only [mem_primeFactors, mem_normalizedFactors_iff']
+    rw [mem_normalizedFactors_iff', mem_normalizedFactors_iff']
+    · simp only [and_imp]
+      intro hpa hpn hp
+      have : p ∣ radical a := (dvd_radical_iff_of_irreducible hp ha).mpr hpa
+      refine ⟨this.trans h, hpn, hp⟩
+    · exact hb
+    · exact ha
+  · intro hab
+    refine (dvd_radical_iff' ?_ hb).mp ?_
+    · exact isRadical_radical
+    simp_rw [radical]
+    apply Finset.prod_dvd_prod_of_subset
+    exact hab
+
+theorem radical_mul_dvd {a b : R} :
+    radical (a * b) ∣ radical a * radical b := by
+  classical
+  by_cases ha : a = 0
+  · subst ha; simp
+  by_cases hb : b = 0
+  · subst hb; simp
+  simp [radical_dvd_iff_primeFactors_subset, primeFactors_mul_eq_union, ha, hb, radical_ne_zero,
+    primeFactors_radical]
+
 end UniqueFactorizationMonoid
