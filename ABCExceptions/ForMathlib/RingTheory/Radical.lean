@@ -226,4 +226,12 @@ theorem radical_mul_dvd {a b : R} :
   simp [radical_dvd_iff_primeFactors_subset, primeFactors_mul_eq_union, ha, hb, radical_ne_zero,
     primeFactors_radical]
 
+theorem radical_prod_dvd {ι : Type*} {s : Finset ι} {f : ι → R} :
+    radical (∏ i ∈ s, f i) ∣ ∏ i ∈ s, radical (f i) := by
+  induction s using Finset.cons_induction with
+  | empty => simp
+  | cons i s h ih =>
+    simp only [Finset.prod_cons]
+    exact radical_mul_dvd.trans (mul_dvd_mul dvd_rfl ih)
+
 end UniqueFactorizationMonoid

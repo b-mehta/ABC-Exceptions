@@ -563,6 +563,10 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
   let x (j : Fin M) : ℕ :=
     y j * if j = K then (∏ m ∈ Finset.Icc M n, y m ^ (m / K)) else 1
 
+  have x_zero : x 0 = 1 := by
+    sorry
+
+
   have x_pairwise_coprime (i j : Fin M) (hij : i ≠ j) : Nat.gcd (x i) (x j) = 1 := by
     have hij' : i.val ≠ j.val := by
       simp [Fin.val_inj, hij]
@@ -662,17 +666,42 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
         linarith
 
   have radical_le_X_pow_mul_prod := calc
-    (radical n : ℕ) ≤ ((radical c : ℕ) : ℝ)* ∏ j, (radical (x j) : ℕ) := by
-      sorry
+    (radical n : ℕ)  ≤ ((radical c : ℕ) : ℝ) * radical (∏ j, x j ^ j.val : ℕ) := by
+      norm_cast
+      apply Nat.le_of_dvd
+      · sorry
+      rw [← c_mul_prod_x_eq_n]
+      apply radical_mul_dvd
+    _ ≤ ((radical c : ℕ) : ℝ)* ∏ j, (radical (x j ^ j.val) : ℕ) := by
+      gcongr
+      apply Nat.le_of_dvd
+      · apply Finset.prod_pos
+        intro i _
+        apply Nat.pos_of_ne_zero (radical_ne_zero _)
+      apply radical_prod_dvd
+    _ = ((radical c : ℕ) : ℝ)* ∏ j, (radical (x j) : ℕ) := by
+      congr 3 with j
+      by_cases hj : (j : ℕ) = 0
+      · simp [hj]
+        have : j = 0 := by
+          rw [← Fin.val_inj]
+          simp [hj]
+        simp [this, x_zero]
+      rw [radical_pow]
+      omega
     _ ≤ (X : ℝ)^ε * ∏ j, x j := by
       gcongr
       · calc
           _ ≤ ↑c := by
-
-            sorry
+            norm_cast
+            apply Nat.le_of_dvd
+            · sorry
+            apply radical_dvd_self
           _ ≤ (_:ℝ) := by
             apply c_le_X_pow
-      sorry
+      apply Nat.le_of_dvd
+      · sorry
+      apply radical_dvd_self
 
   have x_K_le_X_pow : x K ≤ (X : ℝ) ^ ε := by
     sorry
@@ -680,11 +709,34 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
   have X_pow_mul_prod_le_radical := calc
     (X : ℝ) ^ (-ε) * ∏ j, x j ≤ ∏ (j : Fin M), if j ≠ K then x j else 1 := by
       sorry
-    _ ≤ ∏ m ∈ Finset.Icc 1 n, y m := by
+    _ = ∏ j : Fin M, if j.val ≠ K then y j else 1 := by
+      norm_cast
+      simp_rw [← Finset.prod_filter]
+      apply Finset.prod_congr
+      · ext j; simp
+        rw [@not_iff_not]
+        sorry
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+      intro j h
+      simp only [x, h]
       sorry
-    _ ≤ (radical n : ℕ) := by
+    _ = ∏ m ∈ Finset.range M with m ≠ K, y m := by
+      norm_cast
+      rw [Finset.prod_filter, Fin.prod_univ_eq_prod_range (fun j ↦ if ¬ j = K then y j else 1) M]
+    _ ≤ ∏ m ∈ Finset.range M ∪ Finset.Icc M n, y m := by
+      norm_cast
+      apply Finset.prod_le_prod_of_subset_of_one_le'
+      · intro x;
+        simp
+        intro hxM hxK
+        sorry
+      · simp only [Finset.mem_union, Finset.mem_range, Finset.mem_Icc, Finset.mem_filter, not_and,
+        Decidable.not_not]
+        intro i _ _
+        apply hy_pos
+    _ = (radical n : ℕ) := by
+      norm_cast
       sorry
-
   refine ⟨x, c, c_mul_prod_x_eq_n.symm, c_le_X_pow, x_pairwise_coprime, X_pow_mul_prod_le_radical, radical_le_X_pow_mul_prod⟩
 
 
