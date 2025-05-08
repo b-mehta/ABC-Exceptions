@@ -168,6 +168,15 @@ def similar (x X : ℝ) : Prop := x ∈ Set.Icc X (2 * X)
 
 local infixr:36 " ~ " => similar
 
+theorem similar_pow_nat_log (x : ℕ) (hx : x ≠ 0) : x ~ 2 ^ Nat.log 2 x := by
+  simp [similar]
+  norm_cast
+  constructor
+  · refine Nat.pow_log_le_self 2 hx
+  · rw [mul_comm, ← Nat.pow_succ]
+    apply (Nat.lt_pow_succ_log_self ..).le
+    norm_num
+
 open Classical in
 noncomputable def dyadicPoints (α β γ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ) :=
    (Finset.Icc (0, 0, 0) (2*X, 2*X, 2*X)).filter fun ⟨a, b, c⟩ ↦
@@ -457,8 +466,8 @@ theorem Finset.Ico_union_Icc_eq_Icc {α : Type*} [LinearOrder α] [LocallyFinite
   right
   refine ⟨le_of_not_gt hxb, hxc⟩
 
-theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2) {n X : ℕ} (h2n : 2 ≤ n) (hnX : n ≤ X) :
-  ∃ (x : (Fin ⌊5/2 * ε⁻¹^2⌋₊) → ℕ), ∃ c : ℕ,
+theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2) (d : ℕ) (hd : d = ⌊5/2 * ε⁻¹^2⌋₊) {n X : ℕ} (h2n : 2 ≤ n) (hnX : n ≤ X) :
+  ∃ (x : (Fin d) → ℕ), ∃ c : ℕ,
     n = c * ∏ j, x j ^ (j:ℕ) ∧
     c ≤ (X:ℝ)^(ε) ∧
     (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
@@ -603,7 +612,6 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
     refine Finset.disjoint_left.mpr ?_
     simp +contextual
 
-
   have : ∏ m ∈ Finset.Icc M n, y m ≤ (X:ℝ) ^ (M⁻¹ : ℝ) := calc
     _ ≤ (∏ m ∈ Finset.Icc M n, y m ^ m : ℝ) ^ (M⁻¹ : ℝ) := by
       rw [← Real.finset_prod_rpow]
@@ -737,59 +745,130 @@ theorem exists_nice_factorization {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2)
     _ = (radical n : ℕ) := by
       norm_cast
       sorry
+  subst hd
   refine ⟨x, c, c_mul_prod_x_eq_n.symm, c_le_X_pow, x_pairwise_coprime, X_pow_mul_prod_le_radical, radical_le_X_pow_mul_prod⟩
+
+
+def powersLE (a : ℕ) (x : ℕ) : Finset ℕ :=
+  (Finset.Icc 0 (Nat.log a x)).image fun n ↦ a^n
+
+@[simp]
+theorem mem_powersLE (a x n : ℕ) :
+    n ∈ powersLE a x ↔ n ≤ x ∧ ∃ k, n = a^k := by
+  simp [powersLE]
+  sorry
+
+-- surjective map S*_α β γ (X) <- ⋃_{c, X, Y ,Z} B (c, X, Y, Z)
+def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ) → ℕ × ℕ × ℕ :=
+  fun ⟨X, Y, Z, c⟩ ↦
+    ⟨c 0 * ∏ i, X i ^ (i : ℕ), c 1 * ∏ i, Y i ^ (i : ℕ), c 2 * ∏ i, Z i ^ (i : ℕ)⟩
+
+open Classical in
+noncomputable def indexSet' (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ) :
+    Finset ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ)) :=
+  (Fintype.piFinset (fun _ ↦ Finset.Icc 0 (Nat.log 2 x))) ×ˢ
+  (Fintype.piFinset (fun _ ↦ Finset.Icc 0 (Nat.log 2 x))) ×ˢ
+  (Fintype.piFinset (fun _ ↦ Finset.Icc 0 (Nat.log 2 x))) |>.filter fun ⟨r, s ,t⟩ ↦
+    (x:ℝ) ^ (α - ε) ≤ 2^d * ∏ i, 2 ^ r i ∧ ∏ i, 2 ^ r i ≤ 2 * (x:ℝ) ^ (α + ε) ∧
+    (x:ℝ) ^ (β - ε) ≤ 2^d * ∏ i, 2 ^ s i ∧ ∏ i, 2 ^ s i ≤ 2 * (x:ℝ) ^ (β + ε) ∧
+    (x:ℝ) ^ (γ - ε) ≤ 2^d * ∏ i, 2 ^ t i ∧ ∏ i, 2 ^ t i ≤ 2 * (x:ℝ) ^ (γ + ε) ∧
+    ∏ i, (2 ^ r i)^(i:ℕ) ≤ x ∧
+    ∏ i, (2 ^ s i)^(i:ℕ) ≤ x ∧
+    ∏ i, (2 ^ t i)^(i:ℕ) ≤ x ∧
+    (x : ℝ)^(1-ε^2) ≤ 2^(Nat.choose d 2) * ∏ i, (2 ^ t i)^(i : ℕ)
+
+theorem card_indexSet'_le (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ)  :
+    (indexSet' α β γ d x ε).card ≤ (Nat.log 2 x + 1)^(3*d) := by
+  rw [indexSet']
+  apply Finset.card_filter_le .. |>.trans
+  simp
+  apply le_of_eq
+  ring
+
+theorem indexSet'_nonempty (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ) :
+    Finset.Nonempty (indexSet' α β γ d x ε) := by
+  have : NeZero d := by
+    sorry
+  let fst (n : ℕ) : Fin d → ℕ := fun i ↦ if i = 0 then n else 0
+  /- This is incorrect. Some care needs to be taken to get the lower bound on ∏ Z i ^ i -/
+  refine ⟨⟨fst (Nat.log 2 ⌊(x:ℝ) ^ (α + ε)⌋₊), fst (Nat.log 2 ⌊(x:ℝ) ^ (β + ε)⌋₊), fst (Nat.log 2 ⌊(x:ℝ) ^ (γ + ε)⌋₊)⟩, ?_⟩
+  simp [fst, indexSet']
+  sorry
+
+noncomputable def BUnion (α β γ : ℝ) {d : ℕ} (x : ℕ) (ε : ℝ) :
+    Finset ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ)) :=
+  (indexSet' α β γ d x ε).sup fun ⟨r, s, t⟩ ↦
+  (Fintype.piFinset (fun _ ↦ Finset.Icc 0 ⌊(x:ℝ)^(ε/4)⌋₊) : Finset (Fin 3 → ℕ)).sup fun c ↦
+    B_finset d c (fun i ↦ 2^r i) (fun i ↦ 2^s i) (fun i ↦ 2^t i)
+
+theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 < ε) (hε : ε < 1/2) {d : ℕ} (hd : d = ⌊5 / 2 * (ε ^ 2 / 2)⁻¹ ^ 2⌋₊) :
+    Set.SurjOn (B_to_triple (d := d)) (BUnion α β γ x ε).toSet (dyadicPoints α β γ x).toSet := by
+  intro ⟨a, b, c⟩
+  simp only [Finset.mem_coe, mem_dyadicPoints, BUnion, Set.mem_image, Finset.mem_sup,
+    Fintype.mem_piFinset, Finset.mem_Icc, zero_le, true_and, Prod.exists, and_imp]
+  intro hab hac hbc habc hrada hradb hradc hxc hcx
+  have h2a : 2 ≤ a := by sorry
+  have h2b : 2 ≤ b := by sorry
+  have h2c : 2 ≤ c := by omega
+  have hε_sq : ε^2/2 < 1/2 := by
+    nlinarith
+  obtain ⟨u, c₀, a_eq_c_mul_prod, c₀_le_pow, hu_cop, le_rad_a, rad_a_le⟩ := exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq d hd h2a (show a ≤ x by linarith)
+  obtain ⟨v, c₁, b_eq_c_mul_prod, c₁_le_pow, hv_cop, le_rad_b, rad_b_le⟩ := exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq d hd h2b (show b ≤ x by linarith)
+  obtain ⟨w, c₂, c_eq_c_mul_prod, c₂_le_pow, hw_cop, le_rad_c, rad_c_le⟩ := exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq d hd h2c (show c ≤ x by linarith)
+  let c' : Fin 3 → ℕ := ![c₀, c₁, c₂]
+  refine ⟨u, v, w, c', ?_, ?easy⟩
+  case easy =>
+    simp [B_to_triple, c']
+    refine ⟨a_eq_c_mul_prod.symm, b_eq_c_mul_prod.symm, c_eq_c_mul_prod.symm⟩
+  refine ⟨fun i ↦ Nat.log 2 (u i), fun i ↦ Nat.log 2 (v i), fun i ↦ Nat.log 2 (w i), ?_, ?_⟩
+  · simp [indexSet']
+    sorry
+  · use c'
+    simp only [mem_B_finset, Nat.cast_pow, Nat.cast_ofNat, Fin.isValue, true_and, c']
+    sorry
+
+
+theorem refinedCountTriplesStar_le_card_BUnion (α β γ : ℝ) {d : ℕ} (x : ℕ) (ε : ℝ) :
+    refinedCountTriplesStar α β γ x ≤ (BUnion α β γ x ε (d := d)).card := by
+  stop
+  rw [refinedCountTriplesStar]
+  apply Finset.card_le_card_of_surjOn _ (B_to_triple_surjOn ..)
 
 
 
 def const (ε : ℝ) : ℝ := sorry
 
--- surjective map S*_α β γ (X) <- ⋃_{c, X, Y ,Z} B (c, X, Y, Z)
-def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ) → ℕ × ℕ × ℕ :=
-  fun ⟨X, Y, Z, c⟩ ↦
-    ⟨c 0 * ∏ i, X i, c 1 * ∏ i, Y i, c 2 * ∏ i, Z i⟩
-
-
-
--- def indexSet' (α β γ : ℝ) {d : ℕ} (X Y Z : Fin d → ℕ) (c : Fin 3 → ℕ) :
-
-
-/-- -/
--- def dyadicSet_covered
---   {α β γ : ℝ}
---   (hα_pos : 0 < α) (hβ_pos : 0 < β) (hγ_pos : 0 < γ)
---   (hα1 : α ≤ 1) (hβ1 : β ≤ 1) (hγ1 : γ ≤ 1)
---   {x : ℕ} (h2X : 2 ≤ x) {ε : ℝ} (hε_pos : 0 < ε) :
---       (dyadicPoints α β γ x)
---   -- dyadicPoints α β γ x  := by
---   sorry := sorry
-
-/- Here's what I think is happening in this proof: Every point in S* α β γ corresponds to a tuple in some B-set
-  by taking the dyadic factorization. Specifically we can guarantee that the X, Y, Z, C corresponding to that
-  B-set satisfy these nice properties. This gives us a cover of S* with one set for every point.
-  BUT: because these B-sets have nice dyadic properties, we can find a subcover of size << (log X)^{3d}.
-
-  Nevermind, this doesn't work. You can't guarantee a subcover of the stated size: consider points
-    {(i, X-i) | 0 ≤ i ≤ X} - with a dyadic set extending upwards at every point. Each point is covered
-    by only one set, so there is no O(log^2 x)-sized subcover. If we change B(X,Y,Z,c) to extend in both
-    directions - i.e. X i / 2 ≤ x i ≤ 2 * X i - then this should work: divide [1, X]^{3d} into (log X)^{3d}
-    dyadic cells. Then any good point (x, y, z) lies in some cell and that cell is covered by B(x, y, z) -/
+noncomputable def d (ε : ℝ) : ℕ := ⌊5 / 2 * (ε ^ 2 / 2)⁻¹ ^ 2⌋₊
 
 theorem refinedCountTriplesStar_isBigO_B
   {α β γ : ℝ}
   (hα_pos : 0 < α) (hβ_pos : 0 < β) (hγ_pos : 0 < γ)
   (hα1 : α ≤ 1) (hβ1 : β ≤ 1) (hγ1 : γ ≤ 1)
   {x : ℕ} (h2X : 2 ≤ x) {ε : ℝ} (hε_pos : 0 < ε) :
-  ∃ d ≥ (1 : ℕ), ∃ X Y Z : Fin d → ℕ,
-    (x:ℝ)^(α - ε) ≤ ∏ j, X j ∧ ∏ j, X j ≤ (x : ℝ) ^ (α + ε) ∧
-    (x:ℝ)^(β - ε) ≤ ∏ j, Y j ∧ ∏ j, Y j ≤ (x : ℝ) ^ (β + ε) ∧
-    (x:ℝ)^(γ - ε) ≤ ∏ j, Z j ∧ ∏ j, Z j ≤ (x : ℝ) ^ (γ + ε) ∧
+  ∃ X Y Z : Fin (d ε) → ℕ,
+    (x:ℝ)^(α - ε) ≤ 2 ^ d ε * ∏ j, X j ∧ ∏ j, X j ≤ 2 * (x : ℝ) ^ (α + ε) ∧
+    (x:ℝ)^(β - ε) ≤ 2 ^ d ε * ∏ j, Y j ∧ ∏ j, Y j ≤ 2 * (x : ℝ) ^ (β + ε) ∧
+    (x:ℝ)^(γ - ε) ≤ 2 ^ d ε * ∏ j, Z j ∧ ∏ j, Z j ≤ 2 * (x : ℝ) ^ (γ + ε) ∧
     ∏ i, X i ^ (i : ℕ) ≤ x ∧
     ∏ i, Y i ^ (i : ℕ) ≤ x ∧
     ∏ i, Z i ^ (i : ℕ) ≤ x ∧
-    (x : ℝ) ^ (1 - ε^2) ≤ ∏ i, Z i ^ (i : ℕ) ∧
+    (x : ℝ) ^ (1 - ε^2) ≤ 2^(Nat.choose (d ε) 2) * ∏ i, Z i ^ (i : ℕ) ∧
     ∃ c : Fin 3 → ℕ,
     (∀ i, 1 ≤ c i) ∧
     (∀ i, (c i : ℝ) ≤ (x : ℝ) ^ ε) ∧
-    refinedCountTriplesStar α β γ x ≤ const ε * (x : ℝ) ^ ε * B d c X Y Z := by
+    refinedCountTriplesStar α β γ x ≤ const ε * (x : ℝ) ^ ε * B (d ε) c X Y Z := by
+  have := refinedCountTriplesStar_le_card_BUnion α β γ (d := d ε) x ε
+  simp_rw [BUnion, Finset.sup_eq_biUnion] at this
+  have := this.trans Finset.card_biUnion_le |>.trans (sum_le_card_mul_sup ..)
+  obtain ⟨⟨u, v, w⟩, h_mem, hsup_eq⟩ := Finset.exists_mem_eq_sup _ (indexSet'_nonempty α β γ (d ε) x ε) fun (a : (Fin (d ε) → ℕ) × (Fin (d ε) → ℕ) × (Fin (d ε) → ℕ)) ↦
+      ((Fintype.piFinset fun x_1 ↦ Finset.Icc 0 ⌊(x:ℝ) ^ (ε / 4)⌋₊).biUnion fun c ↦
+          B_finset (d ε) c (fun i ↦ 2 ^ a.1 i) (fun i ↦ 2 ^ a.2.1 i) fun i ↦ 2 ^ a.2.2 i).card
+  rw [hsup_eq] at this
+  clear hsup_eq
+  simp only [indexSet', Finset.mem_filter, Finset.mem_product, Fintype.mem_piFinset, Finset.mem_Icc,
+    zero_le, true_and] at h_mem
+  refine ⟨(fun i ↦ 2 ^ u i), (fun i ↦ 2 ^ v i), (fun i ↦ 2 ^ w i), ?_⟩
+  obtain ⟨_, hxu, hux, hxv, hvx, hxw, hwx, hux', hvx', hwx', hxw'⟩ := h_mem
+  refine ⟨mod_cast hxu, mod_cast hux, mod_cast hxv, mod_cast hvx, mod_cast hxw, mod_cast hwx, hux', hvx', hwx', mod_cast hxw', ?_⟩
 
   sorry
