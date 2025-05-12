@@ -234,4 +234,33 @@ theorem radical_prod_dvd {ι : Type*} {s : Finset ι} {f : ι → R} :
     simp only [Finset.prod_cons]
     exact radical_mul_dvd.trans (mul_dvd_mul dvd_rfl ih)
 
+open Qq Lean Mathlib.Meta Finset
+
+theorem Nat.radical_pos (n : ℕ) : 0 < radical n := by
+  apply Nat.pos_of_ne_zero
+  exact radical_ne_zero n
+
+namespace Mathlib.Meta.Positivity
+open Positivity
+
+attribute [local instance] monadLiftOptionMetaM in
+/-- Positivity extension for radical. Proves strict positivity for natural numbers and nonzero for
+general nontrivail monoids. -/
+@[positivity UniqueFactorizationMonoid.radical _]
+def evalRadical : PositivityExt where eval {u α} _ _ e := do
+  match u, α, e with
+  | 0, ~q(ℕ), ~q(@radical _ $inst $inst' $inst'' $n) =>
+    assertInstancesCommute
+    return .positive q(Nat.radical_pos _)
+  | _, _, ~q(@radical _ $inst $inst' $inst'' $n) =>
+    have _ := ← synthInstanceQ q(Nontrivial $α)
+    assertInstancesCommute
+    return .nonzero q(radical_ne_zero _)
+  | _ => throwError "not tsum"
+
+example : 0 < radical 100 := by
+  positivity
+
+end Mathlib.Meta.Positivity
+
 end UniqueFactorizationMonoid
