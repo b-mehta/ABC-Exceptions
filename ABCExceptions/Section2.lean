@@ -3,6 +3,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Data.Real.StarOrdered
+import Mathlib.Data.Nat.Squarefree
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.Radical
 import Mathlib.RingTheory.SimpleModule
@@ -178,7 +179,7 @@ theorem similar_pow_nat_log (x : ℕ) (hx : x ≠ 0) : x ~ 2 ^ Nat.log 2 x := by
 
 open Classical in
 noncomputable def dyadicPoints (α β γ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ) :=
-   (Finset.Icc (0, 0, 0) (2*X, 2*X, 2*X)).filter fun ⟨a, b, c⟩ ↦
+   (Finset.Icc (1, 1, 1) (2*X, 2*X, 2*X)).filter fun ⟨a, b, c⟩ ↦
       a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
       a + b = c ∧
       (radical a : ℕ) ~ (X ^ α : ℝ) ∧ (radical b : ℕ) ~ (X ^ β : ℝ) ∧ (radical c : ℕ) ~ (X ^ γ : ℝ) ∧
@@ -187,14 +188,16 @@ noncomputable def dyadicPoints (α β γ : ℝ) (X : ℕ) : Finset (ℕ × ℕ �
 @[simp]
 theorem mem_dyadicPoints (α β γ : ℝ) (X : ℕ) (a b c : ℕ) :
   ⟨a, b, c⟩ ∈ dyadicPoints α β γ X ↔
+    0 < a ∧ 0 < b ∧ 0 < c ∧
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
       a + b = c ∧
       (radical a : ℕ) ~ (X ^ α : ℝ) ∧ (radical b : ℕ) ~ (X ^ β : ℝ) ∧ (radical c : ℕ) ~ (X ^ γ : ℝ) ∧
       X / 2 ≤ c ∧ c ≤ X := by
-  simp only [dyadicPoints, Finset.mem_filter, Finset.mem_Icc, Prod.mk_le_mk,
-    and_iff_right_iff_imp, and_imp]
-  intro _ _ _ habc _ _ _ hc hc'
-  simp only [zero_le, and_self, true_and]
+  simp only [dyadicPoints, Finset.mem_filter, Finset.mem_Icc, Prod.mk_le_mk, Nat.add_one_le_iff,
+    and_assoc,and_congr_right_iff]
+  simp_rw [← and_assoc, and_congr_left_iff]
+  simp only [and_iff_right_iff_imp]
+  intro ha hb hc hc_le_X hX_le_c hrc hrb hra habc hbc hac hab
   omega
 
 noncomputable def refinedCountTriplesStar (α β γ : ℝ) (X : ℕ) : ℕ :=
@@ -269,7 +272,8 @@ theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
     apply Nat.log_mono_right ((Nat.radical_le_self (by omega)).trans haX)
   let n := Nat.log 2 c + 1
   refine ⟨Nat.log 2 (radical a), Nat.log 2 (radical b), Nat.log 2 (radical c), n,
-  ⟨this h1a haX, this h1b hbX, this h1c hcX, by omega, ?_, ?_⟩, hab, hac, hbc, habc, ?_⟩
+  ⟨this h1a haX, this h1b hbX, this h1c hcX, by omega, ?_, ?_⟩, by omega, by omega, by omega,
+    hab, hac, hbc, habc, ?_⟩
   · simp [n, Nat.log_mono_right hcX]
   · -- Here we prove that α + β + γ ≤ μ
     have : radical (a * b * c) = radical a * radical b * radical c := by
@@ -476,11 +480,11 @@ class ProofData where
   hd : d = ⌊5/2 * ε⁻¹^2⌋₊
   n : ℕ
   X : ℕ
-  h2n : 2 ≤ n
+  h1n : 1 ≤ n
   hnX : n ≤ X
 
 open ProofData NiceFactorization
-variable [ProofData]
+variable [data : ProofData]
 
 def y (j : ℕ) : ℕ := ∏ p ∈ n.primeFactors with n.factorization p = j, p
 
@@ -498,7 +502,7 @@ private theorem hy_pos (j : ℕ) : 0 < y j := by
 
 private theorem prod_y_pow_eq_n_subset {s : Finset ℕ} (hs : ∀ p, p.Prime → p ∣ n → n.factorization p ∈ s) :
     ∏ m ∈ s, y m ^ m = n := by
-  have := h2n
+  have := h1n
   simp_rw [y]
   conv =>
     rhs
@@ -542,6 +546,57 @@ private theorem hy_cop (i j : ℕ) (hij : i ≠ j) : Nat.Coprime (y i) (y j) := 
   apply p_dvd_y_iff _ _ hp at hpj
   subst hpi hpj
   exact hij rfl
+
+omit data in
+theorem _root_.Nat.prod_squarefree {ι : Type*} (f : ι → ℕ) {s : Finset ι}
+    (hf : ∀ i ∈ s, Squarefree (f i)) (h : ∀ i ∈ s, ∀ j ∈ s, i ≠ j → Nat.Coprime (f i) (f j)) :
+    Squarefree (∏ i ∈ s, f i) := by
+  induction s using Finset.cons_induction with
+  | empty => simp
+  | cons i s his ih =>
+    simp
+    rw [Nat.squarefree_mul]
+    · refine ⟨hf _ (by simp), ?_⟩
+      apply ih
+      · simp only [Finset.mem_cons, forall_eq_or_imp] at hf
+        exact hf.2
+      · intro i hi j hj hij
+        apply h <;> simp [hi, hj, hij]
+    apply Nat.Coprime.prod_right
+    intro j hj
+    apply h <;> simp[his, hj]
+    rintro rfl
+    contradiction
+
+omit data in
+theorem _root_.Associated.nat_eq {a b : ℕ} (h : Associated a b) : a = b := by
+  rw [Associated] at h
+  simp only [Nat.units_eq_one, Units.val_one, mul_one, exists_const] at h
+  exact h
+
+theorem y_squarefree {i : ℕ} : Squarefree (y i) := by
+  rw [y]
+  apply Nat.prod_squarefree
+  · simp +contextual [Finset.mem_filter, Nat.mem_primeFactors, ne_eq, and_imp, Nat.Prime.prime,
+      Prime.squarefree]
+  · simp +contextual [Nat.coprime_primes]
+
+private theorem prod_y_eq_radical_n : ∏ m ∈ (Finset.range d) ∪ (Finset.Icc d n), y m = radical n := by
+  conv => rhs; rw [← prod_y_pow_eq_n]
+  rw [radical_prod]
+  apply Finset.prod_congr rfl
+  · simp only [Finset.mem_union, Finset.mem_range, Finset.mem_Icc]
+    intro i _
+    by_cases hi : i = 0
+    · simp [hi]
+    · rw [radical_pow _ (by omega)]
+      have := radical_associated (y_squarefree (i := i)).isRadical (hy_pos _).ne.symm
+      rw [this.nat_eq]
+  · intro i j hij
+    apply Nat.Coprime.isRelPrime
+    apply Nat.Coprime.pow_right
+    apply Nat.Coprime.pow_left
+    apply hy_cop i j hij
 
 noncomputable def K := ⌈ε⁻¹⌉₊
 
@@ -738,7 +793,7 @@ private theorem c_le_X_pow : c ≤ (X:ℝ) ^ ε := calc
     ring_nf
     positivity
   _ ≤ X ^ ε := by
-    have := h2n
+    have := h1n
     have := hnX
     have := hK_div_d
     gcongr
@@ -754,7 +809,7 @@ theorem exists_nice_factorization :
   have hε_pos : 0 < ε := hε_pos
   have hε := hε
   have hd := hd
-  have h2n := h2n
+  have h1n := h1n
   have hnX := hnX
 
   have := two_lt_eps_inv
@@ -853,18 +908,30 @@ theorem exists_nice_factorization :
 
   have X_pow_mul_prod_le_radical := calc
     (X : ℝ) ^ (-ε) * ∏ j, x j ≤ ∏ (j : Fin d), if j ≠ K then x j else 1 := by
-      sorry
+      rw [Real.rpow_neg]
+      apply inv_mul_le_of_le_mul₀
+      · positivity
+      · positivity
+      · calc
+          _ ≤ (x K:ℝ) * ∏ j : Fin d, if j ≠ K then x j else 1 := by
+            norm_cast
+            rw [← Finset.prod_filter, Finset.filter_ne', Finset.mul_prod_erase]
+            exact Finset.mem_univ _
+          _ ≤ _ := by
+            gcongr
+      · positivity
     _ = ∏ j : Fin d, if j.val ≠ K then y j else 1 := by
+      have {j : Fin d} : j.val = K ↔ j = K := by
+        rw [← Fin.val_inj]
+        simp only [Fin.val_natCast]
+        rw [Nat.mod_eq_of_lt hKd]
       norm_cast
-      simp_rw [← Finset.prod_filter]
+      simp_rw [← Finset.prod_filter, this]
       apply Finset.prod_congr
       · ext j; simp
-        rw [@not_iff_not]
-        sorry
       simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       intro j h
-      simp only [x, h]
-      sorry
+      simp [x, y, mul_ite, mul_one, ite_eq_right_iff, h]
     _ = ∏ m ∈ Finset.range d with m ≠ K, y m := by
       norm_cast
       rw [Finset.prod_filter, Fin.prod_univ_eq_prod_range (fun j ↦ if ¬ j = K then y j else 1) d]
@@ -874,20 +941,17 @@ theorem exists_nice_factorization :
       · intro x;
         simp
         intro hxM hxK
-        sorry
+        omega
       · simp only [Finset.mem_union, Finset.mem_range, Finset.mem_Icc, Finset.mem_filter, not_and,
         Decidable.not_not]
         intro i _ _
         apply hy_pos
-    _ = (radical n : ℕ) := by
-      norm_cast
-      sorry
+    _ = (radical n : ℕ) := mod_cast prod_y_eq_radical_n
+
   refine ⟨x, c, c_mul_prod_x_eq_n.symm, c_le_X_pow, x_pairwise_coprime, X_pow_mul_prod_le_radical,
     radical_le_X_pow_mul_prod⟩
 
-
 end NiceFactorization
-
 
 theorem exists_nice_factorization
   {ε : ℝ}
@@ -897,26 +961,48 @@ theorem exists_nice_factorization
   (hd : d = ⌊5/2 * ε⁻¹^2⌋₊)
   {n : ℕ}
   {X : ℕ}
-  (h2n : 2 ≤ n)
+  (h1n : 1 ≤ n)
   (hnX : n ≤ X) :
   ∃ (x : (Fin d) → ℕ), ∃ c : ℕ,
     n = c * ∏ j, x j ^ (j:ℕ) ∧
     c ≤ (X:ℝ)^(ε) ∧
     (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
-    (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j := by
-  let _ : NiceFactorization.ProofData := ⟨
-    ε, hε_pos, hε, d, hd, n, X, h2n, hnX
+    (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j ∧ 0 < c := by
+  let data : NiceFactorization.ProofData := ⟨
+    ε, hε_pos, hε, d, hd, n, X, h1n, hnX
   ⟩
-  apply NiceFactorization.exists_nice_factorization
+  obtain ⟨x, c, hn, hc, hcop, h_le_rad, h_rad_le⟩ := NiceFactorization.exists_nice_factorization
+  simp_rw [data] at *
+  have hc_pos : 0 < c := by
+    sorry
+  have : NeZero d := by
+    sorry
+  have x_le_n (i : Fin d) : x i ≤ n := by
+    by_cases hi : i.val = 0
+    · rw [show (0 : ℕ) = (0 : Fin d).val by norm_num] at hi
+      rw [Fin.val_inj] at hi
+      subst hi
 
-def powersLE (a : ℕ) (x : ℕ) : Finset ℕ :=
-  (Finset.Icc 0 (Nat.log a x)).image fun n ↦ a^n
+      sorry
+    apply Nat.le_of_dvd
+    · omega
+    rw [hn]
+    apply Dvd.dvd.mul_left
+    trans x i ^ i.val
+    · apply dvd_pow (dvd_rfl)
+      sorry
+    apply Finset.dvd_prod_of_mem
+    sorry
+  exact ⟨x, c, hn, hc, hcop, h_le_rad, h_rad_le, hc_pos⟩
 
-@[simp]
-theorem mem_powersLE (a x n : ℕ) :
-    n ∈ powersLE a x ↔ n ≤ x ∧ ∃ k, n = a^k := by
-  simp [powersLE]
-  sorry
+-- def powersLE (a : ℕ) (x : ℕ) : Finset ℕ :=
+--   (Finset.Icc 0 (Nat.log a x)).image fun n ↦ a^n
+
+-- @[simp]
+-- theorem mem_powersLE (a x n : ℕ) :
+--     n ∈ powersLE a x ↔ n ≤ x ∧ ∃ k, n = a^k := by
+--   simp [powersLE]
+--   sorry
 
 -- surjective map S*_α β γ (X) <- ⋃_{c, X, Y ,Z} B (c, X, Y, Z)
 def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ) → ℕ × ℕ × ℕ :=
@@ -944,7 +1030,8 @@ theorem card_indexSet'_le (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ)  :
   simp
   apply le_of_eq
   ring
-
+/- We probably don't need this: If S*(X) = 0 then the result is trivial - if not then by
+  surjectivity of B_to_triple BUnion is nonempty. -/
 theorem indexSet'_nonempty (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ) :
     Finset.Nonempty (indexSet' α β γ d x ε) := by
   have : NeZero d := by
@@ -961,31 +1048,115 @@ noncomputable def BUnion (α β γ : ℝ) {d : ℕ} (x : ℕ) (ε : ℝ) :
   (Fintype.piFinset (fun _ ↦ Finset.Icc 0 ⌊(x:ℝ)^(ε/4)⌋₊) : Finset (Fin 3 → ℕ)).sup fun c ↦
     B_finset d c (fun i ↦ 2^r i) (fun i ↦ 2^s i) (fun i ↦ 2^t i)
 
+
+theorem similar_pow_log {x : ℕ} (hx : 0 < x) : x ~ 2 ^ Nat.log 2 x := by
+  simp [similar]
+  norm_cast
+  constructor
+  · refine Nat.pow_log_le_self 2 hx.ne.symm
+  · rw [mul_comm, ← Nat.pow_succ]
+    apply le_of_lt
+    refine Nat.lt_pow_succ_log_self ?_ x
+    norm_num
+
+-- theorem aux {ι : Type*} {s : Finset ℕ} {f g u v : ι → ℕ} {a b : ℕ} (huf : ∀ i, u i = 0 → f i = 1)
+--   (h : ∀ i, u i = 0 → f i = 1) :
+--   Nat.Coprime (∏ i ∈ s,
+
 theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 < ε) (hε : ε < 1/2) {d : ℕ} (hd : d = ⌊5 / 2 * (ε ^ 2 / 2)⁻¹ ^ 2⌋₊) :
     Set.SurjOn (B_to_triple (d := d)) (BUnion α β γ x ε).toSet (dyadicPoints α β γ x).toSet := by
   intro ⟨a, b, c⟩
   simp only [Finset.mem_coe, mem_dyadicPoints, BUnion, Set.mem_image, Finset.mem_sup,
     Fintype.mem_piFinset, Finset.mem_Icc, zero_le, true_and, Prod.exists, and_imp]
-  intro hab hac hbc habc hrada hradb hradc hxc hcx
-  have h2a : 2 ≤ a := by sorry
-  have h2b : 2 ≤ b := by sorry
-  have h2c : 2 ≤ c := by omega
+  intro ha hb hc hab hac hbc habc hrada hradb hradc hxc hcx
   have hε_sq : ε^2/2 < 1/2 := by
     nlinarith
-  obtain ⟨u, c₀, a_eq_c_mul_prod, c₀_le_pow, hu_cop, le_rad_a, rad_a_le⟩ := exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq hd h2a (show a ≤ x by linarith)
-  obtain ⟨v, c₁, b_eq_c_mul_prod, c₁_le_pow, hv_cop, le_rad_b, rad_b_le⟩ := exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq hd h2b (show b ≤ x by linarith)
-  obtain ⟨w, c₂, c_eq_c_mul_prod, c₂_le_pow, hw_cop, le_rad_c, rad_c_le⟩ := exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq hd h2c (show c ≤ x by linarith)
+  obtain ⟨u, c₀, a_eq_c_mul_prod, c₀_le_pow, hu_cop, le_rad_a, rad_a_le, c₀_pos⟩ := exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq hd ha (show a ≤ x by linarith)
+  obtain ⟨v, c₁, b_eq_c_mul_prod, c₁_le_pow, hv_cop, le_rad_b, rad_b_le, c₁_pos⟩ := exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq hd hb (show b ≤ x by linarith)
+  obtain ⟨w, c₂, c_eq_c_mul_prod, c₂_le_pow, hw_cop, le_rad_c, rad_c_le, c₂_pos⟩ := exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq hd hc (show c ≤ x by linarith)
+
+  /- These facts should be rolled into a wrapper around nice_factorization. -/
+  have hu_pos (i : Fin d) : 0 < u i := sorry
+  have hv_pos (i : Fin d) : 0 < v i := sorry
+  have hw_pos (i : Fin d) : 0 < w i := sorry
+
+  have (i : Fin d) : u i ≤ x := by
+    sorry
+  have (i : Fin d) : v i ≤ x := by
+    sorry
+  have (i : Fin d) : w i ≤ x := by
+    sorry
+
+  have hc₀_le_pow_floor : c₀ ≤ ⌊(x : ℝ) ^ (ε / 4)⌋₊ := by
+    sorry
+  have hc₁_le_pow_floor : c₁ ≤ ⌊(x : ℝ) ^ (ε / 4)⌋₊ := by
+    sorry
+  have hc₂_le_pow_floor : c₂ ≤ ⌊(x : ℝ) ^ (ε / 4)⌋₊ := by
+    sorry
+
+  have x_pow_α_le : (x : ℝ) ^ (α - ε) ≤ ∏ i, u i := by
+    sorry
+  have le_x_pow_α : ∏ i, u i ≤ 2 * (x : ℝ) ^ (α + ε) := by
+    sorry
+  have x_pow_β_le : (x : ℝ) ^ (β - ε) ≤ ∏ i, v i := by
+    sorry
+  have le_x_pow_β : ∏ i, v i ≤ 2 * (x : ℝ) ^ (β + ε) := by
+    sorry
+  have x_pow_γ_le : (x : ℝ) ^ (γ - ε) ≤ ∏ i, w i := by
+    sorry
+  have le_x_pow_γ : ∏ i, w i ≤ 2 * (x : ℝ) ^ (γ + ε) := by
+    sorry
+
   let c' : Fin 3 → ℕ := ![c₀, c₁, c₂]
+
+  have prod_pow_le {u : Fin d → ℕ} (h : ∀ i, 0 < u i): ∏ i, 2 ^ Nat.log 2 (u i) ≤ ∏ i, u i := by
+    gcongr with i
+    apply Nat.pow_log_le_self
+    exact (h i).ne.symm
+
+  have le_prod_pow {u : Fin d → ℕ} : ∏ i, u i ≤ 2 ^ d * ∏ i, 2 ^ Nat.log 2 (u i) := calc
+    _ ≤ ∏ i, 2 ^ (Nat.log 2 (u i) + 1) := by
+      gcongr with i
+      apply (Nat.lt_pow_succ_log_self ..).le
+      norm_num
+    _ = _ := by
+      simp [Nat.pow_add, Finset.prod_mul_distrib]
+      ring
   refine ⟨u, v, w, c', ?_, ?easy⟩
   case easy =>
     simp [B_to_triple, c']
     refine ⟨a_eq_c_mul_prod.symm, b_eq_c_mul_prod.symm, c_eq_c_mul_prod.symm⟩
   refine ⟨fun i ↦ Nat.log 2 (u i), fun i ↦ Nat.log 2 (v i), fun i ↦ Nat.log 2 (w i), ?_, ?_⟩
   · simp [indexSet']
+    refine ⟨?_, ?_⟩
+    · refine ⟨?_, ?_, ?_⟩ <;>
+      · intro i
+        apply Nat.log_mono_right
+        simp [*]
+    refine ⟨x_pow_α_le.trans (mod_cast le_prod_pow), le_trans (mod_cast (prod_pow_le hu_pos)) le_x_pow_α,
+    x_pow_β_le.trans (mod_cast le_prod_pow), le_trans (mod_cast (prod_pow_le hv_pos)) le_x_pow_β,x_pow_γ_le.trans (mod_cast le_prod_pow), le_trans (mod_cast (prod_pow_le hw_pos)) le_x_pow_γ,
+    ?_⟩
     sorry
   · use c'
     simp only [mem_B_finset, Nat.cast_pow, Nat.cast_ofNat, Fin.isValue, true_and, c']
-    sorry
+    simp only [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+      Matrix.cons_val_two, Nat.succ_eq_add_one, Nat.reduceAdd, Matrix.tail_cons, c']
+    refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+    · intro i
+      fin_cases i <;> simp [hc₀_le_pow_floor, hc₁_le_pow_floor, hc₂_le_pow_floor]
+    · apply fun i ↦ (similar_pow_log (hu_pos i))
+    · apply fun i ↦ (similar_pow_log (hv_pos i))
+    · apply fun i ↦ (similar_pow_log (hw_pos i))
+    · rw [←a_eq_c_mul_prod, ←b_eq_c_mul_prod, ←c_eq_c_mul_prod]
+      exact habc
+    /- These rely on u 0 = 1. -/
+    · rw [a_eq_c_mul_prod, b_eq_c_mul_prod] at hab
+      apply Nat.Coprime.gcd_eq_one
+      apply Nat.Coprime.mul
+      · sorry
+      · sorry
+    · sorry
+    · sorry
 
 
 theorem refinedCountTriplesStar_le_card_BUnion (α β γ : ℝ) {d : ℕ} (x : ℕ) (ε : ℝ) :

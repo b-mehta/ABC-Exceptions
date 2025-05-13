@@ -189,6 +189,19 @@ theorem radical_mul {a b : R} (hc : IsRelPrime a b) :
   rw [mul_primeFactors_disjUnion ha hb hc]
   rw [Finset.prod_disjUnion (disjoint_primeFactors hc)]
 
+theorem radical_prod {ι : Type*} {f : ι → R} (s : Finset ι) (h : ∀ i j, i ≠ j → IsRelPrime (f i) (f j)) :
+    radical (∏ i ∈ s, f i) = ∏ i ∈ s, radical (f i) := by
+  induction s using Finset.cons_induction with
+  | empty => simp
+  | cons i s his ih =>
+    simp only [Finset.prod_cons]
+    rw [radical_mul, ih]
+    apply IsRelPrime.prod_right
+    intro j hjs
+    apply h i j
+    rintro rfl
+    contradiction
+
 theorem primeFactors_mul_eq_union [DecidableEq R] {a b  : R} (ha : a ≠ 0) (hb : b ≠ 0)  :
     primeFactors (a * b) = primeFactors a ∪ primeFactors b := by
   ext p
@@ -245,7 +258,7 @@ open Positivity
 
 attribute [local instance] monadLiftOptionMetaM in
 /-- Positivity extension for radical. Proves strict positivity for natural numbers and nonzero for
-general nontrivail monoids. -/
+general nontrivial monoids. -/
 @[positivity UniqueFactorizationMonoid.radical _]
 def evalRadical : PositivityExt where eval {u α} _ _ e := do
   match u, α, e with
@@ -256,7 +269,7 @@ def evalRadical : PositivityExt where eval {u α} _ _ e := do
     have _ := ← synthInstanceQ q(Nontrivial $α)
     assertInstancesCommute
     return .nonzero q(radical_ne_zero _)
-  | _ => throwError "not tsum"
+  | _ => throwError "not radical"
 
 example : 0 < radical 100 := by
   positivity
