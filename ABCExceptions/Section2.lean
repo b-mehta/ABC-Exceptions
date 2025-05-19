@@ -411,7 +411,7 @@ open Classical in
 noncomputable def B_finset (d : ℕ) (C : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) :
   Finset ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ)) :=
   ((dyadicTuples X) ×ˢ (dyadicTuples Y) ×ˢ (dyadicTuples Z) ×ˢ {C}).filter fun ⟨x, y, z, c⟩ ↦
-    c 0 * ∏ i, (x i)^(i:ℕ) + c 1 * ∏ i, (y i)^(i:ℕ) = c 2 * ∏ i, (z i)^(i:ℕ) ∧
+    c 0 * ∏ i, (x i)^(i.val + 1) + c 1 * ∏ i, (y i)^(i.val + 1) = c 2 * ∏ i, (z i)^(i.val + 1) ∧
     Nat.gcd (c 0 * ∏ i, (x i)) (c 1 * ∏ i, (y i)) = 1 ∧
     Nat.gcd (c 0 * ∏ i, (x i)) (c 2 * ∏ i, (z i)) = 1 ∧
     Nat.gcd (c 1 * ∏ i, (y i)) (c 2 * ∏ i, (z i)) = 1
@@ -420,7 +420,7 @@ theorem mem_B_finset (d : ℕ) (C : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) (x y 
   (x, y, z, c) ∈ B_finset d C X Y Z ↔
     C = c ∧
     (∀ i, x i ~ X i) ∧ (∀ i, y i ~ Y i) ∧ (∀ i, z i ~ Z i) ∧
-    c 0 * ∏ i, (x i)^(i:ℕ) + c 1 * ∏ i, (y i)^(i:ℕ) = c 2 * ∏ i, (z i)^(i:ℕ) ∧
+    c 0 * ∏ i, (x i)^(i.val + 1) + c 1 * ∏ i, (y i)^(i.val + 1) = c 2 * ∏ i, (z i)^(i.val + 1) ∧
     Nat.gcd (c 0 * ∏ i, (x i)) (c 1 * ∏ i, (y i)) = 1 ∧
     Nat.gcd (c 0 * ∏ i, (x i)) (c 2 * ∏ i, (z i)) = 1 ∧
     Nat.gcd (c 1 * ∏ i, (y i)) (c 2 * ∏ i, (z i)) = 1 := by
@@ -521,14 +521,20 @@ private theorem prod_y_pow_eq_n_subset {s : Finset ℕ} (hs : ∀ p, p.Prime →
     intro p hp hpn hn'
     apply hs p hp hpn
 
-private theorem prod_y_pow_eq_n : ∏ m ∈ (Finset.range d) ∪ (Finset.Icc d n), y m ^ m = n := by
+private theorem prod_y_pow_eq_n : ∏ m ∈ (Finset.Icc 1 d) ∪ (Finset.Ioc d n), y m ^ m = n := by
   apply prod_y_pow_eq_n_subset
   intro p hp hpn
   simp only [Finset.mem_union, Finset.mem_range, Finset.mem_Icc]
   have : n.factorization p ≤ n := by
     apply Nat.factorization_le_right p n hp
-  have : n.factorization p < d ∨ d ≤ n.factorization p := by
-    exact Nat.lt_or_ge (n.factorization p) d
+  have : n.factorization p ≤ d ∨ d < n.factorization p := by
+    exact le_or_lt (n.factorization p) d
+  simp only [Finset.mem_Ioc]
+  have : 1 ≤ n.factorization p := by
+    rw [← hp.dvd_iff_one_le_factorization]
+    · exact hpn
+    · have := h1n
+      omega
   tauto
 
 private theorem p_dvd_y_iff (i : ℕ) (p : ℕ) (hp : p.Prime) : p ∣ y i → n.factorization p = i := by
@@ -581,7 +587,7 @@ theorem y_squarefree {i : ℕ} : Squarefree (y i) := by
       Prime.squarefree]
   · simp +contextual [Nat.coprime_primes]
 
-private theorem prod_y_eq_radical_n : ∏ m ∈ (Finset.range d) ∪ (Finset.Icc d n), y m = radical n := by
+private theorem prod_y_eq_radical_n : ∏ m ∈ (Finset.Icc 1 d) ∪ (Finset.Ioc d n), y m = radical n := by
   conv => rhs; rw [← prod_y_pow_eq_n]
   rw [radical_prod]
   apply Finset.prod_congr rfl
@@ -610,6 +616,10 @@ private theorem two_lt_eps_inv : 2 < ε⁻¹ := by
 private theorem hK_pos : 0 < K := by
   rw [K, Nat.ceil_pos]
   simp [hε_pos]
+
+private theorem two_lt_K : 2 < K := by
+  rw [K, Nat.lt_ceil]
+  simp [two_lt_eps_inv]
 
 private theorem K_inv_le_eps : (K : ℝ)⁻¹ ≤ ε := by
   rw [inv_le_iff_one_le_mul₀]
@@ -663,7 +673,7 @@ private theorem hK_div_d : (K / d : ℝ) ≤ ε := by
       apply Nat.sub_one_lt_floor
 
 noncomputable def x (j : Fin d) : ℕ :=
-  y j * if j = K then (∏ m ∈ Finset.Icc d n, y m ^ (m / K)) else 1
+  y (j.val+1) * if j.val + 1 = K then (∏ m ∈ Finset.Ioc d n, y m ^ (m / K)) else 1
 
 theorem x_pos (j : Fin d) : 0 < x j := by
   rw [x]
@@ -675,75 +685,111 @@ theorem x_pos (j : Fin d) : 0 < x j := by
       apply pow_pos (hy_pos _)
   · simp [hy_pos]
 
-@[simp]
-private theorem x_zero : x 0 = 1 := by
-  simp +contextual [x, Fin.val_zero, y_zero, mul_ite, one_mul, mul_one, ite_eq_right_iff, hK_pos.ne, hKd]
-  rw [Eq.comm, Fin.natCast_eq_zero]
-  intro h
-  have := Nat.le_of_dvd hK_pos h
-  have := hKd
-  omega
+-- @[simp]
+-- private theorem x_zero : x 0 = 1 := by
+--   simp +contextual [x, Fin.val_zero, y_zero, mul_ite, one_mul, mul_one, ite_eq_right_iff, hK_pos.ne, hKd]
+--   rw [Eq.comm, Fin.natCast_eq_zero]
+--   intro h
+--   have := Nat.le_of_dvd hK_pos h
+--   have := hKd
+--   omega
 
 private theorem x_pairwise_coprime (i j : Fin d) (hij : i ≠ j) : Nat.gcd (x i) (x j) = 1 := by
   have hij' : i.val ≠ j.val := by
+    simp [Fin.val_inj, hij]
+  have hij'' : i.val + 1 ≠ j.val + 1 := by
     simp [Fin.val_inj, hij]
   simp_rw [x]
   rw [← Nat.coprime_iff_gcd_eq_one]
   split_ifs with hik hjk
   · rw [← hik] at hjk
-    exact (hij.symm hjk).elim
+    exact (hij''.symm hjk).elim
   · rw [Nat.coprime_mul_iff_left, mul_one]
-    refine ⟨hy_cop _ _ hij', ?_⟩
+    refine ⟨hy_cop _ _ hij'', ?_⟩
     rw [Nat.coprime_prod_left_iff]
-    simp only [Finset.mem_Icc, and_imp, x]
+    simp only [Finset.mem_Ioc, and_imp]
     intro m hMm hmn
     apply Nat.Coprime.pow_left
     apply hy_cop
     omega
   · /- deduce from above instead? -/
     rw [Nat.coprime_mul_iff_right, mul_one]
-    refine ⟨hy_cop _ _ hij', ?_⟩
+    refine ⟨hy_cop _ _ hij'', ?_⟩
     rw [Nat.coprime_prod_right_iff]
-    simp only [Finset.mem_Icc, and_imp, x]
+    simp only [Finset.mem_Ioc, and_imp]
     intro m hMm hmn
     apply Nat.Coprime.pow_right
     apply hy_cop
     omega
   · simp_rw [mul_one]
-    apply hy_cop i j hij'
+    apply hy_cop _ _ hij''
 
-noncomputable def c : ℕ := ∏ m ∈ Finset.Icc d n, y m ^ (m % K)
+
+noncomputable def c : ℕ := ∏ m ∈ Finset.Ioc d n, y m ^ (m % K)
 
 private theorem c_pos : 0 < c := by
   rw [c]
   apply Finset.prod_pos
-  simp only [Finset.mem_Icc, and_imp]
+  simp only [Finset.mem_Ioc, and_imp]
   intro i _ _
   apply pow_pos
   exact hy_pos _
 
-private theorem c_mul_prod_x_eq_n : c * ∏ j, x j ^ (j : ℕ) = n := by
+omit data in
+theorem nat_eq_fin_iff {n a : ℕ} {b : Fin n} [NeZero n] (ha : a < n) :
+    (a : Fin n) = b ↔ a = b.val := by
+  rw [← Fin.val_inj]
+  simp only [Fin.val_natCast, Nat.mod_eq_of_lt ha]
+
+omit data in
+theorem fin_eq_nat_iff {n a : ℕ} {b : Fin n} [NeZero n] (ha : a < n) :
+    b = (a : Fin n) ↔ b.val = a := by
+  rw [← Fin.val_inj]
+  simp only [Fin.val_natCast, Nat.mod_eq_of_lt ha]
+
+-- theorem test {ι : Type*} {f g : ι → ℕ} {s : Finset ι} {a : ι} {b : ℕ} : ∏ i ∈ s with g i = b, f (g i)
+private theorem aux (f : ℕ → ℕ) :
+    (∏ i : Fin d, if i.val + 1 = K then f (i.val + 1) else 1) = f K := by
+  obtain ⟨K', hK'⟩ := Nat.exists_eq_add_one.mpr hK_pos
+  simp +contextual [hK', ← Finset.prod_filter]
+  have : Finset.univ.filter (fun a : Fin d ↦ a.val = K') = ({(↑K' : Fin d)} : Finset (Fin d)) := by
+    ext x; simp
+    rw [eq_comm]
+    conv => rhs; rw [eq_comm]
+    apply (nat_eq_fin_iff _).symm
+    have := hKd
+    omega
+  simp [this]
+
+private theorem c_mul_prod_x_eq_n : c * ∏ j, x j ^ (j.val + 1) = n := by
   simp_rw [c, x]
   simp_rw [mul_pow, Finset.prod_mul_distrib]
   simp only [ite_pow, one_pow]
-  simp only [Finset.prod_ite_eq', Finset.mem_univ, ↓reduceIte, Fin.val_natCast]
-  rw [Fin.prod_univ_eq_prod_range (fun i ↦ y i ^ i)]
-  rw [mul_comm, mul_assoc, ← Finset.prod_pow, ← Finset.prod_mul_distrib]
-  simp_rw [← pow_mul, ← pow_add, Nat.mod_eq_of_lt hKd, mul_comm _ K, Nat.div_add_mod]
+  simp +contextual
+  rw [Fin.prod_univ_eq_prod_range (fun i ↦ y (i+1) ^ (i+1))]
+  rw [mul_comm, mul_assoc, ← Finset.prod_pow, aux (fun _ ↦ _), ← Finset.prod_mul_distrib]
+  simp_rw [← pow_mul, ← pow_add, mul_comm _ (K), Nat.div_add_mod]
   conv => rhs; rw [← prod_y_pow_eq_n]
-  rw [← Finset.prod_union]
+  rw [Finset.prod_union]
+  have : (Finset.range d).map (addRightEmbedding 1) = Finset.Icc 1 d := by
+    have : 1 ≤ d := by
+      apply hd_pos
+    rw [Nat.range_eq_Icc_zero_sub_one _ (by omega), Finset.map_add_right_Icc]
+    simp [this]
+  rw [← this]
+  simp
   refine Finset.disjoint_left.mpr ?_
   simp +contextual
 
-private theorem prod_y_large_le_X_pow : ∏ m ∈ Finset.Icc d n, y m ≤ (X:ℝ) ^ (d⁻¹ : ℝ) := by
+private theorem prod_y_large_le_X_pow : ∏ m ∈ Finset.Ioc d n, y m ≤ (X:ℝ) ^ (d⁻¹ : ℝ) := by
   have := hnX
   calc
-    _ ≤ (∏ m ∈ Finset.Icc d n, y m ^ m : ℝ) ^ (d⁻¹ : ℝ) := by
+    _ ≤ (∏ m ∈ Finset.Ioc d n, y m ^ m : ℝ) ^ (d⁻¹ : ℝ) := by
       rw [← Real.finset_prod_rpow]
       · push_cast
         apply Finset.prod_le_prod
         · intros; positivity
-        simp only [Finset.mem_Icc, and_imp]
+        simp only [Finset.mem_Ioc, and_imp]
         intro i hMi hin
         conv => lhs; rw [← Real.rpow_one (y i : ℝ)]
         rw [← Real.rpow_natCast_mul (by simp)]
@@ -751,7 +797,7 @@ private theorem prod_y_large_le_X_pow : ∏ m ∈ Finset.Icc d n, y m ≤ (X:ℝ
         · norm_cast
           apply hy_pos
         · rw [le_mul_inv_iff₀]
-          · simp [hMi]
+          · simp [hMi.le]
           · simp [hd_pos]
       intros; positivity
     _ ≤ (n:ℝ) ^ (d⁻¹ : ℝ) := by
@@ -771,12 +817,12 @@ private theorem prod_y_large_le_X_pow : ∏ m ∈ Finset.Icc d n, y m ≤ (X:ℝ
       gcongr
 
 private theorem c_le_X_pow : c ≤ (X:ℝ) ^ ε := calc
-  c ≤ ∏ m ∈ Finset.Icc d n, (y m : ℝ) ^ K := by
+  c ≤ ∏ m ∈ Finset.Ioc d n, (y m : ℝ) ^ K := by
     simp_rw [c]
     push_cast
     apply Finset.prod_le_prod
     · intros; positivity
-    simp only [Finset.mem_Icc, and_imp]
+    simp only [Finset.mem_Ioc, and_imp]
     intro x hMx hxn
     gcongr
     · simp only [Nat.one_le_cast, *]
@@ -800,9 +846,23 @@ private theorem c_le_X_pow : c ≤ (X:ℝ) ^ ε := calc
     · norm_cast
       linarith
 
+@[simp]
+private theorem tmp'' : ((K-1: Fin d).val + 1) = K := by
+  have : (K:Fin d) - 1 = ((K-1: ℕ) : Fin d) := by
+    rw [Nat.cast_sub]
+    · simp
+    have := two_lt_K
+    omega
+  rw [this]
+  simp
+  rw [Nat.mod_eq_of_lt]
+  · simp [Nat.add_one_le_iff.eq ▸ hK_pos]
+  · have := hKd
+    omega
+
 theorem exists_nice_factorization :
   ∃ (x : (Fin d) → ℕ), ∃ c : ℕ,
-    n = c * ∏ j, x j ^ (j:ℕ) ∧
+    n = c * ∏ j, x j ^ (j.val + 1:ℕ) ∧
     c ≤ (X:ℝ)^(ε) ∧
     (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
     (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j := by
@@ -816,13 +876,13 @@ theorem exists_nice_factorization :
   have := hK_div_d
 
   have radical_le_X_pow_mul_prod := calc
-    (radical n : ℕ) ≤ ((radical c : ℕ) : ℝ) * radical (∏ j, x j ^ j.val : ℕ) := by
+    (radical n : ℕ) ≤ ((radical c : ℕ) : ℝ) * radical (∏ j, x j ^ (j.val + 1)) := by
       norm_cast
       apply Nat.le_of_dvd
       · positivity
       rw [← c_mul_prod_x_eq_n]
       apply radical_mul_dvd
-    _ ≤ ((radical c : ℕ) : ℝ)* ∏ j, (radical (x j ^ j.val) : ℕ) := by
+    _ ≤ ((radical c : ℕ) : ℝ)* ∏ j, (radical (x j ^ (j.val + 1)) : ℕ) := by
       gcongr
       apply Nat.le_of_dvd
       · positivity
@@ -831,10 +891,6 @@ theorem exists_nice_factorization :
       congr 3 with j
       by_cases hj : (j : ℕ) = 0
       · simp [hj]
-        have : j = 0 := by
-          rw [← Fin.val_inj]
-          simp [hj]
-        simp [this, x_zero]
       rw [radical_pow]
       omega
     _ ≤ (X : ℝ)^ε * ∏ j, x j := by
@@ -850,17 +906,15 @@ theorem exists_nice_factorization :
       · apply x_pos
       apply radical_dvd_self
 
-  have x_K_le_X_pow : x K ≤ (X : ℝ) ^ ε := by
-    rw [x, if_pos rfl]
+  have x_K_le_X_pow : x (K-1) ≤ (X : ℝ) ^ ε := by
+    rw [x, if_pos ?side]
+    case side =>
+      simp
     have := hKd
-    have : ((K : Fin d) : ℕ) = K := by
-      simp only [Fin.val_natCast]
-      rw [Nat.mod_eq_of_lt]
-      exact hKd
-    simp_rw [this]
+    simp only [tmp'', Nat.cast_mul, Nat.cast_prod, Nat.cast_pow, ge_iff_le]
     exact_mod_cast calc
-      (y K * ∏ m ∈ Finset.Icc d n, y m ^ (m / K) : ℝ) ≤
-        (y K ^ K)^(K⁻¹:ℝ) * (∏ m ∈ Finset.Icc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
+      (y K * ∏ m ∈ Finset.Ioc d n, y m ^ (m / K) : ℝ) ≤
+        (y K ^ K)^(K⁻¹:ℝ) * (∏ m ∈ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
           gcongr
           · rw [← Real.rpow_natCast_mul, mul_inv_cancel₀]
             · simp
@@ -879,7 +933,7 @@ theorem exists_nice_factorization :
               apply Nat.floor_le
               positivity
             · simp
-      _ = (∏ m ∈ {K} ∪ Finset.Icc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
+      _ = (∏ m ∈ {K} ∪ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
           rw [Finset.prod_union]
           · simp only [Nat.cast_prod, Nat.cast_pow, Finset.prod_singleton, Nat.cast_mul]
             rw [Real.mul_rpow]
@@ -888,13 +942,13 @@ theorem exists_nice_factorization :
           · simp
             intro
             linarith
-      _ ≤ (∏ m ∈ Finset.range d ∪ Finset.Icc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
+      _ ≤ (∏ m ∈ Finset.Icc 1 d ∪ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
         gcongr
         · intros
           apply Nat.add_one_le_of_lt
           simp [hy_pos]
         · intro i
-          simp +contextual [hKd]
+          simp +contextual [hKd.le, Nat.add_one_le_iff.eq ▸ hK_pos]
       _ = (n : ℝ) ^ (K⁻¹ : ℝ) := by
         congr
         rw [prod_y_pow_eq_n]
@@ -907,35 +961,67 @@ theorem exists_nice_factorization :
         apply K_inv_le_eps
 
   have X_pow_mul_prod_le_radical := calc
-    (X : ℝ) ^ (-ε) * ∏ j, x j ≤ ∏ (j : Fin d), if j ≠ K then x j else 1 := by
+    (X : ℝ) ^ (-ε) * ∏ j, x j ≤ ∏ (j : Fin d), if j ≠ (K-1:ℕ) then x j else 1 := by
       rw [Real.rpow_neg]
       apply inv_mul_le_of_le_mul₀
       · positivity
       · positivity
       · calc
-          _ ≤ (x K:ℝ) * ∏ j : Fin d, if j ≠ K then x j else 1 := by
+          _ ≤ (x (K-1):ℝ) * ∏ j : Fin d, if j ≠ (K-1:ℕ) then x j else 1 := by
             norm_cast
-            rw [← Finset.prod_filter, Finset.filter_ne', Finset.mul_prod_erase]
+            push_cast
+            have : (K:Fin d) - 1 = ((K-1: ℕ) : Fin d) := by
+              rw [Nat.cast_sub]
+              · simp
+              have := two_lt_K
+              omega
+            rw [← Finset.prod_filter, Finset.filter_ne', this, Finset.mul_prod_erase]
             exact Finset.mem_univ _
           _ ≤ _ := by
             gcongr
       · positivity
-    _ = ∏ j : Fin d, if j.val ≠ K then y j else 1 := by
-      have {j : Fin d} : j.val = K ↔ j = K := by
-        rw [← Fin.val_inj]
-        simp only [Fin.val_natCast]
-        rw [Nat.mod_eq_of_lt hKd]
+    _ = ∏ j : Fin d, if j.val ≠ (K-1:ℕ) then y (j.val + 1) else 1 := by
+      have (j : Fin d) : j.val = (K-1) ↔ j = (K-1 : ℕ) := by
+        apply (fin_eq_nat_iff _).symm
+        have := hKd
+        omega
       norm_cast
       simp_rw [← Finset.prod_filter, this]
       apply Finset.prod_congr
       · ext j; simp
       simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       intro j h
-      simp [x, y, mul_ite, mul_one, ite_eq_right_iff, h]
-    _ = ∏ m ∈ Finset.range d with m ≠ K, y m := by
+      have : j.val + 1 ≠ K := by
+        intro hK
+        rw [← hK] at h
+        simp only [add_tsub_cancel_right, Fin.cast_val_eq_self, not_true_eq_false] at h
+      simp [x, y, mul_ite, mul_one, ite_eq_right_iff, h, this]
+    _ ≤ ∏ j : Fin d, if j.val + 1 ≠ (K:ℕ) then y (j.val + 1) else 1 := by
+      gcongr with j
+      apply le_of_eq
+      apply if_congr _ rfl rfl
+      apply Iff.not
+      rw [eq_comm, Nat.sub_eq_iff_eq_add, eq_comm]
+      have := two_lt_K
+      omega
+    _ = ∏ m ∈ Finset.range d with m + 1 ≠ K, y (m+1) := by
       norm_cast
-      rw [Finset.prod_filter, Fin.prod_univ_eq_prod_range (fun j ↦ if ¬ j = K then y j else 1) d]
-    _ ≤ ∏ m ∈ Finset.range d ∪ Finset.Icc d n, y m := by
+      rw [Finset.prod_filter, Fin.prod_univ_eq_prod_range (fun j ↦ if ¬ j + 1 = K then y (j+1) else 1) d]
+    _ ≤ ∏ m ∈ Finset.range d, y (m+1) := by
+      norm_cast
+      apply Finset.prod_le_prod_of_subset_of_one_le'
+      · exact Finset.filter_subset (fun m ↦ ¬m + 1 = K) (Finset.range d)
+      · intros
+        apply hy_pos
+    _ = ∏ m ∈ Finset.Icc 1 d, y m := by
+      norm_cast
+      have : (Finset.range d).map (addRightEmbedding 1) = Finset.Icc 1 d := by
+        have : 1 ≤ d := by
+          apply hd_pos
+        rw [Nat.range_eq_Icc_zero_sub_one _ (by omega), Finset.map_add_right_Icc]
+        simp [this]
+      simp [← this, Finset.prod_map]
+    _ ≤ ∏ m ∈ Finset.Icc 1 d ∪ Finset.Ioc d n, y m := by
       norm_cast
       apply Finset.prod_le_prod_of_subset_of_one_le'
       · intro x;
@@ -964,7 +1050,7 @@ theorem exists_nice_factorization
   (h1n : 1 ≤ n)
   (hnX : n ≤ X) :
   ∃ (x : (Fin d) → ℕ), ∃ c : ℕ,
-    n = c * ∏ j, x j ^ (j:ℕ) ∧
+    n = c * ∏ j, x j ^ (j.val + 1:ℕ) ∧
     c ≤ (X:ℝ)^(ε) ∧
     (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
     (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j ∧ 0 < c := by
@@ -988,7 +1074,7 @@ theorem exists_nice_factorization
     · omega
     rw [hn]
     apply Dvd.dvd.mul_left
-    trans x i ^ i.val
+    trans x i ^ (i.val + 1)
     · apply dvd_pow (dvd_rfl)
       sorry
     apply Finset.dvd_prod_of_mem
@@ -1007,7 +1093,7 @@ theorem exists_nice_factorization
 -- surjective map S*_α β γ (X) <- ⋃_{c, X, Y ,Z} B (c, X, Y, Z)
 def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ) → ℕ × ℕ × ℕ :=
   fun ⟨X, Y, Z, c⟩ ↦
-    ⟨c 0 * ∏ i, X i ^ (i : ℕ), c 1 * ∏ i, Y i ^ (i : ℕ), c 2 * ∏ i, Z i ^ (i : ℕ)⟩
+    ⟨c 0 * ∏ i, X i ^ (i.val + 1), c 1 * ∏ i, Y i ^ (i.val + 1), c 2 * ∏ i, Z i ^ (i.val + 1)⟩
 
 open Classical in
 noncomputable def indexSet' (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ) :
@@ -1018,10 +1104,10 @@ noncomputable def indexSet' (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ) :
     (x:ℝ) ^ (α - ε) ≤ 2^d * ∏ i, 2 ^ r i ∧ ∏ i, 2 ^ r i ≤ 2 * (x:ℝ) ^ (α + ε) ∧
     (x:ℝ) ^ (β - ε) ≤ 2^d * ∏ i, 2 ^ s i ∧ ∏ i, 2 ^ s i ≤ 2 * (x:ℝ) ^ (β + ε) ∧
     (x:ℝ) ^ (γ - ε) ≤ 2^d * ∏ i, 2 ^ t i ∧ ∏ i, 2 ^ t i ≤ 2 * (x:ℝ) ^ (γ + ε) ∧
-    ∏ i, (2 ^ r i)^(i:ℕ) ≤ x ∧
-    ∏ i, (2 ^ s i)^(i:ℕ) ≤ x ∧
-    ∏ i, (2 ^ t i)^(i:ℕ) ≤ x ∧
-    (x : ℝ)^(1-ε^2) ≤ 2^(Nat.choose d 2) * ∏ i, (2 ^ t i)^(i : ℕ)
+    ∏ i, (2 ^ r i)^(i.val + 1) ≤ x ∧
+    ∏ i, (2 ^ s i)^(i.val + 1) ≤ x ∧
+    ∏ i, (2 ^ t i)^(i.val + 1) ≤ x ∧
+    (x : ℝ)^(1-ε^2) ≤ 2^(Nat.choose d 2) * ∏ i, (2 ^ t i)^(i.val + 1)
 
 theorem card_indexSet'_le (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ)  :
     (indexSet' α β γ d x ε).card ≤ (Nat.log 2 x + 1)^(3*d) := by
@@ -1180,10 +1266,10 @@ theorem refinedCountTriplesStar_isBigO_B
     (x:ℝ)^(α - ε) ≤ 2 ^ d ε * ∏ j, X j ∧ ∏ j, X j ≤ 2 * (x : ℝ) ^ (α + ε) ∧
     (x:ℝ)^(β - ε) ≤ 2 ^ d ε * ∏ j, Y j ∧ ∏ j, Y j ≤ 2 * (x : ℝ) ^ (β + ε) ∧
     (x:ℝ)^(γ - ε) ≤ 2 ^ d ε * ∏ j, Z j ∧ ∏ j, Z j ≤ 2 * (x : ℝ) ^ (γ + ε) ∧
-    ∏ i, X i ^ (i : ℕ) ≤ x ∧
-    ∏ i, Y i ^ (i : ℕ) ≤ x ∧
-    ∏ i, Z i ^ (i : ℕ) ≤ x ∧
-    (x : ℝ) ^ (1 - ε^2) ≤ 2^(Nat.choose (d ε) 2) * ∏ i, Z i ^ (i : ℕ) ∧
+    ∏ i, X i ^ (i.val + 1) ≤ x ∧
+    ∏ i, Y i ^ (i.val + 1) ≤ x ∧
+    ∏ i, Z i ^ (i.val + 1) ≤ x ∧
+    (x : ℝ) ^ (1 - ε^2) ≤ 2^(Nat.choose (d ε) 2) * ∏ i, Z i ^ (i.val + 1) ∧
     ∃ c : Fin 3 → ℕ,
     (∀ i, 1 ≤ c i) ∧
     (∀ i, (c i : ℝ) ≤ (x : ℝ) ^ ε) ∧
