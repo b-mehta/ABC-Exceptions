@@ -7,7 +7,7 @@ import Mathlib.Data.Nat.Squarefree
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.Radical
-import Mathlib.RingTheory.SimpleModule
+-- import Mathlib.RingTheory.SimpleModule
 import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 
 import ABCExceptions.ForMathlib.RingTheory.Radical
@@ -72,15 +72,14 @@ def ABCConjecture : Prop := ∀ ε : ℝ, 0 < ε →
 
 open Asymptotics Filter
 
-theorem WellFounded.ciSup_eq_monotonicSequenceLimit {α : Type*} [ConditionallyCompleteLattice α]
-    (h : WellFounded ((· > ·) : α → α → Prop)) (a : ℕ →o α) (ha : BddAbove (Set.range a)) :
+theorem ciSup_eq_monotonicSequenceLimit {α : Type*} [ConditionallyCompleteLattice α]
+    [WellFoundedGT α] (a : ℕ →o α) (ha : BddAbove (Set.range a)) :
     iSup a = monotonicSequenceLimit a := by
   refine (ciSup_le fun m => ?_).antisymm (le_ciSup ha _)
   rcases le_or_lt m (monotonicSequenceLimitIndex a) with hm | hm
   · exact a.monotone hm
-  · cases' WellFounded.monotone_chain_condition'.1 h a with n hn
-    have : n ∈ {n | ∀ m, n ≤ m → a n = a m} := fun k hk => (a.mono hk).eq_of_not_lt (hn k hk)
-    exact (Nat.sInf_mem ⟨n, this⟩ m hm.le).ge
+  · obtain h := WellFoundedGT.monotone_chain_condition a
+    exact (Nat.sInf_mem (s := {n | ∀ m, n ≤ m → a n = a m}) h m hm.le).ge
 
 lemma forall_increasing {α : Type*} (f : ℕ → Set α) (hf : Monotone f) (hf' : ∀ n, (f n).Finite)
     {s : Set α} {C : ℕ} (hC : ∀ n, (s ∩ f n).ncard ≤ C) : (s ∩ ⋃ n, f n).Finite := by
@@ -493,9 +492,7 @@ def y (j : ℕ) : ℕ := ∏ p ∈ n.primeFactors with n.factorization p = j, p
 
 @[simp]
 private theorem y_zero : y 0 = 1 := by
-  simp [y]
-  apply Finset.prod_eq_one
-  simp [Nat.factorization_eq_zero_iff]
+  simp +contextual [y, Nat.factorization_eq_zero_iff]
 
 private theorem hy_pos (j : ℕ) : 0 < y j := by
   apply Finset.prod_pos
@@ -932,7 +929,7 @@ theorem exists_nice_factorization :
             · simp only [Nat.one_le_cast]
               apply Nat.add_one_le_of_lt
               apply hy_pos
-            · rw [← Nat.floor_div_eq_div (α := ℝ), div_eq_mul_inv]
+            · rw [← Nat.floor_div_eq_div (K := ℝ), div_eq_mul_inv]
               apply Nat.floor_le
               positivity
             · simp

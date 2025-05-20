@@ -1,8 +1,9 @@
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.Order.Ring.Nat
 import Mathlib.Order.Interval.Finset.Nat
-import Mathlib.Algebra.Order.SuccPred
+import Mathlib.Algebra.Order.Interval.Finset.SuccPred
 import Mathlib.Data.Nat.SuccPred
+import Mathlib.Data.Finset.Powerset
 
 noncomputable section
 
@@ -45,7 +46,7 @@ theorem Nat.Icc_union_Icc_eq_Icc {a b c : ℕ} (h₁ : a ≤ b) (h₂ : b ≤ c)
 theorem Finset.prod_Icc_succ_bot {M : Type*} [CommMonoid M] {a b : ℕ}
     (hab : a ≤ b) (f : ℕ → M) :
     (∏ k ∈ Icc a b, f k) = f a * (∏ k ∈ Icc (a + 1) b, f k) := by
-  rw [← Nat.Icc_insert_succ_left hab, prod_insert]
+  rw [← Finset.insert_Icc_add_one_left_eq_Icc hab, prod_insert]
   simp
 
 lemma Finset.finite_subsets (s : Finset ℕ) : {a | a ⊆ s}.Finite := by

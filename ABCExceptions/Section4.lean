@@ -376,10 +376,12 @@ lemma bound_4_point_11_2 (h : baseAssumptions d a) (hd : 1 ≤ d) :
     ∑ i ∈ Finset.Icc 2 d, (i - 1) * a i ≤ 2 / 3 + δ_ d a :=
   calc
     _ = ∑ i ∈ insert 1 (Finset.Icc 2 d), (i - 1) * a i := by simp
-    _ = ∑ i ∈ Finset.Icc 1 d, (i - 1) * a i := by rw [← Nat.Icc_insert_succ_left hd]
+    _ = ∑ i ∈ Finset.Icc 1 d, (i - 1) * a i := by
+      rw [← Finset.insert_Icc_add_one_left_eq_Icc hd]
+      rfl
     _ = ∑ i ∈ Finset.Icc 1 d, i * a i - ∑ i ∈ Finset.Icc 1 d, a i := by simp [sub_one_mul]
     _ ≤ _ := by
-      rw [δ_, Nat.Iic_eq_Icc, ← Nat.Icc_insert_succ_left (show 0 ≤ d by simp)]
+      rw [δ_, Nat.Iic_eq_Icc, ← Finset.insert_Icc_add_one_left_eq_Icc (show 0 ≤ d by simp)]
       simp only [zero_add, Finset.mem_Icc, nonpos_iff_eq_zero, one_ne_zero, zero_le,
         and_true, not_false_eq_true, Finset.sum_insert, h.zero]
       linarith [h.sum_restrict_bound]
@@ -1119,7 +1121,7 @@ lemma GeometryBound.s21_application_basic
   have h : ∑ i ∈ Finset.Iic d \ (Finset.Icc 1 d).erase 3, a i = a 3 := by
     rw [Finset.sdiff_erase (by simp; omega), Iic_sdiff_Icc_of_le (by omega),
       Finset.sum_insert (by simp)]
-    simp only [add_right_eq_self]
+    simp only [add_eq_left]
     rw [Nat.Iio_eq_range, Finset.range_one, Finset.sum_singleton, ha.zero]
   have h₁₂ : {1, 2} ⊆ Finset.Icc 1 d := by simp [Finset.insert_subset_iff]; omega
   have h₁₂₃ : {1, 2, 3} ⊆ Finset.Icc 1 d := by simp [Finset.insert_subset_iff]; omega
