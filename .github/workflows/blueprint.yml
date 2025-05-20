@@ -78,7 +78,7 @@ jobs:
 
       - name: Move documentation to `home_page/docs`
         run: |
-          sudo chown -R runner docs
+          sudo chown -R runner home_page
           cp -r docbuild/.lake/build/doc home_page/docs
         if: github.ref == 'refs/heads/main'
 
