@@ -1,6 +1,8 @@
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.Order.Ring.Nat
 import Mathlib.Order.Interval.Finset.Nat
+import Mathlib.Algebra.Order.SuccPred
+import Mathlib.Data.Nat.SuccPred
 
 noncomputable section
 
@@ -18,11 +20,20 @@ theorem Finset.Ico_union_Icc_eq_Icc {α : Type*} [LinearOrder α]
     Ico a b ∪ Icc b c = Icc a c := by
   simp [← Finset.coe_inj, Set.Ico_union_Icc_eq_Icc h₁ h₂]
 
-theorem Nat.Ico_union_Icc_eq_Icc {a b c : ℕ} (h₁ : a ≤ b) (h₂ : b ≤ c + 1) :
+theorem Finset.Ico_union_Icc_eq_Icc' {α : Type*} [LinearOrder α] [NoMaxOrder α]
+    [Add α] [One α] [SuccAddOrder α]
+    [LocallyFiniteOrder α] {a b c : α} (h₁ : a ≤ b) (h₂ : b ≤ c + 1) :
     Finset.Ico a b ∪ Finset.Icc b c = Finset.Icc a c := by
   ext i
   simp only [Finset.mem_union, Finset.mem_Ico, Finset.mem_Icc]
-  omega
+  constructor
+  · rintro (⟨h₃, h₄⟩ | ⟨h₃, h₄⟩)
+    · exact ⟨h₃, Order.le_of_lt_add_one (h₄.trans_le h₂)⟩
+    · exact ⟨h₁.trans h₃, h₄⟩
+  · rintro ⟨h₃, h₄⟩
+    obtain h₅ | h₅ := lt_or_le i b
+    · exact Or.inl ⟨h₃, h₅⟩
+    · exact Or.inr ⟨h₅, h₄⟩
 
 theorem Nat.Icc_union_Icc_eq_Icc {a b c : ℕ} (h₁ : a ≤ b) (h₂ : b ≤ c) :
     Finset.Icc a b ∪ Finset.Icc (b + 1) c = Finset.Icc a c := by
@@ -44,7 +55,7 @@ lemma Finset.finite_subsets (s : Finset ℕ) : {a | a ⊆ s}.Finite := by
 lemma prod_Icc_eq_prod_range_mul_prod_Icc {α : Type*} [CommMonoid α] {f : ℕ → α} {t : ℕ}
     (ht : t ≤ d + 1) :
     ∏ i ≤ d, f i = (∏ i ∈ Finset.range t, f i) * ∏ i ∈ Finset.Icc t d, f i := by
-  rw [Nat.Iic_eq_Icc, ← Nat.Ico_union_Icc_eq_Icc (zero_le _) ht, Nat.Ico_zero_eq_range,
+  rw [Nat.Iic_eq_Icc, ← Finset.Ico_union_Icc_eq_Icc' (zero_le _) ht, Nat.Ico_zero_eq_range,
     Finset.prod_union]
   simp +contextual [Finset.disjoint_left]
 

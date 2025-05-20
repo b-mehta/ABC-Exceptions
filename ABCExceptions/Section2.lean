@@ -1,9 +1,10 @@
 import Mathlib.Algebra.GCDMonoid.Nat
+import Mathlib.Analysis.Asymptotics.AsymptoticEquivalent
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.Data.Real.StarOrdered
 import Mathlib.Data.Nat.Squarefree
+import Mathlib.Data.Real.StarOrdered
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.Radical
 import Mathlib.RingTheory.SimpleModule
@@ -371,6 +372,22 @@ theorem countTriples_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) : countTriples μ X
   apply le_trans _ (card_union_dyadicPoints_le_log_pow_mul_sup μ X)
   apply Finset.card_le_card
   exact ABCTriples_subset_union_dyadicPoints μ X
+
+theorem Real.natLog_isBigO_logb (b : ℕ) :
+    (fun x : ℕ ↦ (Nat.log b x : ℝ)) =O[atTop] (fun x : ℕ ↦ Real.logb b x) := by
+  apply IsBigO.of_bound'
+  filter_upwards with x
+  rw [Real.norm_natCast, Real.norm_eq_abs]
+  exact (Real.natLog_le_logb _ _).trans (le_abs_self _)
+
+theorem Real.logb_isBigO_log (b : ℝ) :
+    logb b =O[atTop] log :=
+  .of_bound |Real.log b|⁻¹ <| by filter_upwards using by simp [Real.logb, div_eq_inv_mul]
+
+theorem Real.log_isBigO_logb (b : ℝ) (hb : 1 < b) :
+    log =O[atTop] logb b :=
+  .of_bound |Real.log b| <| by
+    filter_upwards using by simp [Real.logb, mul_div_cancel₀, abs_ne_zero, (log_pos hb).ne']
 
 theorem Nat.log_isBigO_log (b : ℕ) :
     (fun x : ℕ ↦ (Nat.log b x : ℝ)) =O[atTop] (fun x : ℕ ↦ Real.log x) := by
