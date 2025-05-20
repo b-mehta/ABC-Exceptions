@@ -10,6 +10,7 @@ import Mathlib.RingTheory.SimpleModule
 import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 
 import ABCExceptions.ForMathlib.RingTheory.Radical
+import ABCExceptions.ForMathlib.Misc
 
 open UniqueFactorizationMonoid
 
@@ -454,23 +455,6 @@ theorem Nat.ceil_lt_floor (a b : ℝ) (ha : 0 ≤ a) (hab : a + 2 ≤ b) : ⌈a�
       linarith
     _ < ⌊b⌋₊ := by
       exact sub_one_lt_floor b
-
-theorem Finset.Ico_union_Icc_eq_Icc {α : Type*} [LinearOrder α] [LocallyFiniteOrder α] (a b c : α)
-  (hab : a ≤ b) (hbc : b ≤ c) :
-    Finset.Ico a b ∪ Finset.Icc b c = Finset.Icc a c := by
-  ext x
-  simp
-  constructor
-  · rintro (⟨hax, hxb⟩ | ⟨hbx, hxc⟩)
-    · refine ⟨hax, hxb.le.trans hbc⟩
-    · refine ⟨hab.trans hbx, hxc⟩
-  rintro ⟨hax, hxc⟩
-  by_cases hxb : x < b
-  · left
-    refine ⟨hax, hxb⟩
-  right
-  refine ⟨le_of_not_gt hxb, hxc⟩
-
 
 namespace NiceFactorization
 

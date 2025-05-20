@@ -13,7 +13,7 @@ section
 
 lemma Nat.Iic_eq_Icc (n : ℕ) : Finset.Iic n = Finset.Icc 0 n := by simp [Finset.Iic_eq_Icc]
 
-theorem Finset.Ico_union_Icc_eq_Icc {α : Type*} [LinearOrder α] [DecidableEq α]
+theorem Finset.Ico_union_Icc_eq_Icc {α : Type*} [LinearOrder α]
     [LocallyFiniteOrder α] {a b c : α} (h₁ : a ≤ b) (h₂ : b ≤ c) :
     Ico a b ∪ Icc b c = Icc a c := by
   simp [← Finset.coe_inj, Set.Ico_union_Icc_eq_Icc h₁ h₂]
@@ -33,7 +33,7 @@ theorem Nat.Icc_union_Icc_eq_Icc {a b c : ℕ} (h₁ : a ≤ b) (h₂ : b ≤ c)
 @[to_additive]
 theorem Finset.prod_Icc_succ_bot {M : Type*} [CommMonoid M] {a b : ℕ}
     (hab : a ≤ b) (f : ℕ → M) :
-    (∏ k in Icc a b, f k) = f a * (∏ k in Icc (a + 1) b, f k) := by
+    (∏ k ∈ Icc a b, f k) = f a * (∏ k ∈ Icc (a + 1) b, f k) := by
   rw [← Nat.Icc_insert_succ_left hab, prod_insert]
   simp
 

@@ -17,7 +17,7 @@ structure baseAssumptions (d : ℕ) (a : ℕ → ℝ) : Prop where
 variable (ha : baseAssumptions d a) (hb : baseAssumptions d b) (hc : baseAssumptions d c)
 
 lemma baseAssumptions.sum_restrict_bound (ha : baseAssumptions d a) :
-    ∑ i in Finset.Icc 1 d, i * a i ≤ 1 := by
+    ∑ i ∈ Finset.Icc 1 d, i * a i ≤ 1 := by
   simpa [Nat.Iic_eq_Icc, Finset.sum_Icc_succ_bot (a := 0)] using ha.sum_bound
 
 def Bound4Point3 (d : ℕ) (ε : ℝ) (a b : ℕ → ℝ) : Prop :=
@@ -1380,7 +1380,7 @@ lemma case_2_subcase_6_end_ab
     (hba : b 3 ≤ a 3) :
     ν ≤ 0.78451 + 1 / 3 * (a 2 ⊔ b 2 - a 3) - 1 / 2 * b 3 := by
   have h₁ : ∑ i ≤ d, a i ⊔ b i + a 1 ⊓ b 1 + a 2 ⊓ b 2 + a 3 ⊓ b 3 ≤ 2 / 3 - δ_ d a - δ_ d b := by calc
-    _ = ∑ i ≤ d, a i ⊔ b i + ∑ i in range 4, a i ⊓ b i := by
+    _ = ∑ i ≤ d, a i ⊔ b i + ∑ i ∈ range 4, a i ⊓ b i := by
       simp [Finset.sum_range_succ, ha.zero, hb.zero, add_assoc]
     _ ≤ ∑ i ≤ d, a i ⊔ b i + ∑ i ≤ d, a i ⊓ b i := by
       gcongr

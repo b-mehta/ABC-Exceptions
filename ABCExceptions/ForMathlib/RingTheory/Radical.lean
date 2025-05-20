@@ -95,7 +95,7 @@ lemma primeFactors_val_eq_normalizedFactors {a : M} (ha : IsRadical a) :
 lemma radical_associated {a : M} (ha : IsRadical a) (ha' : a ≠ 0) :
     Associated (radical a) a := by
   rw [radical, ← Finset.prod_val, primeFactors_val_eq_normalizedFactors ha]
-  exact normalizedFactors_prod ha'
+  exact prod_normalizedFactors ha'
 
 lemma dvd_radical_of_isRadical {a : M} (ha : IsRadical a) (ha' : a ≠ 0) : a ∣ radical a :=
   (radical_associated ha ha').dvd'
