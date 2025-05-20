@@ -43,9 +43,7 @@ jobs:
             docbuild/.lake/build/doc/Lean
             docbuild/.lake/build/doc/Mathlib
             docbuild/.lake/build/doc/Std
-          key: Doc-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
-          restore-keys:
-            ${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
+          key: Doc-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
         if: github.ref == 'refs/heads/main'
 
       - name: Build Documentation
