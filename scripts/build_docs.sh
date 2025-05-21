@@ -14,6 +14,9 @@ reservoir = false
 version = "0.1.0"
 packagesDir = "../.lake/packages"
 
+[leanOptions]
+maxHeartbeats = 20000
+
 [[require]]
 name = "ABCExceptions"
 path = "../"
