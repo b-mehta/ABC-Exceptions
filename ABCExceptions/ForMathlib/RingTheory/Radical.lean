@@ -163,12 +163,12 @@ theorem disjoint_normalizedFactors' {a b : R} (hc : IsCoprime a b) :
 
 /- The following three theorems exist in mathlib but in the generality of a CommRing instead of
   a CommSemiring. -/
-theorem disjoint_primeFactors {a b : R} (hc : IsRelPrime a b) :
+theorem disjoint_primeFactors {a b : M} (hc : IsRelPrime a b) :
     Disjoint (primeFactors a) (primeFactors b) := by
   classical
   exact Multiset.disjoint_toFinset.mpr (disjoint_normalizedFactors hc)
 
-theorem mul_primeFactors_disjUnion {a b : R} (ha : a ≠ 0) (hb : b ≠ 0)
+theorem mul_primeFactors_disjUnion {a b : M} (ha : a ≠ 0) (hb : b ≠ 0)
     (hc : IsRelPrime a b) :
     primeFactors (a * b) =
     (primeFactors a).disjUnion (primeFactors b) (disjoint_primeFactors hc) := by
@@ -177,7 +177,7 @@ theorem mul_primeFactors_disjUnion {a b : R} (ha : a ≠ 0) (hb : b ≠ 0)
   simp_rw [primeFactors]
   rw [normalizedFactors_mul ha hb, Multiset.toFinset_add]
 
-theorem radical_mul {a b : R} (hc : IsRelPrime a b) :
+theorem radical_mul {a b : M} (hc : IsRelPrime a b) :
     radical (a * b) = radical a * radical b := by
   by_cases ha : a = 0
   · subst ha; rw [isRelPrime_zero_left] at hc
@@ -186,10 +186,10 @@ theorem radical_mul {a b : R} (hc : IsRelPrime a b) :
   · subst hb; rw [isRelPrime_zero_right] at hc
     simp only [mul_zero, radical_zero_eq, mul_one, radical_of_isUnit hc]
   simp_rw [radical]
-  rw [mul_primeFactors_disjUnion ha hb hc]
-  rw [Finset.prod_disjUnion (disjoint_primeFactors hc)]
+  rw [mul_primeFactors_disjUnion ha hb hc, Finset.prod_disjUnion (disjoint_primeFactors hc)]
 
-theorem radical_prod {ι : Type*} {f : ι → R} (s : Finset ι) (h : ∀ i j, i ≠ j → IsRelPrime (f i) (f j)) :
+theorem radical_prod {ι : Type*} {f : ι → M} (s : Finset ι)
+    (h : ∀ i j, i ≠ j → IsRelPrime (f i) (f j)) :
     radical (∏ i ∈ s, f i) = ∏ i ∈ s, radical (f i) := by
   induction s using Finset.cons_induction with
   | empty => simp
@@ -202,32 +202,15 @@ theorem radical_prod {ι : Type*} {f : ι → R} (s : Finset ι) (h : ∀ i j, i
     rintro rfl
     contradiction
 
-theorem primeFactors_mul_eq_union [DecidableEq R] {a b  : R} (ha : a ≠ 0) (hb : b ≠ 0)  :
+theorem primeFactors_mul_eq_union [DecidableEq M] {a b : M} (ha : a ≠ 0) (hb : b ≠ 0)  :
     primeFactors (a * b) = primeFactors a ∪ primeFactors b := by
   ext p
   simp [mem_normalizedFactors_iff', ha, hb]
 
-theorem radical_dvd_iff_primeFactors_subset (a b : R) (hb : b ≠ 0):
+theorem radical_dvd_iff_primeFactors_subset (a b : M) (hb : b ≠ 0) :
     radical a ∣ b ↔ primeFactors a ⊆ primeFactors b := by
-  by_cases ha : a = 0
-  · simp [ha]
-  constructor
-  · intro h
-    intro p
-    simp only [mem_primeFactors, mem_normalizedFactors_iff']
-    rw [mem_normalizedFactors_iff', mem_normalizedFactors_iff']
-    · simp only [and_imp]
-      intro hpa hpn hp
-      have : p ∣ radical a := (dvd_radical_iff_of_irreducible hp ha).mpr hpa
-      refine ⟨this.trans h, hpn, hp⟩
-    · exact hb
-    · exact ha
-  · intro hab
-    refine (dvd_radical_iff' ?_ hb).mp ?_
-    · exact isRadical_radical
-    simp_rw [radical]
-    apply Finset.prod_dvd_prod_of_subset
-    exact hab
+  rw [← dvd_radical_iff' isRadical_radical hb,
+    radical_dvd_radical_iff_primeFactors_subset_primeFactors]
 
 theorem radical_mul_dvd {a b : R} :
     radical (a * b) ∣ radical a * radical b := by

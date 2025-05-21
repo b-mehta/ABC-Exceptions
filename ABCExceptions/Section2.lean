@@ -1169,7 +1169,8 @@ lemma Nat.sum_range_add_choose' (n k : ℕ) :
 theorem sum_range_id_add_one {d : ℕ} : ∑ i ∈ Finset.range d, (i + 1) = (d + 1).choose 2 := by
   simpa using Nat.sum_range_add_choose' d 1
 
-theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 < ε) (hε : ε < 1/2) {d : ℕ} (hd : d = ⌊5 / 2 * (ε ^ 2 / 2)⁻¹ ^ 2⌋₊) :
+theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 < ε) (hε : ε < 1/2) {d : ℕ}
+    (hd : d = ⌊5 / 2 * (ε ^ 2 / 2)⁻¹ ^ 2⌋₊) :
     Set.SurjOn (B_to_triple (d := d)) (BUnion α β γ x ε).toSet (dyadicPoints α β γ x).toSet := by
   intro ⟨a, b, c⟩
   simp only [Finset.mem_coe, mem_dyadicPoints, BUnion, Set.mem_image, Finset.mem_sup,
@@ -1235,7 +1236,8 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
       simp [Nat.pow_add, Finset.prod_mul_distrib]
       ring
 
-  have prod_log_pow_le_prod_pow {u : Fin d → ℕ} (hu : ∀ i, 0 < u i): ∏ i, (2 ^ Nat.log 2 (u i)) ^ (i.val + 1) ≤ ∏ i, u i ^ (i.val + 1) := by
+  have prod_log_pow_le_prod_pow {u : Fin d → ℕ} (hu : ∀ i, 0 < u i):
+      ∏ i, (2 ^ Nat.log 2 (u i)) ^ (i.val + 1) ≤ ∏ i, u i ^ (i.val + 1) := by
     apply Finset.prod_le_prod
     · simp
     simp only [Finset.mem_univ, forall_const]
@@ -1257,10 +1259,14 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
         simp [*] }
       simp [c', *]
       intro i
-      fin_cases i <;> simp [c₀_pos, c₁_pos, c₂_pos, hc₀_le_pow_floor, hc₁_le_pow_floor, hc₂_le_pow_floor]
-    refine ⟨x_pow_α_le.trans (mod_cast le_prod_pow), le_trans (mod_cast (prod_pow_le hu_pos)) le_x_pow_α,
-    x_pow_β_le.trans (mod_cast le_prod_pow), le_trans (mod_cast (prod_pow_le hv_pos)) le_x_pow_β,x_pow_γ_le.trans (mod_cast le_prod_pow), le_trans (mod_cast (prod_pow_le hw_pos)) le_x_pow_γ,
-    ?_⟩
+      fin_cases i <;>
+        simp [c₀_pos, c₁_pos, c₂_pos, hc₀_le_pow_floor, hc₁_le_pow_floor, hc₂_le_pow_floor]
+    refine ⟨x_pow_α_le.trans (mod_cast le_prod_pow),
+      le_trans (mod_cast (prod_pow_le hu_pos)) le_x_pow_α,
+      x_pow_β_le.trans (mod_cast le_prod_pow),
+      le_trans (mod_cast (prod_pow_le hv_pos)) le_x_pow_β,
+      x_pow_γ_le.trans (mod_cast le_prod_pow),
+      le_trans (mod_cast (prod_pow_le hw_pos)) le_x_pow_γ, ?_⟩
     refine ⟨?_, ?_, ?_, ?_⟩
     · apply (prod_log_pow_le_prod_pow hu_pos).trans
         ((a_eq_c_mul_prod ▸ Nat.le_mul_of_pos_left _ c₀_pos).trans hax)
@@ -1272,18 +1278,18 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
     calc
       _ ≤ 2 * (∏ i, w i^(i.val+1) : ℝ):= by
         rw [Real.rpow_sub, div_eq_mul_inv, mul_inv_le_iff₀, mul_comm]
-        simp only [Real.rpow_one]
-        trans 2 * (c₂ *(∏ i, (w i : ℝ) ^ (i.val + 1)))
-        · norm_cast
-          rw [← c_eq_c_mul_prod]
-          apply hxc
-        · rw [← mul_assoc, mul_comm 2, mul_assoc]
-          gcongr
-          trans (x : ℝ)^(ε^2/2)
-          · exact c₂_le_pow
-          gcongr
-          · norm_cast; omega
-          · linarith [sq_nonneg ε]
+        · simp only [Real.rpow_one]
+          trans 2 * (c₂ *(∏ i, (w i : ℝ) ^ (i.val + 1)))
+          · norm_cast
+            rw [← c_eq_c_mul_prod]
+            apply hxc
+          · rw [← mul_assoc, mul_comm 2, mul_assoc]
+            gcongr
+            trans (x : ℝ)^(ε^2/2)
+            · exact c₂_le_pow
+            gcongr
+            · norm_cast; omega
+            · linarith [sq_nonneg ε]
         · apply Real.rpow_pos_of_pos
           norm_cast
           omega
@@ -1365,7 +1371,8 @@ theorem refinedCountTriplesStar_isBigO_B
   (hα1 : α ≤ 1) (hβ1 : β ≤ 1) (hγ1 : γ ≤ 1)
   {x : ℕ} (h2X : 2 ≤ x) {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2) :
   ∃ s : Finset ((Fin (d ε) → ℕ) × (Fin (d ε) → ℕ) × (Fin (d ε) → ℕ) × (Fin 3 → ℕ)),
-    refinedCountTriplesStar α β γ x ≤ const ε * (x : ℝ) ^ ε * ↑(s.sup (fun ⟨X, Y, Z, c⟩ ↦ B (d ε) c X Y Z): ℕ) ∧
+    refinedCountTriplesStar α β γ x ≤
+      const ε * (x : ℝ) ^ ε * ↑(s.sup (fun ⟨X, Y, Z, c⟩ ↦ B (d ε) c X Y Z): ℕ) ∧
     ∀ X Y Z : Fin (d ε) → ℕ,
     ∀ c : Fin 3 → ℕ,
     ⟨X, Y, Z, c⟩ ∈ s →
@@ -1382,14 +1389,16 @@ theorem refinedCountTriplesStar_isBigO_B
   have := refinedCountTriplesStar_le_card_BUnion α β γ (d := d ε) x ε hε_pos hε rfl
   simp_rw [BUnion, Finset.sup_eq_biUnion] at this
   have := this.trans Finset.card_biUnion_le |>.trans (sum_le_card_mul_sup ..)
-  use (indexSet' α β γ (d ε) x ε).image fun ⟨u, v, w, c⟩ ↦ ⟨fun i ↦ 2 ^ u i, fun i ↦ 2 ^ v i, fun i ↦ 2 ^ w i, c⟩
+  use (indexSet' α β γ (d ε) x ε).image fun ⟨u, v, w, c⟩ ↦
+    ⟨fun i ↦ 2 ^ u i, fun i ↦ 2 ^ v i, fun i ↦ 2 ^ w i, c⟩
   simp only [Finset.sup_image, Finset.mem_image, Prod.mk.injEq, Prod.exists, Nat.cast_prod,
     Nat.cast_pow, forall_exists_index, and_imp]
   refine ⟨?_, ?_⟩
   · simp [Function.comp_def]
     calc
       _ ≤ ((?_ : ℕ):ℝ) := by
-        /- Ok this really worries me because norm_cast closes the goal with `this` which is what I want but is also very unstable. -/
+        /- Ok this really worries me because norm_cast closes the goal with `this` which is what
+        I want but is also very unstable. -/
         norm_cast
       _ ≤ _ := by
         push_cast
