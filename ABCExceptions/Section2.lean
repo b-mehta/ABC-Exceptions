@@ -7,6 +7,7 @@ Authors: Bhavik Mehta, Arend Mellendijk
 import Mathlib.Algebra.GCDMonoid.Nat
 import Mathlib.Analysis.Asymptotics.AsymptoticEquivalent
 import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Data.Nat.Squarefree
@@ -1040,6 +1041,8 @@ theorem exists_nice_factorization :
 
 end NiceFactorization
 
+
+open NiceFactorization in
 theorem exists_nice_factorization
   {ε : ℝ}
   (hε_pos : 0 < ε)
@@ -1054,33 +1057,93 @@ theorem exists_nice_factorization
     n = c * ∏ j, x j ^ (j.val + 1 : ℕ) ∧
     c ≤ (X : ℝ) ^ ε ∧
     (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
-    (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j ∧ 0 < c := by
+    (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j ∧
+    0 < c ∧ (∀ i, 0 < x i) ∧ (∀ i, x i ≤ X) := by
   let data : NiceFactorization.ProofData := ⟨
     ε, hε_pos, hε, d, hd, n, X, h1n, hnX
   ⟩
   obtain ⟨x, c, hn, hc, hcop, h_le_rad, h_rad_le⟩ := NiceFactorization.exists_nice_factorization
+  have : NeZero ProofData.d := by infer_instance
   simp_rw [data] at *
   have hc_pos : 0 < c := by
-    sorry
-  have : NeZero d := by
-    sorry
-  have x_le_n (i : Fin d) : x i ≤ n := by
-    by_cases hi : i.val = 0
-    · rw [show (0 : ℕ) = (0 : Fin d).val by norm_num] at hi
-      rw [Fin.val_inj] at hi
-      subst hi
-
-      sorry
+    have : 0 < n := by omega
+    apply Nat.pos_of_mul_pos_right (hn ▸ this)
+  have x_le_X (i : Fin d) : x i ≤ X := by
+    apply le_trans _ hnX
     apply Nat.le_of_dvd
     · omega
     rw [hn]
     apply Dvd.dvd.mul_left
     trans x i ^ (i.val + 1)
     · apply dvd_pow (dvd_rfl)
-      sorry
+      omega
     apply Finset.dvd_prod_of_mem
-    sorry
-  exact ⟨x, c, hn, hc, hcop, h_le_rad, h_rad_le, hc_pos⟩
+    exact Finset.mem_univ i
+  have hx_pos (i : Fin d) : 0 < x i := by
+    apply Nat.pos_of_ne_zero
+    intro h
+    rw [Finset.prod_eq_zero (Finset.mem_univ i)] at hn
+    · omega
+    · simp [h]
+  exact ⟨x, c, hn, hc, hcop, h_le_rad, h_rad_le, hc_pos, hx_pos, x_le_X⟩
+
+
+theorem exists_nice_factorization'
+  {ε : ℝ}
+  (hε_pos : 0 < ε)
+  (hε : ε < 1/2)
+  {d : ℕ}
+  (hd : d = ⌊10 * ε⁻¹^4⌋₊)
+  {n : ℕ}
+  {X : ℕ}
+  (h1n : 1 ≤ n)
+  (hnX : n ≤ X)
+  (α : ℝ)
+  (hsim : (radical n : ℕ) ~ (X : ℝ) ^ α) :
+  ∃ (x : (Fin d) → ℕ), ∃ c : ℕ,
+    n = c * ∏ j, x j ^ (j.val + 1 : ℕ) ∧
+    c ≤ (X : ℝ) ^ (ε^2) ∧
+    c ≤ ⌊(X : ℝ) ^ (ε/4)⌋₊ ∧
+    (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
+    (X : ℝ)^(α - ε) ≤ ∏ j, x j ∧ ∏ j, x j ≤ 2 * (X : ℝ)^(α + ε) ∧
+    0 < c ∧ (∀ i, 0 < x i) ∧ (∀ i, x i ≤ X) := by
+  have hε_sq : ε^2/2 < 1/2 := by
+    nlinarith only [hε, hε_pos]
+  have : 0 < X := by omega
+  simp only [similar, Set.mem_Icc] at hsim
+  obtain ⟨x, c, x_eq_c_mul_prod, c_le_pow, hx_cop, le_rad_n, rad_n_le, c_pos, hx_pos, hx_le_X⟩ :=
+    exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq (d := d) (by rw [hd]; ring_nf)
+      h1n hnX
+  refine ⟨x, c, x_eq_c_mul_prod, ?_, ?_, hx_cop, ?_, ?_, c_pos, hx_pos, hx_le_X⟩
+  · trans (X : ℝ)^(ε^2/2)
+    · exact c_le_pow
+    gcongr
+    · norm_cast
+    · linarith [sq_nonneg ε]
+  · rw [Nat.le_floor_iff]
+    · apply c_le_pow.trans
+      gcongr _ ^ ?_
+      · norm_cast
+      · nlinarith
+    positivity
+  · rw [sub_eq_add_neg, Real.rpow_add, Real.rpow_neg, mul_inv_le_iff₀]
+    · apply hsim.1.trans (rad_n_le.trans _)
+      rw [mul_comm]
+      gcongr
+      · norm_cast
+      · nlinarith only [hε, hε_pos]
+    · positivity
+    · positivity
+    · positivity
+  · rw [Real.rpow_add, ← mul_assoc, ← mul_inv_le_iff₀]
+    · apply le_trans (le_trans _ le_rad_n) hsim.2
+      rw [mul_comm, Real.rpow_neg (by positivity)]
+      gcongr
+      · norm_cast
+      · nlinarith only [hε, hε_pos]
+    · positivity
+    · norm_cast
+
 
 -- surjective map S*_α β γ (X) <- ⋃_{c, X, Y ,Z} B (c, X, Y, Z)
 def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ) → ℕ × ℕ × ℕ :=
@@ -1111,25 +1174,10 @@ theorem card_indexSet'_le (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ)  :
   apply le_of_eq
   ring
 
-/- We probably don't need this: If S*(X) = 0 then the result is trivial - if not then by
-  surjectivity of B_to_triple BUnion is nonempty. -/
-
--- theorem indexSet'_nonempty (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ) :
---     Finset.Nonempty (indexSet' α β γ d x ε) := by
---   have : NeZero d := by
---     sorry
---   let fst (n : ℕ) : Fin d → ℕ := fun i ↦ if i = 0 then n else 0
---   /- This is incorrect. Some care needs to be taken to get the lower bound on ∏ Z i ^ i -/
---   -- refine ⟨⟨fst (Nat.log 2 ⌊(x:ℝ) ^ (α + ε)⌋₊), fst (Nat.log 2 ⌊(x:ℝ) ^ (β + ε)⌋₊), fst (Nat.log 2 ⌊(x:ℝ) ^ (γ + ε)⌋₊)⟩, ?_⟩
---   simp [fst, indexSet']
---   sorry
-
 noncomputable def BUnion (α β γ : ℝ) {d : ℕ} (x : ℕ) (ε : ℝ) :
     Finset ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ)) :=
   (indexSet' α β γ d x ε).sup fun ⟨r, s, t, c⟩ ↦
-  -- (Fintype.piFinset (fun _ ↦ Finset.Icc 0 ⌊(x:ℝ)^(ε/4)⌋₊) : Finset (Fin 3 → ℕ)).sup fun c ↦
     B_finset d c (fun i ↦ 2^r i) (fun i ↦ 2^s i) (fun i ↦ 2^t i)
-
 
 theorem similar_pow_log {x : ℕ} (hx : 0 < x) : x ~ 2 ^ Nat.log 2 x := by
   simp [similar]
@@ -1170,7 +1218,7 @@ theorem sum_range_id_add_one {d : ℕ} : ∑ i ∈ Finset.range d, (i + 1) = (d 
   simpa using Nat.sum_range_add_choose' d 1
 
 theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 < ε) (hε : ε < 1/2) {d : ℕ}
-    (hd : d = ⌊5 / 2 * (ε ^ 2 / 2)⁻¹ ^ 2⌋₊) :
+    (hd : d = ⌊10 * ε⁻¹ ^ 4⌋₊) :
     Set.SurjOn (B_to_triple (d := d)) (BUnion α β γ x ε).toSet (dyadicPoints α β γ x).toSet := by
   intro ⟨a, b, c⟩
   simp only [Finset.mem_coe, mem_dyadicPoints, BUnion, Set.mem_image, Finset.mem_sup,
@@ -1178,47 +1226,18 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
   intro ha hb hc hab hac hbc habc hrada hradb hradc hxc hcx
   have hε_sq : ε^2/2 < 1/2 := by
     nlinarith
-  obtain ⟨u, c₀, a_eq_c_mul_prod, c₀_le_pow, hu_cop, le_rad_a, rad_a_le, c₀_pos⟩ :=
-    exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq hd ha (show a ≤ x by linarith)
-  obtain ⟨v, c₁, b_eq_c_mul_prod, c₁_le_pow, hv_cop, le_rad_b, rad_b_le, c₁_pos⟩ :=
-    exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq hd hb (show b ≤ x by linarith)
-  obtain ⟨w, c₂, c_eq_c_mul_prod, c₂_le_pow, hw_cop, le_rad_c, rad_c_le, c₂_pos⟩ :=
-    exists_nice_factorization (ε := ε^2/2) (by positivity) hε_sq hd hc (show c ≤ x by linarith)
+  obtain ⟨u, c₀, a_eq_c_mul_prod, _, c₀_le_floor, hu_cop, x_pow_α_le, le_x_pow_α,
+    c₀_pos, hu_pos, _⟩ :=
+    exists_nice_factorization' hε_pos hε hd ha (show a ≤ x by linarith) _ hrada
+  obtain ⟨v, c₁, b_eq_c_mul_prod, _, c₁_le_floor, hv_cop, x_pow_β_le, le_x_pow_β,
+    c₁_pos, hv_pos, _⟩ :=
+    exists_nice_factorization' hε_pos hε hd hb (show b ≤ x by linarith) _ hradb
+  obtain ⟨w, c₂, c_eq_c_mul_prod, c₂_le_pow, c₂_le_floor, hw_cop, x_pow_γ_le,
+    le_x_pow_γ, c₂_pos, hw_pos, _⟩ :=
+    exists_nice_factorization' hε_pos hε hd hc (show c ≤ x by linarith) _ hradc
   have hax : a ≤ x := by omega
   have hbx : b ≤ x := by omega
   have hcx : c ≤ x := by omega
-
-  /- These facts should be rolled into a wrapper around nice_factorization. -/
-  have hu_pos (i : Fin d) : 0 < u i := sorry
-  have hv_pos (i : Fin d) : 0 < v i := sorry
-  have hw_pos (i : Fin d) : 0 < w i := sorry
-
-  have (i : Fin d) : u i ≤ x := by
-    sorry
-  have (i : Fin d) : v i ≤ x := by
-    sorry
-  have (i : Fin d) : w i ≤ x := by
-    sorry
-
-  have hc₀_le_pow_floor : c₀ ≤ ⌊(x : ℝ) ^ (ε / 4)⌋₊ := by
-    sorry
-  have hc₁_le_pow_floor : c₁ ≤ ⌊(x : ℝ) ^ (ε / 4)⌋₊ := by
-    sorry
-  have hc₂_le_pow_floor : c₂ ≤ ⌊(x : ℝ) ^ (ε / 4)⌋₊ := by
-    sorry
-
-  have x_pow_α_le : (x : ℝ) ^ (α - ε) ≤ ∏ i, u i := by
-    sorry
-  have le_x_pow_α : ∏ i, u i ≤ 2 * (x : ℝ) ^ (α + ε) := by
-    sorry
-  have x_pow_β_le : (x : ℝ) ^ (β - ε) ≤ ∏ i, v i := by
-    sorry
-  have le_x_pow_β : ∏ i, v i ≤ 2 * (x : ℝ) ^ (β + ε) := by
-    sorry
-  have x_pow_γ_le : (x : ℝ) ^ (γ - ε) ≤ ∏ i, w i := by
-    sorry
-  have le_x_pow_γ : ∏ i, w i ≤ 2 * (x : ℝ) ^ (γ + ε) := by
-    sorry
 
   let c' : Fin 3 → ℕ := ![c₀, c₁, c₂]
 
@@ -1260,7 +1279,7 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
       simp [c', *]
       intro i
       fin_cases i <;>
-        simp [c₀_pos, c₁_pos, c₂_pos, hc₀_le_pow_floor, hc₁_le_pow_floor, hc₂_le_pow_floor]
+        simp [c₀_pos, c₁_pos, c₂_pos, c₀_le_floor, c₁_le_floor, c₂_le_floor]
     refine ⟨x_pow_α_le.trans (mod_cast le_prod_pow),
       le_trans (mod_cast (prod_pow_le hu_pos)) le_x_pow_α,
       x_pow_β_le.trans (mod_cast le_prod_pow),
@@ -1285,11 +1304,6 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
             apply hxc
           · rw [← mul_assoc, mul_comm 2, mul_assoc]
             gcongr
-            trans (x : ℝ)^(ε^2/2)
-            · exact c₂_le_pow
-            gcongr
-            · norm_cast; omega
-            · linarith [sq_nonneg ε]
         · apply Real.rpow_pos_of_pos
           norm_cast
           omega
@@ -1326,8 +1340,6 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
     simp only [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
       Matrix.cons_val_two, Nat.succ_eq_add_one, Nat.reduceAdd, Matrix.tail_cons, c']
     refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
-    -- · intro i
-    --   fin_cases i <;> simp [hc₀_le_pow_floor, hc₁_le_pow_floor, hc₂_le_pow_floor]
     · apply fun i ↦ (similar_pow_log (hu_pos i))
     · apply fun i ↦ (similar_pow_log (hv_pos i))
     · apply fun i ↦ (similar_pow_log (hw_pos i))
@@ -1339,7 +1351,7 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
 
 
 theorem refinedCountTriplesStar_le_card_BUnion (α β γ : ℝ) {d : ℕ} (x : ℕ) (ε : ℝ)
-    (hε_pos : 0 < ε) (hε : ε < 1/2) (hd : d = ⌊5 / 2 * (ε ^ 2 / 2)⁻¹ ^ 2⌋₊) :
+    (hε_pos : 0 < ε) (hε : ε < 1/2) (hd : d = ⌊10 * ε⁻¹ ^ 4⌋₊) :
     refinedCountTriplesStar α β γ x ≤ (BUnion α β γ x ε (d := d)).card := by
   rw [refinedCountTriplesStar]
   apply Finset.card_le_card_of_surjOn _ (B_to_triple_surjOn ..)
@@ -1347,18 +1359,122 @@ theorem refinedCountTriplesStar_le_card_BUnion (α β γ : ℝ) {d : ℕ} (x : �
   · exact hε
   · exact hd
 
+theorem log_le_const_mul_pow {ε : ℝ} (hε : 0 < ε) (d : ℕ) (hd : 0 < d) :
+    ∃ c ≥ 0, ∀ x : ℕ, (Real.log x)^d ≤ c * (x : ℝ)^ε := by
+  have := (isLittleO_log_rpow_rpow_atTop d hε).isBigO.natCast_atTop
+  have := this.nat_of_atTop (l := ⊤) ?_
+  · simp only [Real.rpow_natCast, Asymptotics.isBigO_iff', norm_pow, Real.norm_eq_abs] at this
+    simp only [gt_iff_lt, eventually_top] at this
+    obtain ⟨c, hc_pos, hc⟩ := this
+    refine ⟨c, hc_pos.le, ?_⟩
+    intro x
+    calc
+      _ ≤ _ := by
+        gcongr
+        exact le_abs_self (Real.log ↑x)
+      _ ≤ _ := hc x
+      _ ≤ _ := by
+        rw [abs_of_nonneg]
+        positivity
+  · simp [Nat.cast_nonneg, Real.rpow_natCast, pow_eq_zero_iff', Real.log_eq_zero,
+    Nat.cast_eq_zero, Nat.cast_eq_one, ne_eq, eventually_top, hε.ne.symm, ]
+    intro x
+    omega
 
-def const (ε : ℝ) : ℝ := sorry
+theorem tmp {ε : ℝ} (hε : 0 < ε) (d : ℕ) (hd : 0 < d) :
+    ∃ c, ∀ x : ℕ, 2 ≤ x → (Nat.log 2 x + 1) ^ (3 * d) ≤ c * (x : ℝ)^(ε/4) := by
+  obtain ⟨c, hc_nonneg, hc⟩ := log_le_const_mul_pow (show 0 < ε/4 by linarith) (3*d) (by omega)
+  use (Real.log 2)⁻¹ ^ (3*d) * c * 2^(ε/4)
+  intro x hx
+  specialize hc (2*x)
+  have log_add : Nat.log 2 x + 1 = Nat.log 2 (2 * x) := by
+    rw [mul_comm, Nat.log_mul_base]
+    · norm_num
+    omega
+  have : (Nat.log 2 (2 * x))^(3*d) ≤ (Real.log 2)⁻¹ ^ (3*d) * Real.log (2 * x) ^ (3*d) := by
+    trans (Real.logb 2 (2 * x))^(3*d)
+    · gcongr
+      rw [← Real.natFloor_logb_natCast]
+      push_cast
+      apply Nat.floor_le
+      apply Real.logb_nonneg <;> norm_cast
+      omega
+    · apply le_of_eq
+      rw [← Real.log_div_log]
+      ring
+  calc
+    _ ≤ ((Nat.log 2 (2 * x)) ^ (3 * d) : ℝ) :=  by
+      rw_mod_cast [log_add]
+    _ ≤ ((Real.log 2)⁻¹ ^ (3*d) * c * 2^(ε/4) * (x : ℝ)^(ε/4): ℝ) :=  by
+      apply this.trans
+      simp_rw [mul_assoc]
+      gcongr
+      push_cast at hc
+      apply hc.trans
+      gcongr
+      rw [Real.mul_rpow] <;> norm_num
+
+noncomputable def const (ε : ℝ) : ℝ :=
+  if h : 0 < ε then
+    if h' : ε < 1/2 then
+      let d := ⌊10 * ε⁻¹^4⌋₊
+      have : 2 < ε⁻¹ := by
+        rw [← show (2:ℝ)⁻¹⁻¹ = 2 by norm_num]
+        gcongr
+        linarith
+      have : 2 ^ 4 < ε⁻¹^4 := by gcongr
+      have hd : 0 < d := by simp [d]; rw [Nat.floor_pos, ← inv_pow]; linarith
+      Classical.choose (tmp h d hd)
+    else 0
+  else 0
+
+theorem const_spec {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2) :
+    let d := ⌊10 * ε⁻¹^4⌋₊
+    ∀ x : ℕ, 2 ≤ x → (Nat.log 2 x + 1) ^ (3 * d) ≤ const ε * (x : ℝ)^(ε/4) := by
+  rw [const, dif_pos hε_pos, dif_pos hε]
+  extract_lets d _ _ _ hd
+  apply Classical.choose_spec (tmp hε_pos d hd)
 
 theorem const_nonneg {ε : ℝ} : 0 ≤ const ε := by
-  sorry
+  by_cases hε_pos : 0 < ε
+  · by_cases hε : ε < 1/2
+    · have := const_spec hε_pos hε 2 le_rfl
+      simp only [inv_pow, Nat.cast_ofNat] at this
+      have := calc
+        0 ≤ _ := mod_cast zero_le _
+        _ ≤ _ := this
+      -- surely there's a better lemma that doesn't require strict positivity
+      apply nonneg_of_mul_nonneg_left this
+      apply Real.rpow_pos_of_pos
+      norm_num
+    · rw [const, dif_pos hε_pos, dif_neg hε]
+  · rw [const, dif_neg hε_pos]
 
-theorem card_indexSet'_le_pow (ε α β γ : ℝ) (d x : ℕ) :
+theorem card_indexSet'_le_pow (ε α β γ : ℝ) (d x : ℕ) (hd : d = ⌊10* ε⁻¹^4⌋₊) (hx : 2 ≤ x)
+    (hε_pos : 0 < ε) (hε : ε < 1/2) :
     (indexSet' α β γ d x ε).card ≤ const ε * (x:ℝ)^ε := by
-  sorry
+  have := const_spec hε_pos hε x hx
+  rw [← hd] at this
+  calc
+    _ ≤ ((Nat.log 2 x + 1) ^ (3 * d) * ⌊(x : ℝ) ^ (ε / 4)⌋₊ ^ 3 : ℝ) :=
+      mod_cast card_indexSet'_le α β γ d x ε
+    _ ≤ (const ε * (x : ℝ) ^ (ε/4) * (x : ℝ) ^ (3/4 * ε) : ℝ) :=  by
+      gcongr
+      · have := const_nonneg (ε := ε)
+        positivity
+      · trans (x ^ (ε / 4)) ^ 3
+        · gcongr
+          apply Nat.floor_le
+          positivity
+        apply le_of_eq
+        rw [← Real.rpow_mul_natCast (by positivity)]
+        ring_nf
+    _ = const ε * (x : ℝ) ^ ε  :=  by
+      rw [mul_assoc, ← Real.rpow_add]
+      · ring_nf
+      · positivity
 
-
-noncomputable def d (ε : ℝ) : ℕ := ⌊5 / 2 * (ε ^ 2 / 2)⁻¹ ^ 2⌋₊
+noncomputable def d (ε : ℝ) : ℕ := ⌊10 * ε⁻¹ ^ 4⌋₊
 
 example {ι : Type*} {s : Finset ι} (f : ι → ℕ) (a x: ℕ) (h : a ≤ s.sup f) (h' : ∀ b ∈ s, f b ≤ x) :
     a ≤ x := by
@@ -1367,8 +1483,10 @@ example {ι : Type*} {s : Finset ι} (f : ι → ℕ) (a x: ℕ) (h : a ≤ s.su
 
 theorem refinedCountTriplesStar_isBigO_B
   {α β γ : ℝ}
-  (hα_pos : 0 < α) (hβ_pos : 0 < β) (hγ_pos : 0 < γ)
-  (hα1 : α ≤ 1) (hβ1 : β ≤ 1) (hγ1 : γ ≤ 1)
+  /- I'm surprised these assumptions are not necessary.
+    Shoud think about if I've done something wrong - Arend -/
+  -- (hα_pos : 0 < α) (hβ_pos : 0 < β) (hγ_pos : 0 < γ)
+  -- (hα1 : α ≤ 1) (hβ1 : β ≤ 1) (hγ1 : γ ≤ 1)
   {x : ℕ} (h2X : 2 ≤ x) {ε : ℝ} (hε_pos : 0 < ε) (hε : ε < 1/2) :
   ∃ s : Finset ((Fin (d ε) → ℕ) × (Fin (d ε) → ℕ) × (Fin (d ε) → ℕ) × (Fin 3 → ℕ)),
     refinedCountTriplesStar α β γ x ≤
@@ -1405,7 +1523,7 @@ theorem refinedCountTriplesStar_isBigO_B
         gcongr
         · have := const_nonneg (ε := ε)
           positivity
-        · exact card_indexSet'_le_pow ε α β γ (d ε) x
+        · exact card_indexSet'_le_pow ε α β γ (d ε) x rfl h2X hε_pos hε
         rfl
   rintro X Y Z _ u v w c huvwc rfl rfl rfl rfl
   simp only [Nat.cast_pow, Nat.cast_ofNat]
