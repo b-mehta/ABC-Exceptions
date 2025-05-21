@@ -81,17 +81,24 @@ theorem ciSup_eq_monotonicSequenceLimit {α : Type*} [ConditionallyCompleteLatti
   · obtain h := WellFoundedGT.monotone_chain_condition a
     exact (Nat.sInf_mem (s := {n | ∀ m, n ≤ m → a n = a m}) h m hm.le).ge
 
-lemma forall_increasing {α : Type*} (f : ℕ → Set α) (hf : Monotone f) (hf' : ∀ n, (f n).Finite)
-    {s : Set α} {C : ℕ} (hC : ∀ n, (s ∩ f n).ncard ≤ C) : (s ∩ ⋃ n, f n).Finite := by
-  rw [Set.inter_iUnion]
+lemma forall_increasing' {α : Type*} (f : ℕ → Set α) (hf : Monotone f)
+    (hf' : ∀ n, (f n).Finite)
+    {C : ℕ} (hC : ∀ n, (f n).ncard ≤ C) : (⋃ n, f n).Finite := by
   by_contra!
   obtain ⟨t, ht, ht', ht''⟩ := Set.Infinite.exists_subset_ncard_eq this (C + 1)
   lift t to Finset α using ht'
-  have hg : Monotone (s ∩ f ·) := fun a b hab ↦ Set.inter_subset_inter_right _ (hf hab)
-  obtain ⟨i, hi⟩ := hg.directed_le.exists_mem_subset_of_finset_subset_biUnion ht
-  replace hC : (s ∩ f i).ncard ≤ C := hC i
-  have := Set.ncard_le_ncard hi ((hf' _).inter_of_right _)
+  obtain ⟨i, hi⟩ := hf.directed_le.exists_mem_subset_of_finset_subset_biUnion ht
+  replace hC : (f i).ncard ≤ C := hC i
+  have := Set.ncard_le_ncard hi (hf' _)
   omega
+
+lemma forall_increasing {α : Type*} (f : ℕ → Set α) (hf : Monotone f)
+    {s : Set α} (hf' : ∀ n, (s ∩ f n).Finite)
+    {C : ℕ} (hC : ∀ n, (s ∩ f n).ncard ≤ C) : (s ∩ ⋃ n, f n).Finite := by
+  rw [Set.inter_iUnion]
+  refine forall_increasing' _ ?_ hf' hC
+  intro a b hab
+  exact Set.inter_subset_inter_right _ (hf hab)
 
 lemma abcConjecture_iff :
     ABCConjecture ↔ ∀ μ > 0, μ < 1 → (countTriples μ · : ℕ → ℝ) =O[atTop] (fun _ ↦ (1 : ℝ)) := by
@@ -137,7 +144,7 @@ lemma abcConjecture_iff :
       rw [countTriples_eq, hS]
     have : Monotone fun n ↦ Set.Icc (1, 1, 1) (n, n, n) :=
       fun n m hnm ↦ Set.Icc_subset_Icc_right (by simpa)
-    have := forall_increasing _ this (fun n ↦ Set.finite_Icc _ _) hC'
+    have := forall_increasing _ this (fun n ↦ (Set.finite_Icc _ _).inter_of_right _) hC'
     have : ⋃ n, Set.Icc (1, 1, 1) (n, n, n) = Set.Ici 1 := by
       ext ⟨i, j, k⟩
       simp only [Set.mem_iUnion, Set.mem_Icc, Prod.mk_le_mk, exists_and_left, ← Prod.mk_one_one,
