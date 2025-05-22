@@ -240,15 +240,11 @@ namespace Mathlib.Meta.Positivity
 open Positivity
 
 attribute [local instance] monadLiftOptionMetaM in
-/-- Positivity extension for radical. Proves strict positivity for natural numbers and nonzero for
-general nontrivial monoids. -/
+/-- Positivity extension for radical. Proves radicals are nonzero. -/
 @[positivity UniqueFactorizationMonoid.radical _]
 def evalRadical : PositivityExt where eval {u α} _ _ e := do
-  match u, α, e with
-  | 0, ~q(ℕ), ~q(@radical _ $inst $inst' $inst'' $n) =>
-    assertInstancesCommute
-    return .positive q(Nat.radical_pos _)
-  | _, _, ~q(@radical _ $inst $inst' $inst'' $n) =>
+  match e with
+  | ~q(@radical _ $inst $inst' $inst'' $n) =>
     have _ := ← synthInstanceQ q(Nontrivial $α)
     assertInstancesCommute
     return .nonzero q(radical_ne_zero _)

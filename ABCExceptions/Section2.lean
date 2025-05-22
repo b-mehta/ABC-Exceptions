@@ -175,20 +175,24 @@ def similar (x X : ℝ) : Prop := x ∈ Set.Icc X (2 * X)
 
 local infixr:36 " ~ " => similar
 
-theorem similar_pow_natLog (x : ℕ) (hx : x ≠ 0) : x ~ 2 ^ Nat.log 2 x := by
-  simp only [similar, Set.mem_Icc]
-  norm_cast
-  constructor
-  · refine Nat.pow_log_le_self 2 hx
-  · rw [← Nat.pow_succ']
-    exact (Nat.lt_pow_succ_log_self (by omega) _).le
+/- This feels useful but it must have not survived a refactor. TODO: investigate and see if this
+  can be used to golf some argument - Arend. -/
+-- theorem similar_pow_natLog (x : ℕ) (hx : x ≠ 0) : x ~ 2 ^ Nat.log 2 x := by
+--   simp only [similar, Set.mem_Icc]
+--   norm_cast
+--   constructor
+--   · refine Nat.pow_log_le_self 2 hx
+--   · rw [← Nat.pow_succ']
+--     exact (Nat.lt_pow_succ_log_self (by omega) _).le
 
 open Classical in
 noncomputable def dyadicPoints (α β γ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ) :=
   (Finset.Icc (1, 1, 1) (2*X, 2*X, 2*X)).filter fun ⟨a, b, c⟩ ↦
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
     a + b = c ∧
-    (radical a : ℕ) ~ (X ^ α : ℝ) ∧ (radical b : ℕ) ~ (X ^ β : ℝ) ∧ (radical c : ℕ) ~ (X ^ γ : ℝ) ∧
+    (radical a : ℕ) ~ (X ^ α : ℝ) ∧
+    (radical b : ℕ) ~ (X ^ β : ℝ) ∧
+    (radical c : ℕ) ~ (X ^ γ : ℝ) ∧
     X ≤ 2 * c ∧ c ≤ X
 
 @[simp]
@@ -684,16 +688,6 @@ theorem x_pos (j : Fin d) : 0 < x j := by
       apply pow_pos (hy_pos _)
   · simp [hy_pos]
 
--- @[simp]
--- private theorem x_zero : x 0 = 1 := by
---   simp +contextual [x, Fin.val_zero, y_zero, mul_ite, one_mul, mul_one, ite_eq_right_iff,
---     hK_pos.ne, hKd]
---   rw [Eq.comm, Fin.natCast_eq_zero]
---   intro h
---   have := Nat.le_of_dvd hK_pos h
---   have := hKd
---   omega
-
 private theorem x_pairwise_coprime (i j : Fin d) (hij : i ≠ j) : Nat.gcd (x i) (x j) = 1 := by
   have hij' : i.val ≠ j.val := by
     simp [Fin.val_inj, hij]
@@ -747,8 +741,6 @@ theorem fin_eq_nat_iff {n a : ℕ} {b : Fin n} [NeZero n] (ha : a < n) :
   rw [← Fin.val_inj]
   simp only [Fin.val_natCast, Nat.mod_eq_of_lt ha]
 
--- theorem test {ι : Type*} {f g : ι → ℕ} {s : Finset ι} {a : ι} {b : ℕ} :
---     ∏ i ∈ s with g i = b, f (g i)
 private theorem aux (f : ℕ → ℕ) :
     (∏ i : Fin d, if i.val + 1 = K then f (i.val + 1) else 1) = f K := by
   obtain ⟨K', hK'⟩ := Nat.exists_eq_add_one.mpr hK_pos
@@ -861,22 +853,7 @@ private theorem tmp'' : ((K-1: Fin d).val + 1) = K := by
   · have := hKd
     omega
 
-theorem exists_nice_factorization :
-  ∃ (x : (Fin d) → ℕ), ∃ c : ℕ,
-    n = c * ∏ j, x j ^ (j.val + 1:ℕ) ∧
-    c ≤ (X:ℝ)^(ε) ∧
-    (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
-    (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j := by
-  have hε_pos : 0 < ε := hε_pos
-  have hε := hε
-  have hd := hd
-  have h1n := h1n
-  have hnX := hnX
-
-  have := two_lt_eps_inv
-  have := hK_div_d
-
-  have radical_le_X_pow_mul_prod := calc
+private theorem radical_le_X_pow_mul_prod : (radical n : ℕ) ≤ (X : ℝ)^ε * ∏ j, x j := calc
     (radical n : ℕ) ≤ ((radical c : ℕ) : ℝ) * radical (∏ j, x j ^ (j.val + 1)) := by
       norm_cast
       apply Nat.le_of_dvd
@@ -907,63 +884,65 @@ theorem exists_nice_factorization :
       · apply x_pos
       apply radical_dvd_self
 
-  have x_K_le_X_pow : x (K-1) ≤ (X : ℝ) ^ ε := by
-    rw [x, if_pos ?side]
-    case side =>
-      simp
-    have := hKd
-    simp only [tmp'', Nat.cast_mul, Nat.cast_prod, Nat.cast_pow, ge_iff_le]
-    exact_mod_cast calc
-      (y K * ∏ m ∈ Finset.Ioc d n, y m ^ (m / K) : ℝ) ≤
-        (y K ^ K)^(K⁻¹:ℝ) * (∏ m ∈ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
-          gcongr
-          · rw [← Real.rpow_natCast_mul, mul_inv_cancel₀]
-            · simp
-            · simp
-              apply hK_pos.ne.symm
-            · exact_mod_cast (hy_pos _).le
-          · push_cast
-            rw [← Real.finset_prod_rpow _ _ (by simp)]
-            gcongr with i hi
-            rw [← Real.rpow_natCast_mul, ← Real.rpow_natCast]
-            gcongr
+theorem x_K_le_X_pow : x (K-1) ≤ (X : ℝ) ^ ε := by
+  have h1n := h1n
+  have hnX := hnX
+  rw [x, if_pos ?side]
+  case side =>
+    simp
+  have := hKd
+  simp only [tmp'', Nat.cast_mul, Nat.cast_prod, Nat.cast_pow, ge_iff_le]
+  exact_mod_cast calc
+    (y K * ∏ m ∈ Finset.Ioc d n, y m ^ (m / K) : ℝ) ≤
+      (y K ^ K)^(K⁻¹:ℝ) * (∏ m ∈ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
+        gcongr
+        · rw [← Real.rpow_natCast_mul, mul_inv_cancel₀]
+          · simp
+          · simp
+            apply hK_pos.ne.symm
+          · exact_mod_cast (hy_pos _).le
+        · push_cast
+          rw [← Real.finset_prod_rpow _ _ (by simp)]
+          gcongr with i hi
+          rw [← Real.rpow_natCast_mul, ← Real.rpow_natCast]
+          · gcongr
             · simp only [Nat.one_le_cast]
               apply Nat.add_one_le_of_lt
               apply hy_pos
             · rw [← Nat.floor_div_eq_div (K := ℝ), div_eq_mul_inv]
               apply Nat.floor_le
               positivity
-            · simp
-      _ = (∏ m ∈ {K} ∪ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
-          rw [Finset.prod_union]
-          · simp only [Nat.cast_prod, Nat.cast_pow, Finset.prod_singleton, Nat.cast_mul]
-            rw [Real.mul_rpow]
-            · simp
-            · positivity
           · simp
-            intro
-            linarith
-      _ ≤ (∏ m ∈ Finset.Icc 1 d ∪ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
-        gcongr
-        · intros
-          apply Nat.add_one_le_of_lt
-          simp [hy_pos]
-        · intro i
-          simp +contextual [hKd.le, Nat.add_one_le_iff.eq ▸ hK_pos]
-      _ = (n : ℝ) ^ (K⁻¹ : ℝ) := by
-        congr
-        rw [prod_y_pow_eq_n]
-      _ ≤ (X : ℝ) ^ (K⁻¹ : ℝ) := by
-        gcongr
-      _ ≤ (X:ℝ)^ε := by
-        gcongr
-        · norm_cast
-          omega
-        apply K_inv_le_eps
+    _ = (∏ m ∈ {K} ∪ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
+        rw [Finset.prod_union]
+        · simp only [Nat.cast_prod, Nat.cast_pow, Finset.prod_singleton, Nat.cast_mul]
+          rw [Real.mul_rpow]
+          · simp
+          · positivity
+        · simp
+          intro
+          linarith
+    _ ≤ (∏ m ∈ Finset.Icc 1 d ∪ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
+      gcongr
+      · intros
+        apply Nat.add_one_le_of_lt
+        simp [hy_pos]
+      · intro i
+        simp +contextual [hKd.le, Nat.add_one_le_iff.eq ▸ hK_pos]
+    _ = (n : ℝ) ^ (K⁻¹ : ℝ) := by
+      congr
+      rw [prod_y_pow_eq_n]
+    _ ≤ (X : ℝ) ^ (K⁻¹ : ℝ) := by
+      gcongr
+    _ ≤ (X:ℝ)^ε := by
+      gcongr
+      · norm_cast
+        omega
+      apply K_inv_le_eps
 
-  have X_pow_mul_prod_le_radical := calc
+private theorem X_pow_mul_prod_le_radical : (X : ℝ)^(-ε) * ∏ j, x j ≤ (radical n : ℕ) := calc
     (X : ℝ) ^ (-ε) * ∏ j, x j ≤ ∏ (j : Fin d), if j ≠ (K-1:ℕ) then x j else 1 := by
-      rw [Real.rpow_neg]
+      rw [Real.rpow_neg (by positivity)]
       apply inv_mul_le_of_le_mul₀
       · positivity
       · positivity
@@ -979,8 +958,8 @@ theorem exists_nice_factorization :
             rw [← Finset.prod_filter, Finset.filter_ne', this, Finset.mul_prod_erase]
             exact Finset.mem_univ _
           _ ≤ _ := by
+            have := x_K_le_X_pow
             gcongr
-      · positivity
     _ = ∏ j : Fin d, if j.val ≠ (K-1:ℕ) then y (j.val + 1) else 1 := by
       have (j : Fin d) : j.val = (K-1) ↔ j = (K-1 : ℕ) := by
         apply (fin_eq_nat_iff _).symm
@@ -1036,6 +1015,12 @@ theorem exists_nice_factorization :
         apply hy_pos
     _ = (radical n : ℕ) := mod_cast prod_y_eq_radical_n
 
+theorem exists_nice_factorization :
+  ∃ (x : (Fin d) → ℕ), ∃ c : ℕ,
+    n = c * ∏ j, x j ^ (j.val + 1:ℕ) ∧
+    c ≤ (X:ℝ)^(ε) ∧
+    (∀ i j, i ≠ j → Nat.gcd (x i) (x j) = 1) ∧
+    (X:ℝ)^(- ε) * ∏ j, x j ≤ (radical n : ℕ) ∧ (radical n : ℕ) ≤ (X:ℝ)^(ε) * ∏ j, x j := by
   refine ⟨x, c, c_mul_prod_x_eq_n.symm, c_le_X_pow, x_pairwise_coprime, X_pow_mul_prod_le_radical,
     radical_le_X_pow_mul_prod⟩
 
@@ -1043,6 +1028,7 @@ end NiceFactorization
 
 
 open NiceFactorization in
+/-- Proposition 2.6. The bulk of the proof is in the section `NiceFactorization`. -/
 theorem exists_nice_factorization
   {ε : ℝ}
   (hε_pos : 0 < ε)
@@ -1087,7 +1073,8 @@ theorem exists_nice_factorization
     · simp [h]
   exact ⟨x, c, hn, hc, hcop, h_le_rad, h_rad_le, hc_pos, hx_pos, x_le_X⟩
 
-
+/- Some basic consequences of Proposition 2.6, phrased in a way that make them more useful in the
+  proof of Proposition 2.7. -/
 theorem exists_nice_factorization'
   {ε : ℝ}
   (hε_pos : 0 < ε)
@@ -1335,8 +1322,7 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
         rw [Finset.sum_fin_eq_sum_range]
         simp +contextual [← Finset.mem_range]
         apply sum_range_id_add_one
-  ·
-    simp only [mem_B_finset, Nat.cast_pow, Nat.cast_ofNat, Fin.isValue, true_and, c']
+  · simp only [mem_B_finset, Nat.cast_pow, Nat.cast_ofNat, Fin.isValue, true_and, c']
     simp only [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
       Matrix.cons_val_two, Nat.succ_eq_add_one, Nat.reduceAdd, Matrix.tail_cons, c']
     refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
@@ -1349,7 +1335,6 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
     · apply coprime_mul_prod_aux _ _ (a_eq_c_mul_prod ▸ c_eq_c_mul_prod ▸ hac) <;> omega
     · apply coprime_mul_prod_aux _ _ (b_eq_c_mul_prod ▸ c_eq_c_mul_prod ▸ hbc) <;> omega
 
-
 theorem refinedCountTriplesStar_le_card_BUnion (α β γ : ℝ) {d : ℕ} (x : ℕ) (ε : ℝ)
     (hε_pos : 0 < ε) (hε : ε < 1/2) (hd : d = ⌊10 * ε⁻¹ ^ 4⌋₊) :
     refinedCountTriplesStar α β γ x ≤ (BUnion α β γ x ε (d := d)).card := by
@@ -1358,6 +1343,10 @@ theorem refinedCountTriplesStar_le_card_BUnion (α β γ : ℝ) {d : ℕ} (x : �
   · exact hε_pos
   · exact hε
   · exact hd
+
+section Asymptotics
+/- TODO: The results in this section should probably be cleaned up - in the end we also lose a
+  factor of (log x)^4 going from N to S, perhaps this should also be rolled into this constant. -/
 
 theorem log_le_const_mul_pow {ε : ℝ} (hε : 0 < ε) (d : ℕ) (hd : 0 < d) :
     ∃ c ≥ 0, ∀ x : ℕ, (Real.log x)^d ≤ c * (x : ℝ)^ε := by
@@ -1450,6 +1439,8 @@ theorem const_nonneg {ε : ℝ} : 0 ≤ const ε := by
     · rw [const, dif_pos hε_pos, dif_neg hε]
   · rw [const, dif_neg hε_pos]
 
+end Asymptotics
+
 theorem card_indexSet'_le_pow (ε α β γ : ℝ) (d x : ℕ) (hd : d = ⌊10* ε⁻¹^4⌋₊) (hx : 2 ≤ x)
     (hε_pos : 0 < ε) (hε : ε < 1/2) :
     (indexSet' α β γ d x ε).card ≤ const ε * (x:ℝ)^ε := by
@@ -1476,11 +1467,10 @@ theorem card_indexSet'_le_pow (ε α β γ : ℝ) (d x : ℕ) (hd : d = ⌊10* �
 
 noncomputable def d (ε : ℝ) : ℕ := ⌊10 * ε⁻¹ ^ 4⌋₊
 
-example {ι : Type*} {s : Finset ι} (f : ι → ℕ) (a x: ℕ) (h : a ≤ s.sup f) (h' : ∀ b ∈ s, f b ≤ x) :
-    a ≤ x := by
-  rw [← Finset.sup_le_iff] at h'
-  exact h.trans h'
-
+/- Proposition 2.7. Reformulated slightly in terms of the existence of a `Finset` whose elements
+  have certain properties. As it stands the statement in the blueprint implicitly assumes that
+  this `Finset` is nonempty. That might be true, but is rather annoying to prove and unnecessary
+  if we just need an upper bound on S*. -/
 theorem refinedCountTriplesStar_isBigO_B
   {α β γ : ℝ}
   /- I'm surprised these assumptions are not necessary.
