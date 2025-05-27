@@ -1073,7 +1073,7 @@ theorem exists_nice_factorization
     · simp [h]
   exact ⟨x, c, hn, hc, hcop, h_le_rad, h_rad_le, hc_pos, hx_pos, x_le_X⟩
 
-/- Some basic consequences of Proposition 2.5, phrased in a way that make them more useful in the
+/-- Some basic consequences of Proposition 2.5, phrased in a way that make them more useful in the
   proof of Proposition 2.6. -/
 theorem exists_nice_factorization'
   {ε : ℝ}
