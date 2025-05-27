@@ -23,6 +23,8 @@ The best unconditional result is due to Stewart and Yu~\cite{styu}, who have sho
 In this paper we shall focus on counting the number $N_\lambda(X)$ of $abc$ triples of exponent $\lambda$ in a box $[1,X]^3$, as $X\to \infty$.
 
 \begin{definition}\label{def:Nlambda}
+\lean{countTriples}
+\leanok{}
 For $\lambda>0$ define $N_\lambda(X)$ as the number of triples $(a,b,c)\in \N^3$ with $a+b=c$, $\gcd(a,b,c)=1$ and
 $\rad(abc) < c^{\lambda}$.
 \end{definition}
@@ -171,28 +173,16 @@ uniform upper bounds for the number of solutions to Thue equations (Proposition~
 For every choice of the exponents $a_i,b_i,c_i$ we shall need to take the minimum of these bounds, which leads to a rather intricate combinatorial optimisation problem. This is solved by showing that at least one of the four methods always gives a power-saving over Proposition~\ref{prop:ABCTrivialBound} when $\lambda$ is close to $1$.
 
 \section*{Notation}
-We shall use $x\sim X$ to denote $x\in (X,2X]$ and we put
+We shall use $x\sim X$ to denote $x\in [X,2X]$ and we put
 $[d]=\{1,\dots,d\}$. We denote by $\tau(n)=\sum_{d\mid n}1$ the divisor function.
 
 
 \chapter{Reduction to Diophantine equations}
 
-
-We
- begin by noting that
-\begin{lemma}\label{lem:NlambdatoS}
-  \uses{def:Nlambda, def:Sabc}
-We have
-\begin{equation}\label{eq:step1}
-N_\lambda(X)\leq \max_{\substack{
-\alpha,\beta,\gamma>0\\ \alpha+\beta+\gamma\leq \lambda}} S_{\alpha,\beta,\gamma}(X).
-\end{equation}
-\end{lemma}
-\begin{proof}
-\proves{lem:NlambdatoS}
-\end{proof}
-Let us define a variant of $S_{\alpha,\beta,\gamma}(X)$
+We will work with a variant of $S_{\alpha,\beta,\gamma}(X)$
 \begin{definition}\label{def:Sstar}
+  \lean{refinedCountTriplesStar}
+  \leanok
   Let $S^*_{\alpha,\beta,\gamma}(X)$ to be the number of $(a,b,c)\in \mathbb{N}^3$ with $\gcd(a,b,c)=1$ and
   \begin{align*}
   c\in [X/2,X],\quad a+b=c,\quad \rad(a)\sim X^{\alpha},\quad \rad(b)\sim X^{\beta},\quad \rad(c)\sim X^{\gamma}.
@@ -200,17 +190,36 @@ Let us define a variant of $S_{\alpha,\beta,\gamma}(X)$
 \end{definition}
 
 
-By the pigeonhole principle, we have
-
-\begin{lemma}\label{lem:StoSstar}
-  \uses{def:Sabc, def:Sstar}
-\begin{equation}\label{eq:S->S*}
-S_{\alpha,\beta,\gamma}(X)\ll (\log X)^4\max_{\substack{\alpha'\leq \alpha\\\beta'\leq \beta\\\gamma'\leq \gamma}}\max_{Y\in [1,X]}S^*_{\alpha',\beta',\gamma'}(Y).
+We
+ begin by noting that by the pigeonhole princple,
+\begin{lemma}\label{lem:NlambdatoSstar}
+  \lean{countTriples_isBigO_dyadicSup, countTriples_le_log_pow_mul_sup}
+  \leanok
+  \uses{def:Nlambda, def:Sstar}
+We have
+\begin{equation}\label{eq:step1}
+N_\lambda(X)\ll (\log X)^4 \max_{\substack{
+\alpha,\beta,\gamma>0\\ \alpha+\beta+\gamma\leq \lambda}} S^*_{\alpha,\beta,\gamma}(X).
 \end{equation}
 \end{lemma}
 \begin{proof}
-\proves{lem:StoSstar}
+\proves{lem:NlambdatoSstar}
+\leanok
 \end{proof}
+
+
+
+% By the pigeonhole principle, we have
+
+% \begin{lemma}\label{lem:StoSstar}
+%   \uses{def:Sabc, def:Sstar}
+% \begin{equation}\label{eq:S->S*}
+% S_{\alpha,\beta,\gamma}(X)\ll (\log X)^4\max_{\substack{\alpha'\leq \alpha\\\beta'\leq \beta\\\gamma'\leq \gamma}}\max_{Y\in [1,X]}S^*_{\alpha',\beta',\gamma'}(Y).
+% \end{equation}
+% \end{lemma}
+% \begin{proof}
+% \proves{lem:StoSstar}
+% \end{proof}
 
 
 \begin{theorem}\label{thm:BdExceptionalBound}
@@ -227,13 +236,15 @@ B_d({\bf c, X,Y,Z}) \ll  X^{0.66-\eps}.
 
 \begin{proof}[Proof of Theorem \ref{thm:ABCExceptionalBound}]
   \proves{thm:ABCExceptionalBound}
-  \uses{thm:BdExceptionalBound, lem:StoSstar, lem:NlambdatoS}
+  \uses{thm:BdExceptionalBound, lem:NlambdatoSstar}
   \end{proof}
 
 
 The following result allows us to bound $S^*_{\alpha,\beta,\gamma}(X)$
 in terms of the number of solutions to certain monomial Diophantine equations. In order to state it, we need to introduce the quantity $B_d$
 \begin{definition}\label{def:BdDiophantineCount}
+  \lean{B, B_finset}
+  \leanok
 For $\mathbf{c}\in \mathbb{Z}^3$ and $\mathbf{X},\mathbf{Y},\mathbf{Z}\in \mathbb{R}_{>0}^{d}$. we have
 \begin{equation}\label{eq:Bk}
 B_d(\mathbf{c},\mathbf{X},\mathbf{Y},\mathbf{Z}) := \#\left\{(\mathbf{x},\mathbf{y},\mathbf{z})\in \mathbb{N}^{3d}\;:\;
@@ -252,17 +263,20 @@ c_3\prod_{j\leq d}z_j)=1
 
 
 \begin{lemma}\label{lem:DiophantineFactor}
+  \lean{exists_nice_factorization, exists_nice_factorization'}
+  \leanok
 Let $\varepsilon\in (0,1/2)$, and let $2\leq n\leq X$ be an integer. Then there exists a factorisation
 \begin{align*}
-n=c\prod_{j\leq 10\varepsilon^{-2}}x_j^{j},
+n=c\prod_{j\leq \frac{5}{2}\varepsilon^{-2}}x_j^{j},
 \end{align*}
 for positive integers $x_j,c$ such that $c\leq X^{\varepsilon/2}$, the $x_j$ are pairwise coprime, and \begin{align*}
-X^{-\varepsilon}\prod_{j\leq 10\varepsilon^{-2}}x_j \leq \rad(n) \leq X^{\varepsilon}\prod_{j\leq 10\varepsilon^{-2}}x_j.
+X^{-\varepsilon}\prod_{j\leq \frac{5}{2}\varepsilon^{-2}}x_j \leq \rad(n) \leq X^{\varepsilon}\prod_{j\leq \frac{5}{2}\varepsilon^{-2}}x_j.
 \end{align*}
 \end{lemma}
 \begin{proof}
   \proves{lem:DiophantineFactor}
-  Fix $2\le n\le X$ and let $K=2\lceil \varepsilon^{-1}\rceil$, $M=\lfloor 10\varepsilon^{-2}\rfloor$. Define
+  \leanok
+  Fix $2\le n\le X$ and let $K=2\lceil \varepsilon^{-1}\rceil$, $M=\lfloor \frac{5}{2}\varepsilon^{-2}\rfloor$. Define
 \begin{align*}
 y_j:=\prod_{p^j\|n} p.
 \end{align*}
@@ -301,17 +315,19 @@ as claimed.
 \end{proof}
 
 \begin{proposition}\label{prop:DiophantineReduction}
+  \lean{refinedCountTriplesStar_isBigO_B}
+  \leanok
   \uses{def:BdDiophantineCount, def:Sstar}
 Let $\alpha,\beta,\gamma\in (0,1]$ be fixed and let $X\geq 2$. For any $\varepsilon>0$ there exists an integer $d=d(\varepsilon)\geq 1$ such that the following holds.
 There exist $X_1,\ldots, X_d,Y_1,\ldots, Y_d, Z_1,\ldots, Z_d\geq 1$ satisfying
 \begin{align}\label{eq:xiyizi_1}
-X^{\alpha-\varepsilon}\leq \prod_{j=1}^{d}X_j\leq X^{\alpha+\varepsilon},\quad
-X^{\beta-\varepsilon}\leq\prod_{j=1}^{d}Y_j\leq X^{\beta+\varepsilon},\quad
-X^{\gamma-\varepsilon}\leq\prod_{j=1}^{d}Z_j\leq X^{\gamma+\varepsilon}
+X^{\alpha-\varepsilon}\ll_{\varepsilon} \prod_{j=1}^{d}X_j\leq 2 X^{\alpha+\varepsilon},\quad
+X^{\beta-\varepsilon}\ll_{\varepsilon}\prod_{j=1}^{d}Y_j\leq 2 X^{\beta+\varepsilon},\quad
+X^{\gamma-\varepsilon}\ll_{\varepsilon}\prod_{j=1}^{d}Z_j\leq 2 X^{\gamma+\varepsilon}
 \end{align}
 and
 \begin{align}\label{eq:xiyizi_2}
-\prod_{j=1}^d X_j^j \leq X, \quad \prod_{j=1}^d Y_j^j\leq X,\quad X^{1-\varepsilon^2}\leq \prod_{j=1}^d Z_j^j\leq X
+\prod_{j=1}^d X_j^j \leq X, \quad \prod_{j=1}^d Y_j^j\leq X,\quad X^{1-\varepsilon^2}\ll_{\varepsilon} \prod_{j=1}^d Z_j^j\leq X
 \end{align}
 and pairwise coprime integers $1\leq c_1,c_2,c_3\leq X^{\varepsilon}$, such that
 \begin{align*}
@@ -322,11 +338,12 @@ S^*_{\alpha,\beta,\gamma}(X) \ll_{\varepsilon} X^{\varepsilon}B_d(\mathbf{c},\ma
 \begin{proof}[Proof of Proposition~\ref{prop:DiophantineReduction}]
   \proves{prop:DiophantineReduction}
   \uses{lem:DiophantineFactor}
+  \leanok
   We may assume that $X$ is large enough in terms of $\varepsilon$, since otherwise the claim is trivial. Let $(a,b,c)$ be a triple counted by $S^*_{\alpha,\beta,\gamma}(X)$. Apply Lemma~\ref{lem:DiophantineFactor} (with $\varepsilon^2/2$ in place of $\varepsilon$) to each of $a,b,c$ to obtain factorisations of the form
 \begin{align*}
 a=c_1\prod_{j\leq d}x_j^j,\quad b=c_2\prod_{j\leq d}y_j^j,\quad c=c_3\prod_{j\leq d}z_j^j,
 \end{align*}
-where $d=\lfloor 40\varepsilon^{-4}\rfloor$ and $1\leq c_1,c_2,c_3\leq X^{\varepsilon^2/4}$. Since $(a,b,c)$ is counted by $S^*_{\alpha,\beta,\gamma}(X)$, we have $\gcd(a,b,c)=1$ and $a+b=c$, so $a,b,c$ are pairwise coprime. Hence, all the $3d+3$ numbers $x_i,y_i,z_i,c_1,c_2,c_3$ are pairwise coprime. Note also that by the properties of the factorisation given by Lemma~\ref{lem:DiophantineFactor}, we have
+where $d=\lfloor 10\varepsilon^{-4}\rfloor$ and $1\leq c_1,c_2,c_3\leq X^{\varepsilon^2/4}$. Since $(a,b,c)$ is counted by $S^*_{\alpha,\beta,\gamma}(X)$, we have $\gcd(a,b,c)=1$ and $a+b=c$, so $a,b,c$ are pairwise coprime. Hence, all the $3d+3$ numbers $x_i,y_i,z_i,c_1,c_2,c_3$ are pairwise coprime. Note also that by the properties of the factorisation given by Lemma~\ref{lem:DiophantineFactor}, we have
 \begin{align*}
 &X^{-\varepsilon/2}\prod_{j\leq d}x_j\leq \rad(a)\leq X^{\varepsilon/2}\prod_{j\leq d}x_j,\quad X^{-\varepsilon/2}\prod_{j\leq d}y_j\leq \rad(b)\leq X^{\varepsilon/2}\prod_{j\leq d}y_j,\\
 &X^{-\varepsilon/2}\prod_{j\leq d}z_j\leq \rad(c)\leq X^{\varepsilon/2}\prod_{j\leq d}z_j.

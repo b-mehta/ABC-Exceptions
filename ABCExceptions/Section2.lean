@@ -1028,7 +1028,7 @@ end NiceFactorization
 
 
 open NiceFactorization in
-/-- Proposition 2.6. The bulk of the proof is in the section `NiceFactorization`. -/
+/-- Proposition 2.5. The bulk of the proof is in the section `NiceFactorization`. -/
 theorem exists_nice_factorization
   {ε : ℝ}
   (hε_pos : 0 < ε)
@@ -1073,8 +1073,8 @@ theorem exists_nice_factorization
     · simp [h]
   exact ⟨x, c, hn, hc, hcop, h_le_rad, h_rad_le, hc_pos, hx_pos, x_le_X⟩
 
-/- Some basic consequences of Proposition 2.6, phrased in a way that make them more useful in the
-  proof of Proposition 2.7. -/
+/- Some basic consequences of Proposition 2.5, phrased in a way that make them more useful in the
+  proof of Proposition 2.6. -/
 theorem exists_nice_factorization'
   {ε : ℝ}
   (hε_pos : 0 < ε)
