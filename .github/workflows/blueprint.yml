@@ -80,16 +80,13 @@ jobs:
           cp -r docbuild/.lake/build/doc home_page/docs
         if: github.ref == 'refs/heads/main'
 
-      # BM: 20th May, temporarily removing this
-      # It should be restored after 21st May or when the project is public
+      - name: Upload docs & blueprint artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: home_page/
+        if: github.ref == 'refs/heads/main'
 
-      # - name: Upload docs & blueprint artifact
-      #   uses: actions/upload-pages-artifact@v3
-      #   with:
-      #     path: home_page/
-      #   if: github.ref == 'refs/heads/main'
-
-      # - name: Deploy to GitHub Pages
-      #   id: deployment
-      #   uses: actions/deploy-pages@v4
-      #   if: github.ref == 'refs/heads/main'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        if: github.ref == 'refs/heads/main'
