@@ -44,11 +44,11 @@ jobs:
             docbuild/.lake/build/doc/Mathlib
             docbuild/.lake/build/doc/Std
           key: Docs-${{ hashFiles('lake-manifest.json') }}
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
 
       - name: Build Documentation
         run: scripts/build_docs.sh
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
 
       - name: Build blueprint and copy to `home_page/blueprint`
         uses: xu-cheng/texlive-action@v2
@@ -76,7 +76,7 @@ jobs:
         run: |
           sudo chown -R runner home_page
           cp -r docbuild/.lake/build/doc home_page/docs
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
 
       - name: Bundle dependencies
         uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
@@ -84,22 +84,22 @@ jobs:
           working-directory: home_page
           ruby-version: "3.1"  # Specify Ruby version
           bundler-cache: true  # Enable caching for bundler
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
 
       - name: Build website using Jekyll
         working-directory: home_page
         env:
             JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
         run: JEKYLL_ENV=production bundle exec jekyll build
 
       - name: "Upload website (API documentation, blueprint and any home page)"
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: home_page/
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
