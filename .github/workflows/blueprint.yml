@@ -96,7 +96,7 @@ jobs:
       - name: "Upload website (API documentation, blueprint and any home page)"
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
-          path: home_page/
+          path: home_page/_site/
         # if: github.ref == 'refs/heads/main'
 
       - name: Deploy to GitHub Pages
