@@ -1358,8 +1358,8 @@ lemma case_2_subcase_5
     False := by
 
   suffices b 3 + c 3 < 0.33 - 1 / 2 * s 2 - 1 / 2 * δ from
-    case_2_subcase_2 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg (by omega) hν hs₂
-      (by linear_combination hδ) hε₀ (by linear_combination hε) this
+    case_2_subcase_2 ha hb hc h43ab h43ac h43bc h44 h45b h45c hdab hdac htab htac htbc hg (by omega)
+      hν hs₂ (by linear_combination hδ) hε₀ (by linear_combination hε) this
 
   simp only [Set.mem_Icc] at h
   have h426 :=
@@ -1388,7 +1388,8 @@ lemma case_2_subcase_6_end_ab
     (hε : ε ≤ 1 / 100000)
     (hba : b 3 ≤ a 3) :
     ν ≤ 0.78451 + 1 / 3 * (a 2 ⊔ b 2 - a 3) - 1 / 2 * b 3 := by
-  have h₁ : ∑ i ≤ d, a i ⊔ b i + a 1 ⊓ b 1 + a 2 ⊓ b 2 + a 3 ⊓ b 3 ≤ 2 / 3 - δ_ d a - δ_ d b := by calc
+  have h₁ : ∑ i ≤ d, a i ⊔ b i + a 1 ⊓ b 1 + a 2 ⊓ b 2 + a 3 ⊓ b 3 ≤ 2 / 3 - δ_ d a - δ_ d b := by
+    calc
     _ = ∑ i ≤ d, a i ⊔ b i + ∑ i ∈ range 4, a i ⊓ b i := by
       simp [Finset.sum_range_succ, ha.zero, hb.zero, add_assoc]
     _ ≤ ∑ i ≤ d, a i ⊔ b i + ∑ i ≤ d, a i ⊓ b i := by
@@ -1546,7 +1547,14 @@ lemma case_2
     norm_num1 at *
     linarith +splitHypotheses
 
-include ha hb hc h43ab h43ac h43bc h44 h45a h45b h45c hfab hfac hfbc hdab hdac htab htac htbc hfab hg in
+include ha hb hc
+  h43ab h43ac h43bc
+  h44
+  h45a h45b h45c
+  hfab hfac hfbc
+  hdab hdac
+  htab htac htbc
+  hfab hg in
 theorem thm_4_point_3_asymm (hd : 6 ≤ d) (hδ : δ ≤ 0.001) (hε₀ : 0 < ε) (hε : ε ≤ 1 / 100000)
     (hba : b 3 ≤ a 3) (hcb : c 3 ≤ b 3) :
     ν ≤ 0.66 := by
