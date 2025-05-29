@@ -4,21 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta, Arend Mellendijk
 -/
 
-import Mathlib.Algebra.GCDMonoid.Nat
-import Mathlib.Analysis.Asymptotics.AsymptoticEquivalent
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
-import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Data.Nat.Squarefree
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Order.CompletePartialOrder
-import Mathlib.RingTheory.Radical
--- import Mathlib.RingTheory.SimpleModule
-import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 
 import ABCExceptions.ForMathlib.RingTheory.Radical
-import ABCExceptions.ForMathlib.Misc
 
 open Finset UniqueFactorizationMonoid
 
@@ -1538,5 +1530,3 @@ theorem refinedCountTriplesStar_isBigO_B
         gcongr
         · norm_cast; omega
         · linarith
-
-#lint
