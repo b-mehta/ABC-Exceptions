@@ -273,7 +273,7 @@ theorem Nat.Coprime.isRelPrime (a b : ℕ) (h : a.Coprime b) : IsRelPrime a b :=
   rw [← Nat.coprime_iff_isRelPrime]
   exact h
 
-theorem Set.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
+theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
     Finset.ABCExceptionsBelow μ X ⊆
       (indexSet μ X).biUnion fun ⟨i, j, k, n⟩ ↦
         dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2 ^ n) := by
@@ -383,7 +383,7 @@ theorem countTriples_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) : countTriples μ X
   simp_rw [countTriples_eq_finset_card, dyadicSupBound, refinedCountTriplesStar]
   apply le_trans _ (card_union_dyadicPoints_le_log_pow_mul_sup μ X)
   apply Finset.card_le_card
-  exact Set.ABCExceptionsBelow_subset_union_dyadicPoints μ X
+  exact Finset.ABCExceptionsBelow_subset_union_dyadicPoints μ X
 
 theorem Real.natLog_isBigO_logb (b : ℕ) :
     (fun x : ℕ ↦ (Nat.log b x : ℝ)) =O[atTop] (fun x : ℕ ↦ Real.logb b x) := by
