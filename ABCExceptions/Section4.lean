@@ -77,8 +77,12 @@ lemma Bound4Point4.rotate : Bound4Point4 d δ ε b c a :=
 
 end
 
--- we will at some point show that 4.5 can be safely assumed in context, after we've assumed
--- 1.2 and 4.4
+/--
+A statement of equation 4.5 from the paper, formulated for `a`.
+
+We will at some point show that 4.5 can be safely assumed in context, after we've assumed
+1.2 and 4.4
+-/
 structure Bound4Point5 (d : ℕ) (δ ε : ℝ) (a : ℕ → ℝ) : Prop where
 (lower : 0.32 - δ ≤ ∑ i ≤ d, a i)
 (upper : ∑ i ≤ d, a i ≤ 0.34 + δ - ε / 2)
@@ -132,19 +136,6 @@ variable
   (hdbc : DeterminantBound d δ ν b c)
 
 section
-
--- KEEP THIS, it might be relevant for lean4#4615
--- lemma determinantBound_set_finite :
---     {1 + δ - a p - b q + min (a p / q) (b q / p) |
---       (p : ℕ) (q : ℕ) (_ : p ∈ Ioc 1 d) (_ : q ∈ Ioc 1 d)}.Finite := by
---   have :
---       {1 + δ - a p - b q + min (a p / q) (b q / p) |
---         (p : ℕ) (q : ℕ) (_ : p ∈ Ioc 1 d) (_ : q ∈ Ioc 1 d)} =
---       Set.image2 (fun p q ↦ 1 + δ - a p - b q + min (a p / q) (b q / p)) (Ioc 1 d) (Ioc 1 d) := by
---     ext x
---     simp? [- mem_Ioc]
---     simp only [exists_prop, exists_and_left, mem_setOf_eq, mem_image2]
---   sorry
 
 lemma determinantBound_set_finite :
     {1 + δ - a p - b q + min (a p / q) (b q / p) |
@@ -387,9 +378,6 @@ lemma bound_4_point_10_upper (hε : 0 < ε) (hε₁ : ε ≤ 2 / 3)
     (h43ac : Bound4Point3 d ε a c)
     (h43bc : Bound4Point3 d ε b c) :
     δₛ ≤ 0.01 + ε := by
-  have := bound_4_point_8 h43ab
-  have := bound_4_point_8 h43ac
-  have := bound_4_point_8 h43bc
   have : 2 * δₛ ≤ 0.02 + 3 * ε ^ 2 := by
     rw [δₛ_eq]
     linear_combination bound_4_point_8 h43ab + bound_4_point_8 h43ac + bound_4_point_8 h43bc
@@ -1594,3 +1582,5 @@ theorem thm_4_point_3
     htab htac htbc hg hd hδ hε₀ hε hba hcb
 
 end
+
+#lint
