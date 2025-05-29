@@ -49,9 +49,7 @@ def Set.ABCExceptionsBelow (μ : ℝ) (X : ℕ) : Set (ℕ × ℕ × ℕ) :=
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
     a + b = c ∧
     radical (a * b * c) < (c ^ μ : ℝ) ∧
-    (a, b, c) ∈ Set.Icc (1, 1, 1) (X, X, X) := by
-  simp [ABCTriples_finset]
-  aesop
+    (a, b, c) ∈ Set.Icc (1, 1, 1) (X, X, X) }
 
 @[simp]
 theorem Finset.mem_ABCExceptionsBelow (μ : ℝ) (X : ℕ) (a b c : ℕ) :
@@ -86,12 +84,6 @@ lemma countTriples_eq (μ : ℝ) (X : ℕ) :
   ext ⟨a, b, c⟩
   simp [and_assoc, ← Prod.mk_one_one]
   aesop
-
-@[simp]
-lemma coe_ABCTriples_finset_eq_ABCTriples (μ : ℝ) (X : ℕ) :
-    ABCTriples_finset μ X = ABCTriples μ X := by
-  ext ⟨a, b, c⟩
-  simp [ABCTriples]
 
 lemma countTriples_eq_finset_card (μ : ℝ) (X : ℕ) :
     countTriples μ X = #(Finset.ABCExceptionsBelow μ X) := by
@@ -194,19 +186,20 @@ lemma abcConjecture_iff :
       exact ⟨ha, hb, hc⟩
     rwa [← Set.inter_eq_self_of_subset_left this]
 
+/-- We define reals `x` and `X` to be similar if `x ∈ [X, 2X]`. -/
 def similar (x X : ℝ) : Prop := x ∈ Set.Icc X (2 * X)
 
 local infixr:36 " ~ " => similar
 
 /- This feels useful but it must have not survived a refactor. TODO: investigate and see if this
   can be used to golf some argument - Arend. -/
--- theorem similar_pow_natLog (x : ℕ) (hx : x ≠ 0) : x ~ 2 ^ Nat.log 2 x := by
---   simp only [similar, Set.mem_Icc]
---   norm_cast
---   constructor
---   · refine Nat.pow_log_le_self 2 hx
---   · rw [← Nat.pow_succ']
---     exact (Nat.lt_pow_succ_log_self (by omega) _).le
+theorem similar_pow_natLog (x : ℕ) (hx : x ≠ 0) : x ~ 2 ^ Nat.log 2 x := by
+  simp only [similar, Set.mem_Icc]
+  norm_cast
+  constructor
+  · refine Nat.pow_log_le_self 2 hx
+  · rw [← Nat.pow_succ']
+    exact (Nat.lt_pow_succ_log_self (by omega) _).le
 
 open Classical in
 noncomputable def dyadicPoints (α β γ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ) :=
@@ -263,7 +256,7 @@ private noncomputable def indexSet (μ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × 
 private theorem card_indexSet_le (μ : ℝ) (X : ℕ) :
     (indexSet μ X).card ≤ (Nat.log 2 X + 1) ^ 4 := by
   apply (Finset.card_filter_le ..).trans
-  simp
+  simp only [card_product, Nat.card_Icc, tsub_zero, add_tsub_cancel_right]
   apply le_of_eq
   ring
 
@@ -280,13 +273,13 @@ theorem Nat.Coprime.isRelPrime (a b : ℕ) (h : a.Coprime b) : IsRelPrime a b :=
   rw [← Nat.coprime_iff_isRelPrime]
   exact h
 
-theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
-    ABCTriples_finset μ X ⊆
+theorem Set.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
+    Finset.ABCExceptionsBelow μ X ⊆
       (indexSet μ X).biUnion fun ⟨i, j, k, n⟩ ↦
         dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2 ^ n) := by
   rintro ⟨a, b, c⟩
-  simp only [mem_ABCTriples, Set.mem_Icc, Prod.mk_le_mk, Finset.mem_biUnion, mem_dyadicPoints,
-    Nat.cast_pow, Nat.cast_ofNat, Prod.exists, mem_indexSet, and_imp]
+  simp only [mem_ABCExceptionsBelow, Set.mem_Icc, Prod.mk_le_mk, Finset.mem_biUnion,
+    mem_dyadicPoints, Nat.cast_pow, Nat.cast_ofNat, Prod.exists, mem_indexSet, and_imp]
   intro hab hac hbc habc hrad h1a h1b h1c haX hbX hcX
   have hμ : 0 ≤ μ := by
     by_contra hμ
@@ -308,8 +301,9 @@ theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
   have {a : ℕ} (ha : 1 ≤ a) (haX : a ≤ X) : Nat.log 2 (radical a) ≤ Nat.log 2 X := by
     apply Nat.log_mono_right ((Nat.radical_le_self (by omega)).trans haX)
   let n := Nat.log 2 c + 1
+  have hcn : c ≤ 2 ^ n := (Nat.lt_pow_succ_log_self one_lt_two c).le
   refine ⟨Nat.log 2 (radical a), Nat.log 2 (radical b), Nat.log 2 (radical c), n,
-  ⟨this h1a haX, this h1b hbX, this h1c hcX, by omega, ?_, ?_⟩, by omega, by omega, by omega,
+    ⟨this h1a haX, this h1b hbX, this h1c hcX, by omega, ?_, ?_⟩, by omega, by omega, by omega,
     hab, hac, hbc, habc, ?_⟩
   · simp [n, Nat.log_mono_right hcX]
   · -- Here we prove that α + β + γ ≤ μ
@@ -334,12 +328,6 @@ theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
         rw [Real.rpow_natCast_mul (by norm_num)]
         gcongr
         norm_cast
-        simp [n]
-        apply le_of_lt
-        rw [Nat.lt_pow_iff_log_lt]
-        · omega
-        · norm_num
-        · omega
     rw [← Real.rpow_le_rpow_left_iff (show 1 < (2 : ℝ) by norm_num)]
     norm_cast at this ⊢
     convert this using 1
@@ -356,25 +344,14 @@ theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
   have hc2 : 2 ≤ c := by
     omega
   simp_rw [this]
-  have radical_similar {a : ℕ} :  (radical a : ℕ) ~ 2 ^ (Nat.log 2 (radical a)) := by
-    simp [similar]
-    norm_cast
-    constructor
-    · apply Nat.pow_log_le_self
-      exact radical_ne_zero a
-    · rw [mul_comm, ← Nat.pow_succ]
-      apply (Nat.lt_pow_succ_log_self ..).le
-      norm_num
-  refine ⟨radical_similar, radical_similar, radical_similar, ?_⟩
+  have radical_similar {a : ℕ} :  (radical a : ℕ) ~ 2 ^ (Nat.log 2 (radical a)) :=
+    similar_pow_natLog (radical a) (radical_ne_zero a)
+  refine ⟨radical_similar, radical_similar, radical_similar, ?_, hcn⟩
   simp [n, similar, Nat.pow_succ]
-  refine ⟨?_, ?_⟩
-  · rw [mul_comm]
-    gcongr
-    apply Nat.pow_log_le_self
-    omega
-  · rw [← Nat.pow_succ]
-    apply (Nat.lt_pow_succ_log_self ..).le
-    norm_num
+  rw [mul_comm]
+  gcongr
+  apply Nat.pow_log_le_self
+  omega
 
 theorem sum_le_card_mul_sup {ι : Type*} (f : ι → ℕ) (s : Finset ι) :
     ∑ i ∈ s, f i ≤ s.card * s.sup f := calc
@@ -406,7 +383,7 @@ theorem countTriples_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) : countTriples μ X
   simp_rw [countTriples_eq_finset_card, dyadicSupBound, refinedCountTriplesStar]
   apply le_trans _ (card_union_dyadicPoints_le_log_pow_mul_sup μ X)
   apply Finset.card_le_card
-  exact ABCTriples_subset_union_dyadicPoints μ X
+  exact Set.ABCExceptionsBelow_subset_union_dyadicPoints μ X
 
 theorem Real.natLog_isBigO_logb (b : ℕ) :
     (fun x : ℕ ↦ (Nat.log b x : ℝ)) =O[atTop] (fun x : ℕ ↦ Real.logb b x) := by
@@ -1561,3 +1538,5 @@ theorem refinedCountTriplesStar_isBigO_B
         gcongr
         · norm_cast; omega
         · linarith
+
+#lint
