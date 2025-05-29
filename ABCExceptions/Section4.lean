@@ -1582,5 +1582,3 @@ theorem thm_4_point_3
     htab htac htbc hg hd hδ hε₀ hε hba hcb
 
 end
-
-#lint
