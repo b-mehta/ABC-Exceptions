@@ -4,21 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Bhavik Mehta, Arend Mellendijk
 -/
 
-import Mathlib.Algebra.GCDMonoid.Nat
-import Mathlib.Analysis.Asymptotics.AsymptoticEquivalent
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
-import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Data.Nat.Squarefree
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Order.CompletePartialOrder
-import Mathlib.RingTheory.Radical
--- import Mathlib.RingTheory.SimpleModule
-import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 
 import ABCExceptions.ForMathlib.RingTheory.Radical
-import ABCExceptions.ForMathlib.Misc
 
 open Finset UniqueFactorizationMonoid
 
@@ -186,19 +178,20 @@ lemma abcConjecture_iff :
       exact ⟨ha, hb, hc⟩
     rwa [← Set.inter_eq_self_of_subset_left this]
 
+/-- We define reals `x` and `X` to be similar if `x ∈ [X, 2X]`. -/
 def similar (x X : ℝ) : Prop := x ∈ Set.Icc X (2 * X)
 
 local infixr:36 " ~ " => similar
 
 /- This feels useful but it must have not survived a refactor. TODO: investigate and see if this
   can be used to golf some argument - Arend. -/
--- theorem similar_pow_natLog (x : ℕ) (hx : x ≠ 0) : x ~ 2 ^ Nat.log 2 x := by
---   simp only [similar, Set.mem_Icc]
---   norm_cast
---   constructor
---   · refine Nat.pow_log_le_self 2 hx
---   · rw [← Nat.pow_succ']
---     exact (Nat.lt_pow_succ_log_self (by omega) _).le
+theorem similar_pow_natLog (x : ℕ) (hx : x ≠ 0) : x ~ 2 ^ Nat.log 2 x := by
+  simp only [similar, Set.mem_Icc]
+  norm_cast
+  constructor
+  · refine Nat.pow_log_le_self 2 hx
+  · rw [← Nat.pow_succ']
+    exact (Nat.lt_pow_succ_log_self (by omega) _).le
 
 open Classical in
 noncomputable def dyadicPoints (α β γ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ) :=
@@ -255,7 +248,7 @@ private noncomputable def indexSet (μ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × 
 private theorem card_indexSet_le (μ : ℝ) (X : ℕ) :
     (indexSet μ X).card ≤ (Nat.log 2 X + 1) ^ 4 := by
   apply (Finset.card_filter_le ..).trans
-  simp
+  simp only [card_product, Nat.card_Icc, tsub_zero, add_tsub_cancel_right]
   apply le_of_eq
   ring
 
@@ -300,8 +293,9 @@ theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ)
   have {a : ℕ} (ha : 1 ≤ a) (haX : a ≤ X) : Nat.log 2 (radical a) ≤ Nat.log 2 X := by
     apply Nat.log_mono_right ((Nat.radical_le_self (by omega)).trans haX)
   let n := Nat.log 2 c + 1
+  have hcn : c ≤ 2 ^ n := (Nat.lt_pow_succ_log_self one_lt_two c).le
   refine ⟨Nat.log 2 (radical a), Nat.log 2 (radical b), Nat.log 2 (radical c), n,
-  ⟨this h1a haX, this h1b hbX, this h1c hcX, by omega, ?_, ?_⟩, by omega, by omega, by omega,
+    ⟨this h1a haX, this h1b hbX, this h1c hcX, by omega, ?_, ?_⟩, by omega, by omega, by omega,
     hab, hac, hbc, habc, ?_⟩
   · simp [n, Nat.log_mono_right hcX]
   · -- Here we prove that α + β + γ ≤ μ
@@ -326,12 +320,6 @@ theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ)
         rw [Real.rpow_natCast_mul (by norm_num)]
         gcongr
         norm_cast
-        simp [n]
-        apply le_of_lt
-        rw [Nat.lt_pow_iff_log_lt]
-        · omega
-        · norm_num
-        · omega
     rw [← Real.rpow_le_rpow_left_iff (show 1 < (2 : ℝ) by norm_num)]
     norm_cast at this ⊢
     convert this using 1
@@ -348,25 +336,14 @@ theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ)
   have hc2 : 2 ≤ c := by
     omega
   simp_rw [this]
-  have radical_similar {a : ℕ} :  (radical a : ℕ) ~ 2 ^ (Nat.log 2 (radical a)) := by
-    simp [similar]
-    norm_cast
-    constructor
-    · apply Nat.pow_log_le_self
-      exact radical_ne_zero a
-    · rw [mul_comm, ← Nat.pow_succ]
-      apply (Nat.lt_pow_succ_log_self ..).le
-      norm_num
-  refine ⟨radical_similar, radical_similar, radical_similar, ?_⟩
+  have radical_similar {a : ℕ} :  (radical a : ℕ) ~ 2 ^ (Nat.log 2 (radical a)) :=
+    similar_pow_natLog (radical a) (radical_ne_zero a)
+  refine ⟨radical_similar, radical_similar, radical_similar, ?_, hcn⟩
   simp [n, similar, Nat.pow_succ]
-  refine ⟨?_, ?_⟩
-  · rw [mul_comm]
-    gcongr
-    apply Nat.pow_log_le_self
-    omega
-  · rw [← Nat.pow_succ]
-    apply (Nat.lt_pow_succ_log_self ..).le
-    norm_num
+  rw [mul_comm]
+  gcongr
+  apply Nat.pow_log_le_self
+  omega
 
 theorem sum_le_card_mul_sup {ι : Type*} (f : ι → ℕ) (s : Finset ι) :
     ∑ i ∈ s, f i ≤ s.card * s.sup f := calc
