@@ -68,11 +68,9 @@ jobs:
             cp blueprint/print/print.pdf home_page/blueprint.pdf
             leanblueprint web
             cp -r blueprint/web home_page/blueprint
-        if: github.ref == 'refs/heads/main'
 
       - name: Check declarations mentioned in the blueprint exist in Lean code
         run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
-        if: github.ref == 'refs/heads/main'
 
       - name: Move documentation to `home_page/docs`
         run: |
