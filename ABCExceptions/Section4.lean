@@ -77,14 +77,25 @@ lemma Bound4Point4.rotate : Bound4Point4 d δ ε b c a :=
 
 end
 
--- we will at some point show that 4.5 can be safely assumed in context, after we've assumed
--- 1.2 and 4.4
+/--
+A statement of equation 4.5 from the paper, formulated for `a`.
+
+We will at some point show that 4.5 can be safely assumed in context, after we've assumed
+1.2 and 4.4
+-/
 structure Bound4Point5 (d : ℕ) (δ ε : ℝ) (a : ℕ → ℝ) : Prop where
 (lower : 0.32 - δ ≤ ∑ i ≤ d, a i)
 (upper : ∑ i ≤ d, a i ≤ 0.34 + δ - ε / 2)
 
 variable (h45a : Bound4Point5 d δ ε a) (h45b : Bound4Point5 d δ ε b) (h45c : Bound4Point5 d δ ε c)
 
+/--
+A statement of the Fourier bound. Note that this is _not_ saying the bound holds, but defining
+what it means for the bound to hold. In Section4.lean, we will take this as an assumption to many
+statements in order to deduce bounds on `ν`.
+Elsewhere we will show that the bound holds, and thus its proof can be fed in to those lemmas
+which have it as an assumption.
+-/
 def FourierBound (d : ℕ) (δ ν : ℝ) (a b : ℕ → ℝ) : Prop :=
   ν < 1/2 * (1 + δ + ∑ i ≤ d, max (a i) (b i) - sSup {max (a i) (b i) | i ∈ Set.Ioc 1 d})
 
@@ -122,6 +133,13 @@ lemma FourierBound.symm : FourierBound d δ ν b a := hfab.trans_eq (by simp [ma
 
 end
 
+/--
+A statement of the Determinant bound. Note that this is _not_ saying the bound holds, but defining
+what it means for the bound to hold. In Section4.lean, we will take this as an assumption to many
+statements in order to deduce bounds on `ν`.
+Elsewhere we will show that the bound holds, and thus its proof can be fed in to those lemmas
+which have it as an assumption.
+-/
 def DeterminantBound (d : ℕ) (δ ν : ℝ) (a b : ℕ → ℝ) : Prop :=
   ν < sInf {1 + δ - a p - b q + min (a p / q) (b q / p) |
     (p : ℕ) (q : ℕ) (_ : p ∈ Set.Ioc 1 d) (_ : q ∈ Set.Ioc 1 d)}
@@ -132,19 +150,6 @@ variable
   (hdbc : DeterminantBound d δ ν b c)
 
 section
-
--- KEEP THIS, it might be relevant for lean4#4615
--- lemma determinantBound_set_finite :
---     {1 + δ - a p - b q + min (a p / q) (b q / p) |
---       (p : ℕ) (q : ℕ) (_ : p ∈ Ioc 1 d) (_ : q ∈ Ioc 1 d)}.Finite := by
---   have :
---       {1 + δ - a p - b q + min (a p / q) (b q / p) |
---         (p : ℕ) (q : ℕ) (_ : p ∈ Ioc 1 d) (_ : q ∈ Ioc 1 d)} =
---       Set.image2 (fun p q ↦ 1 + δ - a p - b q + min (a p / q) (b q / p)) (Ioc 1 d) (Ioc 1 d) := by
---     ext x
---     simp? [- mem_Ioc]
---     simp only [exists_prop, exists_and_left, mem_setOf_eq, mem_image2]
---   sorry
 
 lemma determinantBound_set_finite :
     {1 + δ - a p - b q + min (a p / q) (b q / p) |
@@ -193,6 +198,13 @@ lemma DeterminantBound.application (hd : 4 ≤ d) (M : ℝ)
 
 end
 
+/--
+A statement of the Thue bound. Note that this is _not_ saying the bound holds, but defining
+what it means for the bound to hold. In Section4.lean, we will take this as an assumption to many
+statements in order to deduce bounds on `ν`.
+Elsewhere we will show that the bound holds, and thus its proof can be fed in to those lemmas
+which have it as an assumption.
+-/
 def ThueBound (d : ℕ) (δ ν : ℝ) (a b : ℕ → ℝ) : Prop :=
   ν < 1 + δ - sSup {∑ i ≤ d with p ∣ i, (a i + b i) | p ∈ Set.Ioc 1 d}
 
@@ -235,7 +247,7 @@ lemma ThueBound.special_two (hd : 4 ≤ d) :
 
 end
 
-def S (a b c : ℕ → ℝ) (i : ℕ) := a i + b i + c i
+private def S (a b c : ℕ → ℝ) (i : ℕ) := a i + b i + c i
 local notation "s" => S a b c
 
 variable (a b c) in
@@ -349,7 +361,7 @@ lemma GeometryBound.rotate : GeometryBound d ε ν b c a := hg.left_comm.right_c
 
 end
 
-def δ_ (d : ℕ) (f : ℕ → ℝ) : ℝ := 1 / 3 - ∑ i ≤ d, f i
+private def δ_ (d : ℕ) (f : ℕ → ℝ) : ℝ := 1 / 3 - ∑ i ≤ d, f i
 
 /-- 4.7 -/
 lemma sum_eq_δ_ (d : ℕ) (f : ℕ → ℝ) : ∑ i ≤ d, f i = 1 / 3 - δ_ d f := by simp [δ_]
@@ -368,7 +380,7 @@ lemma bound_4_point_9_upper (hε : 0 < ε) (f : ℕ → ℝ) (h45 : Bound4Point5
   rw [δ_]
   linear_combination h45.lower + hε
 
-def delta_s (d : ℕ) (a b c : ℕ → ℝ) := δ_ d a + δ_ d b + δ_ d c
+private def delta_s (d : ℕ) (a b c : ℕ → ℝ) := δ_ d a + δ_ d b + δ_ d c
 local notation "δₛ" => delta_s d a b c
 
 lemma δₛ_eq : δₛ = δ_ d a + δ_ d b + δ_ d c := rfl
@@ -387,9 +399,6 @@ lemma bound_4_point_10_upper (hε : 0 < ε) (hε₁ : ε ≤ 2 / 3)
     (h43ac : Bound4Point3 d ε a c)
     (h43bc : Bound4Point3 d ε b c) :
     δₛ ≤ 0.01 + ε := by
-  have := bound_4_point_8 h43ab
-  have := bound_4_point_8 h43ac
-  have := bound_4_point_8 h43bc
   have : 2 * δₛ ≤ 0.02 + 3 * ε ^ 2 := by
     rw [δₛ_eq]
     linear_combination bound_4_point_8 h43ab + bound_4_point_8 h43ac + bound_4_point_8 h43bc
