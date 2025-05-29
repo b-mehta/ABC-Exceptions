@@ -20,17 +20,32 @@ import Mathlib.RingTheory.UniqueFactorizationDomain.Nat
 import ABCExceptions.ForMathlib.RingTheory.Radical
 import ABCExceptions.ForMathlib.Misc
 
-open UniqueFactorizationMonoid
+open Finset UniqueFactorizationMonoid
 
-noncomputable def ABCTriples_finset (μ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ) :=
+/--
+The set (as a `Finset`) of exceptions to the ABC conjecture at `μ` inside [1, X] ^ 3, in particular
+the set of triples `(a, b, c)` which are
+* pairwise coprime,
+* contained in `[1, X] ^ 3`,
+* satisfy `a + b = c`,
+* have `radical (a * b * c) < c ^ μ`
+-/
+noncomputable def Finset.ABCExceptionsBelow (μ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ) :=
   (Finset.Icc (1, 1, 1) (X, X, X)).filter fun ⟨a, b, c⟩ ↦
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
     a + b = c ∧
     radical (a * b * c) < (c ^ μ : ℝ)
 
-@[simp]
-theorem mem_ABCTriples (μ : ℝ) (X : ℕ) (a b c : ℕ) :
-  ⟨a, b, c⟩ ∈ ABCTriples_finset μ X ↔
+/--
+The set of exceptions to the ABC conjecture at `μ` inside [1, X] ^ 3, in particular
+the set of triples `(a, b, c)` which are
+* pairwise coprime,
+* contained in `[1, X] ^ 3`,
+* satisfy `a + b = c`,
+* have `radical (a * b * c) < c ^ μ`
+-/
+def Set.ABCExceptionsBelow (μ : ℝ) (X : ℕ) : Set (ℕ × ℕ × ℕ) :=
+  { (a, b, c) : ℕ × ℕ × ℕ |
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
     a + b = c ∧
     radical (a * b * c) < (c ^ μ : ℝ) ∧
@@ -38,27 +53,35 @@ theorem mem_ABCTriples (μ : ℝ) (X : ℕ) (a b c : ℕ) :
   simp [ABCTriples_finset]
   aesop
 
-def ABCTriples (μ : ℝ) (X : ℕ) : Set (ℕ × ℕ × ℕ) :=
-  { (a, b, c) : ℕ × ℕ × ℕ |
-    a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
-    a + b = c ∧
-    radical (a * b * c) < (c ^ μ : ℝ) ∧
-    (a, b, c) ∈ Set.Icc (1, 1, 1) (X, X, X) }
+@[simp]
+theorem Finset.mem_ABCExceptionsBelow (μ : ℝ) (X : ℕ) (a b c : ℕ) :
+    ⟨a, b, c⟩ ∈ Finset.ABCExceptionsBelow μ X ↔
+      a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
+      a + b = c ∧
+      radical (a * b * c) < (c ^ μ : ℝ) ∧
+      (a, b, c) ∈ Set.Icc (1, 1, 1) (X, X, X) := by
+  simp [Finset.ABCExceptionsBelow]
+  tauto
+
+@[simp]
+lemma Finset.coe_ABCExceptionsBelow (μ : ℝ) (X : ℕ) :
+    Finset.ABCExceptionsBelow μ X = Set.ABCExceptionsBelow μ X := by
+  ext ⟨a, b, c⟩
+  simp [Set.ABCExceptionsBelow]
 
 /--
 The number of exceptions to the ABC conjecture for a given `μ` which are bounded by `X`.
 `countTriples μ X` is written as $$N_λ(X)$$ in the paper and blueprint, note that we use `μ` instead
 of `λ` to avoid confusion with the `λ` notation in Lean.
 -/
-noncomputable def countTriples (μ : ℝ) (X : ℕ) : ℕ :=
-  (ABCTriples μ X).ncard
+noncomputable def countTriples (μ : ℝ) (X : ℕ) : ℕ := (Set.ABCExceptionsBelow μ X).ncard
 
 lemma countTriples_eq (μ : ℝ) (X : ℕ) :
     countTriples μ X =
       ({(a, b, c) | 0 < a ∧ 0 < b ∧ 0 < c ∧ a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧ a + b = c ∧
          radical (a * b * c) < (c ^ μ : ℝ) } ∩
        Set.Icc (1, 1, 1) (X, X, X)).ncard := by
-  rw [countTriples, ABCTriples]
+  rw [countTriples, Set.ABCExceptionsBelow]
   congr 1
   ext ⟨a, b, c⟩
   simp [and_assoc, ← Prod.mk_one_one]
@@ -71,8 +94,8 @@ lemma coe_ABCTriples_finset_eq_ABCTriples (μ : ℝ) (X : ℕ) :
   simp [ABCTriples]
 
 lemma countTriples_eq_finset_card (μ : ℝ) (X : ℕ) :
-    countTriples μ X = (ABCTriples_finset μ X).card := by
-  rw [countTriples, ← Set.ncard_coe_Finset, coe_ABCTriples_finset_eq_ABCTriples]
+    countTriples μ X = #(Finset.ABCExceptionsBelow μ X) := by
+  rw [countTriples, ← Finset.coe_ABCExceptionsBelow, Set.ncard_coe_Finset]
 
 def ABCConjecture : Prop := ∀ ε : ℝ, 0 < ε →
   Set.Finite
