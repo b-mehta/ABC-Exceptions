@@ -28,7 +28,16 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
 
-      - name: Setup Lean
+      - name: Setup Elan
+        uses: leanprover/lean-action@v1 # setup elan and fetch the Mathlib cache
+        with:
+          auto-config: false # don't automatically run lake build, lake test, lake lint
+          use-github-cache: false # avoid using the GitHub cache twice in one workflow
+
+      - name: Check mk_all
+        run: lake exe mk_all --check
+
+      - name: Build project
         uses: leanprover/lean-action@v1
 
       - name: Cache Mathlib Docs
