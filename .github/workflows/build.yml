@@ -1,4 +1,4 @@
-name: Compile blueprint
+name: Test project, make blueprint, add documentation
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
 
-      - name: Setup Lean
+      - name: Build Lean code
         uses: leanprover/lean-action@v1
 
       - name: Cache Mathlib Docs
