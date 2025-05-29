@@ -49,9 +49,7 @@ def Set.ABCExceptionsBelow (μ : ℝ) (X : ℕ) : Set (ℕ × ℕ × ℕ) :=
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
     a + b = c ∧
     radical (a * b * c) < (c ^ μ : ℝ) ∧
-    (a, b, c) ∈ Set.Icc (1, 1, 1) (X, X, X) := by
-  simp [ABCTriples_finset]
-  aesop
+    (a, b, c) ∈ Set.Icc (1, 1, 1) (X, X, X) }
 
 @[simp]
 theorem Finset.mem_ABCExceptionsBelow (μ : ℝ) (X : ℕ) (a b c : ℕ) :
@@ -86,12 +84,6 @@ lemma countTriples_eq (μ : ℝ) (X : ℕ) :
   ext ⟨a, b, c⟩
   simp [and_assoc, ← Prod.mk_one_one]
   aesop
-
-@[simp]
-lemma coe_ABCTriples_finset_eq_ABCTriples (μ : ℝ) (X : ℕ) :
-    ABCTriples_finset μ X = ABCTriples μ X := by
-  ext ⟨a, b, c⟩
-  simp [ABCTriples]
 
 lemma countTriples_eq_finset_card (μ : ℝ) (X : ℕ) :
     countTriples μ X = #(Finset.ABCExceptionsBelow μ X) := by
@@ -280,13 +272,13 @@ theorem Nat.Coprime.isRelPrime (a b : ℕ) (h : a.Coprime b) : IsRelPrime a b :=
   rw [← Nat.coprime_iff_isRelPrime]
   exact h
 
-theorem ABCTriples_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
-    ABCTriples_finset μ X ⊆
+theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ) :
+    Finset.ABCExceptionsBelow μ X ⊆
       (indexSet μ X).biUnion fun ⟨i, j, k, n⟩ ↦
         dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2 ^ n) := by
   rintro ⟨a, b, c⟩
-  simp only [mem_ABCTriples, Set.mem_Icc, Prod.mk_le_mk, Finset.mem_biUnion, mem_dyadicPoints,
-    Nat.cast_pow, Nat.cast_ofNat, Prod.exists, mem_indexSet, and_imp]
+  simp only [mem_ABCExceptionsBelow, Set.mem_Icc, Prod.mk_le_mk, Finset.mem_biUnion,
+    mem_dyadicPoints, Nat.cast_pow, Nat.cast_ofNat, Prod.exists, mem_indexSet, and_imp]
   intro hab hac hbc habc hrad h1a h1b h1c haX hbX hcX
   have hμ : 0 ≤ μ := by
     by_contra hμ
@@ -406,7 +398,7 @@ theorem countTriples_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) : countTriples μ X
   simp_rw [countTriples_eq_finset_card, dyadicSupBound, refinedCountTriplesStar]
   apply le_trans _ (card_union_dyadicPoints_le_log_pow_mul_sup μ X)
   apply Finset.card_le_card
-  exact ABCTriples_subset_union_dyadicPoints μ X
+  exact Finset.ABCExceptionsBelow_subset_union_dyadicPoints μ X
 
 theorem Real.natLog_isBigO_logb (b : ℕ) :
     (fun x : ℕ ↦ (Nat.log b x : ℝ)) =O[atTop] (fun x : ℕ ↦ Real.logb b x) := by
