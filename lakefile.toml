@@ -1,5 +1,6 @@
 name = "ABCExceptions"
 defaultTargets = ["ABCExceptions"]
+lintDriver = "batteries/runLinter"
 
 [leanOptions]
 pp.unicode.fun = true
