@@ -219,6 +219,20 @@ theorem radical_prod_dvd {ι : Type*} {s : Finset ι} {f : ι → R} :
     simp only [Finset.prod_cons]
     exact radical_mul_dvd.trans (mul_dvd_mul dvd_rfl ih)
 
+theorem Nat.radical_le_self {n : ℕ} (hn : n ≠ 0) : radical n ≤ n := by
+  apply Nat.le_of_dvd (by omega)
+  exact radical_dvd_self n
+
+theorem Nat.two_le_radical {n : ℕ} (hn : 2 ≤ n) : 2 ≤ radical n := by
+  obtain ⟨p, hp⟩ := Nat.exists_prime_and_dvd (show n ≠ 1 by omega)
+  trans p
+  · apply hp.1.two_le
+  · apply Nat.le_of_dvd
+    · apply Nat.pos_of_ne_zero
+      exact radical_ne_zero n
+    rw [dvd_radical_iff_of_irreducible hp.1.prime.irreducible (by omega)]
+    exact hp.2
+
 open Qq Lean Mathlib.Meta Finset
 
 theorem Nat.radical_pos (n : ℕ) : 0 < radical n := by
