@@ -248,21 +248,6 @@ This is $$S^*_{α,β,γ}(X)$$ in the paper and blueprint.
 -/
 noncomputable def refinedCountTriplesStar (α β γ : ℝ) (X : ℕ) : ℕ := #(dyadicPoints α β γ X)
 
--- TODO: move this
-theorem Nat.radical_le_self {n : ℕ} (hn : n ≠ 0) : radical n ≤ n := by
-  apply Nat.le_of_dvd (by omega)
-  exact radical_dvd_self n
-
-theorem Nat.two_le_radical {n : ℕ} (hn : 2 ≤ n) : 2 ≤ radical n := by
-  obtain ⟨p, hp⟩ := Nat.exists_prime_and_dvd (show n ≠ 1 by omega)
-  trans p
-  · apply hp.1.two_le
-  · apply Nat.le_of_dvd
-    · apply Nat.pos_of_ne_zero
-      exact radical_ne_zero n
-    rw [dvd_radical_iff_of_irreducible hp.1.prime.irreducible (by omega)]
-    exact hp.2
-
 private noncomputable def indexSet (μ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ × ℕ) :=
   (Finset.Icc 0 (Nat.log 2 X)) ×ˢ (Finset.Icc 0 (Nat.log 2 X)) ×ˢ
   (Finset.Icc 0 (Nat.log 2 X)) ×ˢ (Finset.Icc 1 (Nat.log 2 X+1)) |>.filter fun ⟨i, j, k, n⟩ ↦
