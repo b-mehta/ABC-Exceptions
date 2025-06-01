@@ -32,7 +32,7 @@ jobs:
         uses: leanprover/lean-action@v1
 
       - name: Cache Mathlib Docs
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             docbuild/.lake/build/doc/Aesop
