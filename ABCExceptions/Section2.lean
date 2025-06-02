@@ -1141,14 +1141,15 @@ noncomputable def indexSet' (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ) :
   (Fintype.piFinset (fun _ ↦ Finset.Icc 0 (Nat.log 2 x))) ×ˢ
   (Fintype.piFinset (fun _ ↦ Finset.Icc 0 (Nat.log 2 x)) ×ˢ
   (Fintype.piFinset (fun _ ↦ Finset.Ioc 0 ⌊(x:ℝ)^(ε/4)⌋₊) : Finset (Fin 3 → ℕ))
-  ) |>.filter fun ⟨r, s, t, _⟩ ↦
+  ) |>.filter fun ⟨r, s, t, c⟩ ↦
     (x:ℝ) ^ (α - ε) ≤ 2^d * ∏ i, 2 ^ r i ∧ ∏ i, 2 ^ r i ≤ 2 * (x:ℝ) ^ (α + ε) ∧
     (x:ℝ) ^ (β - ε) ≤ 2^d * ∏ i, 2 ^ s i ∧ ∏ i, 2 ^ s i ≤ 2 * (x:ℝ) ^ (β + ε) ∧
     (x:ℝ) ^ (γ - ε) ≤ 2^d * ∏ i, 2 ^ t i ∧ ∏ i, 2 ^ t i ≤ 2 * (x:ℝ) ^ (γ + ε) ∧
     ∏ i, (2 ^ r i)^(i.val + 1) ≤ x ∧
     ∏ i, (2 ^ s i)^(i.val + 1) ≤ x ∧
     ∏ i, (2 ^ t i)^(i.val + 1) ≤ x ∧
-    (x : ℝ)^(1-ε^2) ≤ 2^(Nat.choose (d+1) 2 + 1) * ∏ i, (2 ^ t i)^(i.val + 1))
+    (x : ℝ)^(1-ε^2) ≤ 2^(Nat.choose (d+1) 2 + 1) * ∏ i, (2 ^ t i)^(i.val + 1) ∧
+    (Nat.Coprime (c 0) (c 1)) ∧ (Nat.Coprime (c 1) (c 2)) ∧ (Nat.Coprime (c 0) (c 2)))
 
 theorem card_indexSet'_le (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ)  :
     (indexSet' α β γ d x ε).card ≤ (Nat.log 2 x + 1)^(3*d) * (⌊(x:ℝ) ^ (ε/4)⌋₊)^3 := by
@@ -1270,55 +1271,59 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
       le_trans (mod_cast (prod_pow_le hv_pos)) le_x_pow_β,
       x_pow_γ_le.trans (mod_cast le_prod_pow),
       le_trans (mod_cast (prod_pow_le hw_pos)) le_x_pow_γ, ?_⟩
-    refine ⟨?_, ?_, ?_, ?_⟩
+    refine ⟨?_, ?_, ?_, ?_, ?_⟩
     · apply (prod_log_pow_le_prod_pow hu_pos).trans
         ((a_eq_c_mul_prod ▸ Nat.le_mul_of_pos_left _ c₀_pos).trans hax)
     · apply (prod_log_pow_le_prod_pow hv_pos).trans
         ((b_eq_c_mul_prod ▸ Nat.le_mul_of_pos_left _ c₁_pos).trans hbx)
     · apply (prod_log_pow_le_prod_pow hw_pos).trans
         ((c_eq_c_mul_prod ▸ Nat.le_mul_of_pos_left _ c₂_pos).trans hcx)
-
-    calc
-      _ ≤ 2 * (∏ i, w i^(i.val+1) : ℝ):= by
-        rw [Real.rpow_sub, div_eq_mul_inv, mul_inv_le_iff₀, mul_comm]
-        · simp only [Real.rpow_one]
-          trans 2 * (c₂ *(∏ i, (w i : ℝ) ^ (i.val + 1)))
+    · calc
+        _ ≤ 2 * (∏ i, w i^(i.val+1) : ℝ):= by
+          rw [Real.rpow_sub, div_eq_mul_inv, mul_inv_le_iff₀, mul_comm]
+          · simp only [Real.rpow_one]
+            trans 2 * (c₂ *(∏ i, (w i : ℝ) ^ (i.val + 1)))
+            · norm_cast
+              rw [← c_eq_c_mul_prod]
+              apply hxc
+            · rw [← mul_assoc, mul_comm 2, mul_assoc]
+              gcongr
+          · apply Real.rpow_pos_of_pos
+            norm_cast
+            omega
           · norm_cast
-            rw [← c_eq_c_mul_prod]
-            apply hxc
-          · rw [← mul_assoc, mul_comm 2, mul_assoc]
-            gcongr
-        · apply Real.rpow_pos_of_pos
+            omega
+        _ ≤ 2 * (∏ i, (2 ^ (Nat.log 2 (w i)+1))^(i.val+1) : ℝ):= by
           norm_cast
-          omega
-        · norm_cast
-          omega
-      _ ≤ 2 * (∏ i, (2 ^ (Nat.log 2 (w i)+1))^(i.val+1) : ℝ):= by
-        norm_cast
-        gcongr _ * ?_
-        apply Finset.prod_le_prod
-        · simp
-        intro i _
-        gcongr
-        rw [← Nat.succ_eq_add_one]
-        apply le_of_lt
-        apply Nat.lt_pow_succ_log_self
-        norm_num
-      _ = _ := by
-        rw [add_comm, pow_add _ 1, pow_one, mul_assoc]
-        congr 1
-        norm_cast
-        conv =>
-          lhs
-          right
-          ext i;
-          rw [pow_add 2 _ 1, pow_one, mul_pow, mul_comm]
-        simp_rw [Finset.prod_mul_distrib]
-        rw [Finset.prod_pow_eq_pow_sum]
-        congr
-        rw [Finset.sum_fin_eq_sum_range]
-        simp +contextual [← Finset.mem_range]
-        apply sum_range_id_add_one
+          gcongr _ * ?_
+          apply Finset.prod_le_prod
+          · simp
+          intro i _
+          gcongr
+          rw [← Nat.succ_eq_add_one]
+          apply le_of_lt
+          apply Nat.lt_pow_succ_log_self
+          norm_num
+        _ = _ := by
+          rw [add_comm, pow_add _ 1, pow_one, mul_assoc]
+          congr 1
+          norm_cast
+          conv =>
+            lhs
+            right
+            ext i;
+            rw [pow_add 2 _ 1, pow_one, mul_pow, mul_comm]
+          simp_rw [Finset.prod_mul_distrib]
+          rw [Finset.prod_pow_eq_pow_sum]
+          congr
+          rw [Finset.sum_fin_eq_sum_range]
+          simp +contextual [← Finset.mem_range]
+          apply sum_range_id_add_one
+    · simp [c']
+      simp_rw [a_eq_c_mul_prod, b_eq_c_mul_prod, c_eq_c_mul_prod] at hab hbc hac
+      refine ⟨hab.coprime_mul_right.coprime_mul_right_right,
+        hbc.coprime_mul_right.coprime_mul_right_right,
+        hac.coprime_mul_right.coprime_mul_right_right⟩
   · simp only [mem_B_finset, Nat.cast_pow, Nat.cast_ofNat, Fin.isValue, true_and, c']
     simp only [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
       Matrix.cons_val_two, Nat.succ_eq_add_one, Nat.reduceAdd, Matrix.tail_cons, c']
@@ -1488,6 +1493,7 @@ theorem refinedCountTriplesStar_isBigO_B
     ∏ i, Y i ^ (i.val + 1) ≤ x ∧
     ∏ i, Z i ^ (i.val + 1) ≤ x ∧
     (x : ℝ) ^ (1 - ε^2) ≤ 2^(Nat.choose (d ε + 1) 2 + 1) * ∏ i, Z i ^ (i.val + 1) ∧
+    (Nat.Coprime (c 0) (c 1)) ∧ (Nat.Coprime (c 1) (c 2)) ∧ (Nat.Coprime (c 0) (c 2)) ∧
     (∀ i, 1 ≤ c i) ∧
     (∀ i, (c i : ℝ) ≤ (x : ℝ) ^ ε)
     := by
@@ -1517,9 +1523,10 @@ theorem refinedCountTriplesStar_isBigO_B
   revert huvwc
   simp only [indexSet', Finset.mem_filter, Finset.mem_product, Fintype.mem_piFinset, Finset.mem_Icc,
     zero_le, true_and, Finset.mem_Ioc, and_imp]
-  rintro _ _ _ hc _ _ _ _ _ _ _ _ _ _
-  refine ⟨by assumption, by assumption, by assumption, by assumption, by assumption,
-    by assumption, by assumption, by assumption, by assumption, by assumption, ?_, ?_⟩
+  rintro _ _ _ hc _ _ _ _ _ _ _ _ _ _ _ _ _
+  refine ⟨by assumption, by assumption, by assumption, by assumption, by assumption, by assumption,
+    by assumption, by assumption, by assumption, by assumption, by assumption, by assumption,
+    by assumption, ?_, ?_⟩
   · intro i
     apply Nat.succ_le_of_lt
     apply hc i |>.1
