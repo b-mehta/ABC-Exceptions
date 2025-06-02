@@ -21,7 +21,7 @@ theorem Finset.Ico_union_Icc_eq_Icc {α : Type*} [LinearOrder α]
     Ico a b ∪ Icc b c = Icc a c := by
   simp [← Finset.coe_inj, Set.Ico_union_Icc_eq_Icc h₁ h₂]
 
-theorem Finset.Ico_union_Icc_eq_Icc' {α : Type*} [LinearOrder α] [NoMaxOrder α]
+theorem Finset.Ico_union_Icc_eq_Icc' {α : Type*} [LinearOrder α]
     [Add α] [One α] [SuccAddOrder α]
     [LocallyFiniteOrder α] {a b c : α} (h₁ : a ≤ b) (h₂ : b ≤ c + 1) :
     Finset.Ico a b ∪ Finset.Icc b c = Finset.Icc a c := by
