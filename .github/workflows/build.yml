@@ -32,7 +32,7 @@ jobs:
         uses: leanprover/lean-action@v1
 
       - name: Cache Mathlib Docs
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             docbuild/.lake/build/doc/Aesop
@@ -68,9 +68,11 @@ jobs:
             cp blueprint/print/print.pdf home_page/blueprint.pdf
             leanblueprint web
             cp -r blueprint/web home_page/blueprint
+        if: github.ref == 'refs/heads/main'
 
       - name: Check declarations mentioned in the blueprint exist in Lean code
         run: ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+        if: github.ref == 'refs/heads/main'
 
       - name: Move documentation to `home_page/docs`
         run: |
@@ -79,7 +81,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
 
       - name: Bundle dependencies
-        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
+        uses: ruby/setup-ruby@13e7a03dc3ac6c3798f4570bfead2aed4d96abfb # v1.244.0
         with:
           working-directory: home_page
           ruby-version: "3.1"  # Specify Ruby version

@@ -247,6 +247,7 @@ lemma ThueBound.special_two (hd : 4 ≤ d) :
 
 end
 
+/-- We define `S i` to be `a i + b i + c i`. -/
 private def S (a b c : ℕ → ℝ) (i : ℕ) := a i + b i + c i
 local notation "s" => S a b c
 
@@ -361,6 +362,7 @@ lemma GeometryBound.rotate : GeometryBound d ε ν b c a := hg.left_comm.right_c
 
 end
 
+/-- Define `δ_ f` to be `1 / 3 - ∑ i ≤ d, f i`. -/
 private def δ_ (d : ℕ) (f : ℕ → ℝ) : ℝ := 1 / 3 - ∑ i ≤ d, f i
 
 /-- 4.7 -/
@@ -380,6 +382,7 @@ lemma bound_4_point_9_upper (hε : 0 < ε) (f : ℕ → ℝ) (h45 : Bound4Point5
   rw [δ_]
   linear_combination h45.lower + hε
 
+/-- Define `δₛ` to be the sum of the `δ_` values for `a, b, c`. -/
 private def delta_s (d : ℕ) (a b c : ℕ → ℝ) := δ_ d a + δ_ d b + δ_ d c
 local notation "δₛ" => delta_s d a b c
 

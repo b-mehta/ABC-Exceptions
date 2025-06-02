@@ -36,17 +36,6 @@ lemma dvd_radical_iff_of_irreducible {a b : M} (ha : Irreducible a) (hb : b ≠ 
     obtain ⟨c, hc, hc'⟩ := exists_mem_normalizedFactors_of_dvd hb ha ha'
     exact hc'.dvd.trans (Finset.dvd_prod_of_mem _ (by simpa))
 
-lemma mem_normalizedFactors_iff' {a b : M} (ha : a ≠ 0) :
-    b ∈ normalizedFactors a ↔ b ∣ a ∧ normalize b = b ∧ Irreducible b := by
-  constructor
-  · intro hb
-    exact ⟨dvd_of_mem_normalizedFactors hb, normalize_normalized_factor b hb,
-      irreducible_of_normalized_factor b hb⟩
-  · rintro ⟨h₁, h₂, h₃⟩
-    obtain ⟨q, hq, hq'⟩ := exists_mem_normalizedFactors_of_dvd ha h₃ h₁
-    cases hq'.eq_of_normalized h₂ (normalize_normalized_factor q hq)
-    exact hq
-
 @[simp] lemma primeFactors_zero : primeFactors (0 : M) = ∅ := by simp [primeFactors]
 
 @[simp] lemma primeFactors_one : primeFactors (1 : M) = ∅ := by simp [primeFactors]
@@ -57,9 +46,9 @@ lemma primeFactors_pairwise_isRelPrime {a : M} :
   · simp
   intro x hx y hy hxy
   simp only [Finset.mem_coe, mem_primeFactors, mem_normalizedFactors_iff' ha₀] at hx hy
-  rw [hx.2.2.isRelPrime_iff_not_dvd]
+  rw [hx.1.isRelPrime_iff_not_dvd]
   contrapose! hxy
-  have : Associated x y := hx.2.2.associated_of_dvd hy.2.2 hxy
+  have : Associated x y := hx.1.associated_of_dvd hy.1 hxy
   exact this.eq_of_normalized hx.2.1 hy.2.1
 
 lemma isRadical_radical {a : M} : IsRadical (radical a) := by
@@ -74,7 +63,7 @@ lemma isRadical_radical {a : M} : IsRadical (radical a) := by
     · exact dvd_of_mem_normalizedFactors hi
     · exact irreducible_of_normalized_factor i hi
     · rintro rfl
-      simp only [normalizedFactors_zero, Multiset.not_mem_zero] at hi
+      simp only [normalizedFactors_zero, Multiset.notMem_zero] at hi
   exact (prime_of_normalized_factor i hi).isRadical n p (this.trans ha)
 
 lemma squarefree_radical {a : M} : Squarefree (radical a) := by
@@ -111,9 +100,9 @@ lemma primeFactors_radical (a : M) : primeFactors (radical a) = primeFactors a :
   ext p
   have : radical a ≠ 0 := radical_ne_zero _
   simp only [mem_primeFactors, mem_normalizedFactors_iff' ha₀, mem_normalizedFactors_iff' this,
-    and_congr_left_iff, and_imp]
+    and_congr_right_iff, and_imp]
   intro hp hp'
-  rw [dvd_radical_iff_of_irreducible hp' ha₀]
+  rw [dvd_radical_iff_of_irreducible hp ha₀]
 
 lemma radical_radical {a : M} : radical (radical a) = radical a :=
   radical_eq_of_primeFactors_eq (primeFactors_radical _)
@@ -229,6 +218,20 @@ theorem radical_prod_dvd {ι : Type*} {s : Finset ι} {f : ι → R} :
   | cons i s h ih =>
     simp only [Finset.prod_cons]
     exact radical_mul_dvd.trans (mul_dvd_mul dvd_rfl ih)
+
+theorem Nat.radical_le_self {n : ℕ} (hn : n ≠ 0) : radical n ≤ n := by
+  apply Nat.le_of_dvd (by omega)
+  exact radical_dvd_self n
+
+theorem Nat.two_le_radical {n : ℕ} (hn : 2 ≤ n) : 2 ≤ radical n := by
+  obtain ⟨p, hp⟩ := Nat.exists_prime_and_dvd (show n ≠ 1 by omega)
+  trans p
+  · apply hp.1.two_le
+  · apply Nat.le_of_dvd
+    · apply Nat.pos_of_ne_zero
+      exact radical_ne_zero n
+    rw [dvd_radical_iff_of_irreducible hp.1.prime.irreducible (by omega)]
+    exact hp.2
 
 open Qq Lean Mathlib.Meta Finset
 
