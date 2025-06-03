@@ -363,7 +363,7 @@ lemma GeometryBound.rotate : GeometryBound d ε ν b c a := hg.left_comm.right_c
 end
 
 /-- Define `δ_ f` to be `1 / 3 - ∑ i ≤ d, f i`. -/
-private def δ_ (d : ℕ) (f : ℕ → ℝ) : ℝ := 1 / 3 - ∑ i ≤ d, f i
+def δ_ (d : ℕ) (f : ℕ → ℝ) : ℝ := 1 / 3 - ∑ i ≤ d, f i
 
 /-- 4.7 -/
 lemma sum_eq_δ_ (d : ℕ) (f : ℕ → ℝ) : ∑ i ≤ d, f i = 1 / 3 - δ_ d f := by simp [δ_]
