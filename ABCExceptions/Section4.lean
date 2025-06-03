@@ -248,7 +248,7 @@ lemma ThueBound.special_two (hd : 4 ≤ d) :
 end
 
 /-- We define `S i` to be `a i + b i + c i`. -/
-private def S (a b c : ℕ → ℝ) (i : ℕ) := a i + b i + c i
+def S (a b c : ℕ → ℝ) (i : ℕ) := a i + b i + c i
 local notation "s" => S a b c
 
 variable (a b c) in
