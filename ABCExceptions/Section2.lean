@@ -114,6 +114,7 @@ lemma ABCExceptions_subset_Ici_one (ε : ℝ) : ABCExceptions ε ⊆ Set.Ici 1 :
     Nat.add_one_le_iff]
   omega
 
+/-- The ABC conjecture: the set of exceptional triples is finite. -/
 def ABCConjecture : Prop := ∀ ε > 0, (ABCExceptions ε).Finite
 
 lemma ABCExceptionsBelow_eq_ABCExceptions_inter (μ : ℝ) (X : ℕ) (hμ₀ : 0 < μ) :
@@ -218,6 +219,8 @@ theorem similar_pow_natLog (x : ℕ) (hx : x ≠ 0) : x ~ 2 ^ Nat.log 2 x := by
     exact (Nat.lt_pow_succ_log_self (by omega) _).le
 
 open Classical in
+/-- The finite set of exceptions `(a, b, c)` to the ABC conjecture for which `X/2 ≤ c ≤ X` and
+  `rad a ~ X^α`, `rad b ~ X^β`, `rad c ~ X^γ`. `S*` counts the size of this set. -/
 noncomputable def dyadicPoints (α β γ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ) :=
   (Finset.Icc (1, 1, 1) (2*X, 2*X, 2*X)).filter fun ⟨a, b, c⟩ ↦
     a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
@@ -248,6 +251,7 @@ This is $$S^*_{α,β,γ}(X)$$ in the paper and blueprint.
 -/
 noncomputable def refinedCountTriplesStar (α β γ : ℝ) (X : ℕ) : ℕ := #(dyadicPoints α β γ X)
 
+/-- The set over which we take the supremum in lemma 2.2. -/
 private noncomputable def indexSet (μ : ℝ) (X : ℕ) : Finset (ℕ × ℕ × ℕ × ℕ) :=
   (Finset.Icc 0 (Nat.log 2 X)) ×ˢ (Finset.Icc 0 (Nat.log 2 X)) ×ˢ
   (Finset.Icc 0 (Nat.log 2 X)) ×ˢ (Finset.Icc 1 (Nat.log 2 X+1)) |>.filter fun ⟨i, j, k, n⟩ ↦
@@ -292,11 +296,6 @@ theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ)
         omega
       · linarith
     linarith
-  have h {a : ℕ} (h2a : 2 ≤ a) (haX : a ≤ X) : 1 ≤ Nat.log 2 a ∧ Nat.log 2 a ≤ Nat.log 2 X := by
-    constructor
-    · apply Nat.le_log_of_pow_le (by norm_num)
-      simp [h2a]
-    · apply Nat.log_mono_right haX
   have {a : ℕ} (ha : 1 ≤ a) (haX : a ≤ X) : Nat.log 2 (radical a) ≤ Nat.log 2 X := by
     apply Nat.log_mono_right ((Nat.radical_le_self (by omega)).trans haX)
   let n := Nat.log 2 c + 1
@@ -371,6 +370,8 @@ theorem card_union_dyadicPoints_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) :
   · apply card_indexSet_le
   · rfl
 
+/-- The supremum that appears in lemma 2.2, taken over a finite subset of α, β, γ > 0 such that
+  α + β + γ ≤ μ -/
 noncomputable def dyadicSupBound (μ : ℝ) (X : ℕ) : ℕ :=
   (indexSet μ X).sup fun ⟨i, j, k, n⟩ ↦
     refinedCountTriplesStar (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)
@@ -421,6 +422,7 @@ theorem countTriples_isBigO_dyadicSup :
     apply IsLittleO.isBigO
     apply Real.isLittleO_const_log_atTop.natCast_atTop
 
+/-- The finite set of `d`-tuples `a i` such that `a i ~ X i` for all `i`. -/
 def dyadicTuples {d : ℕ} (X : Fin d → ℕ) : Finset (Fin d → ℕ) :=
   Fintype.piFinset (fun i ↦ Finset.Icc (X i) (2 * X i))
 
@@ -431,6 +433,9 @@ theorem mem_dyadicTuples {d : ℕ} (X x : Fin d → ℕ) :
   norm_cast
 
 open Classical in
+/-- The finite set counted by `B_d(C, X, Y, X)`. We choose to add `C` as an entry in these tuples,
+  as this allows us to write down a surjective map from a union of these sets back to triples
+  `(a, b, c)` in `dyadicTriples α β γ`. -/
 noncomputable def B_finset (d : ℕ) (C : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) :
     Finset ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ)) :=
   ((dyadicTuples X) ×ˢ (dyadicTuples Y) ×ˢ (dyadicTuples Z) ×ˢ {C}).filter fun ⟨x, y, z, c⟩ ↦
@@ -452,6 +457,7 @@ theorem mem_B_finset (d : ℕ) (C : Fin 3 → ℕ) (X Y Z : Fin d → ℕ)
     mem_dyadicTuples, Function.Embedding.coeFn_mk, Prod.mk.injEq]
   tauto
 
+/-- Definition 2.4 -/
 noncomputable def B (d : ℕ) (c : Fin 3 → ℕ) (X Y Z : Fin d → ℕ) : ℕ := (B_finset d c X Y Z).card
 
 theorem Nat.factorization_le_right (p n : ℕ) (hp : p.Prime) : n.factorization p ≤ n := by
@@ -479,13 +485,19 @@ theorem Nat.ceil_lt_floor (a b : ℝ) (ha : 0 ≤ a) (hab : a + 2 ≤ b) : ⌈a�
 
 namespace NiceFactorization
 
+/-- The data and assumptions of lemma 2.5. We treat `d` as a free variable constrained by `hd` here
+  because `d` appears in a type and this gives the user some leeway to rewrite the value of `d`. -/
 class ProofData where
+  /-- The value of epsilon in Lemma 2.5-/
   ε : ℝ
   hε_pos : 0 < ε
   hε : ε < 1/2
+  /-- `d` in Lemma 2.5 -/
   d : ℕ
   hd : d = ⌊5/2 * ε⁻¹^2⌋₊
+  /-- `n` in Lemma 2.5 -/
   n : ℕ
+  /-- `X` in Lemma 2.5 -/
   X : ℕ
   h1n : 1 ≤ n
   hnX : n ≤ X
@@ -493,6 +505,7 @@ class ProofData where
 open ProofData NiceFactorization
 variable [data : ProofData]
 
+/-- `y j` is the product of primes dividing `n` with multiplicity `j`. -/
 def y (j : ℕ) : ℕ := ∏ p ∈ n.primeFactors with n.factorization p = j, p
 
 @[simp]
@@ -606,6 +619,7 @@ private theorem prod_y_eq_radical_n : ∏ m ∈ Finset.Icc 1 d ∪ Finset.Ioc d 
     apply Nat.Coprime.pow_left
     apply hy_cop i j hij
 
+/-- `K` in the proof of lemma 2.5 -/
 noncomputable def K := ⌈ε⁻¹⌉₊
 
 private theorem two_lt_eps_inv : 2 < ε⁻¹ := by
@@ -672,6 +686,7 @@ private theorem hK_div_d : (K / d : ℝ) ≤ ε := by
       apply le_of_lt
       apply Nat.sub_one_lt_floor
 
+/-- `x` in the proof of lemma 2.5 -/
 noncomputable def x (j : Fin d) : ℕ :=
   y (j.val+1) * if j.val + 1 = K then (∏ m ∈ Finset.Ioc d n, y m ^ (m / K)) else 1
 
@@ -716,6 +731,7 @@ private theorem x_pairwise_coprime (i j : Fin d) (hij : i ≠ j) : Nat.gcd (x i)
     apply hy_cop _ _ hij''
 
 
+/-- `c` in the proof of lemma 2.5-/
 noncomputable def c : ℕ := ∏ m ∈ Finset.Ioc d n, y m ^ (m % K)
 
 private theorem c_pos : 0 < c := by
@@ -1129,12 +1145,13 @@ theorem exists_nice_factorization'
     · norm_cast
 
 
--- surjective map S*_α β γ (X) <- ⋃_{c, X, Y ,Z} B (c, X, Y, Z)
+/-- A surjective map ⋃_{c, X, Y ,Z} B (c, X, Y, Z) → S*_α β γ (X) -/
 def B_to_triple {d : ℕ} : (Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ) → ℕ × ℕ × ℕ :=
   fun ⟨X, Y, Z, c⟩ ↦
     ⟨c 0 * ∏ i, X i ^ (i.val + 1), c 1 * ∏ i, Y i ^ (i.val + 1), c 2 * ∏ i, Z i ^ (i.val + 1)⟩
 
 open Classical in
+/-- The finite set over which we will take a supremum in proposition 2.6 -/
 noncomputable def indexSet' (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ) :
     Finset ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ)) :=
   ((Fintype.piFinset (fun _ ↦ Finset.Icc 0 (Nat.log 2 x))) ×ˢ
@@ -1159,6 +1176,7 @@ theorem card_indexSet'_le (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ)  :
   apply le_of_eq
   ring
 
+/-- The union of `B`-sets used in the proof of proposition 2.6. -/
 noncomputable def BUnion (α β γ : ℝ) {d : ℕ} (x : ℕ) (ε : ℝ) :
     Finset ((Fin d → ℕ) × (Fin d → ℕ) × (Fin d → ℕ) × (Fin 3 → ℕ)) :=
   (indexSet' α β γ d x ε).sup fun ⟨r, s, t, c⟩ ↦
@@ -1209,8 +1227,6 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
   simp only [Finset.mem_coe, mem_dyadicPoints, BUnion, Set.mem_image, Finset.mem_sup,
     Fintype.mem_piFinset, Finset.mem_Icc, zero_le, true_and, Prod.exists, and_imp]
   intro ha hb hc hab hac hbc habc hrada hradb hradc hxc hcx
-  have hε_sq : ε^2/2 < 1/2 := by
-    nlinarith
   obtain ⟨u, c₀, a_eq_c_mul_prod, _, c₀_le_floor, hu_cop, x_pow_α_le, le_x_pow_α,
     c₀_pos, hu_pos, _⟩ :=
     exists_nice_factorization' hε_pos hε hd ha (show a ≤ x by linarith) _ hrada
@@ -1405,6 +1421,7 @@ theorem tmp {ε : ℝ} (hε : 0 < ε) (d : ℕ) (hd : 0 < d) :
       gcongr
       rw [Real.mul_rpow] <;> norm_num
 
+/-- The implicit constant in the conclusion of proposition 2.6 -/
 noncomputable def const (ε : ℝ) : ℝ :=
   if h : 0 < ε then
     if h' : ε < 1/2 then
@@ -1467,6 +1484,7 @@ theorem card_indexSet'_le_pow (ε α β γ : ℝ) (d x : ℕ) (hd : d = ⌊10* �
       · ring_nf
       · positivity
 
+/-- The value of `d` chosen in proposition 2.6 -/
 noncomputable def d (ε : ℝ) : ℕ := ⌊10 * ε⁻¹ ^ 4⌋₊
 
 /- Proposition 2.7. Reformulated slightly in terms of the existence of a `Finset` whose elements
