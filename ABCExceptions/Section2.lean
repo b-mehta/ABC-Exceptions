@@ -288,7 +288,7 @@ theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ)
     by_contra hμ
     have : (1:ℝ) ≤ (radical (a * b * c) : ℕ) := by
       norm_cast
-      have := radical_ne_zero (a * b * c)
+      have := radical_ne_zero (a := a * b * c)
       omega
     have : (c : ℝ) ^ μ < 1 := by
       apply Real.rpow_lt_one_of_one_lt_of_neg
@@ -297,7 +297,7 @@ theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ)
       · linarith
     linarith
   have {a : ℕ} (ha : 1 ≤ a) (haX : a ≤ X) : Nat.log 2 (radical a) ≤ Nat.log 2 X := by
-    apply Nat.log_mono_right ((Nat.radical_le_self (by omega)).trans haX)
+    apply Nat.log_mono_right ((Nat.radical_le_self_iff.2 (by omega)).trans haX)
   let n := Nat.log 2 c + 1
   have hcn : c ≤ 2 ^ n := (Nat.lt_pow_succ_log_self one_lt_two c).le
   refine ⟨Nat.log 2 (radical a), Nat.log 2 (radical b), Nat.log 2 (radical c), n,
@@ -318,7 +318,7 @@ theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ)
         simp_rw [Nat.pow_add]
         gcongr <;>
         · apply Nat.pow_log_le_self
-          exact radical_ne_zero _
+          exact radical_ne_zero
       _ ≤ ↑c ^ μ := by
         exact_mod_cast hrad.le
       _ ≤ (2:ℝ) ^ (n * μ) := by
@@ -330,20 +330,19 @@ theorem Finset.ABCExceptionsBelow_subset_union_dyadicPoints (μ : ℝ) (X : ℕ)
     norm_cast at this ⊢
     convert this using 1
     ring_nf
-  have {a : ℕ} : ((2:ℝ) ^ n) ^ ((↑(Nat.log 2 (radical a))) / ↑(n)  : ℝ) =
-      2^(Nat.log 2 (radical a)) := by
+  have {a : ℕ} : (2 ^ n : ℝ) ^ (Nat.log 2 (radical a) / n : ℝ) =
+      2 ^ Nat.log 2 (radical a) := by
     rw [← Real.rpow_natCast_mul (by norm_num)]
-    have : ↑(n) * (↑(Nat.log 2 (radical a)) / ↑(n):ℝ) = Nat.log 2 (radical a) := by
+    have : n * (Nat.log 2 (radical a) / n : ℝ) = Nat.log 2 (radical a) := by
       rw [mul_div_cancel₀]
       simp [n]
       norm_cast
     rw [this]
     simp
-  have hc2 : 2 ≤ c := by
-    omega
+  have hc2 : 2 ≤ c := by omega
   simp_rw [this]
-  have radical_similar {a : ℕ} :  (radical a : ℕ) ~ 2 ^ (Nat.log 2 (radical a)) :=
-    similar_pow_natLog (radical a) (radical_ne_zero a)
+  have radical_similar {a : ℕ} : (radical a : ℕ) ~ 2 ^ (Nat.log 2 (radical a)) :=
+    similar_pow_natLog (radical a) radical_ne_zero
   refine ⟨radical_similar, radical_similar, radical_similar, ?_, hcn⟩
   simp only [Nat.pow_succ', Nat.ofNat_pos, mul_le_mul_left, n]
   apply Nat.pow_log_le_self
@@ -359,8 +358,8 @@ theorem sum_le_card_mul_sup {ι : Type*} (f : ι → ℕ) (s : Finset ι) :
     simp
 
 theorem card_union_dyadicPoints_le_log_pow_mul_sup (μ : ℝ) (X : ℕ) :
-  ((indexSet μ X).biUnion fun ⟨i, j, k, n⟩ ↦
-    dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)).card ≤
+    ((indexSet μ X).biUnion fun ⟨i, j, k, n⟩ ↦
+      dyadicPoints (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n)).card ≤
   (Nat.log 2 X+1)^4 * (indexSet μ X).sup fun ⟨i, j, k, n⟩ ↦
     refinedCountTriplesStar (i / n : ℝ) (j / n : ℝ) (k / n : ℝ) (2^n) := by
   apply (Finset.card_biUnion_le ..).trans
@@ -613,7 +612,7 @@ private theorem prod_y_eq_radical_n : ∏ m ∈ Finset.Icc 1 d ∪ Finset.Ioc d 
     · rw [radical_pow _ (by omega)]
       have := radical_associated (y_squarefree (i := i)).isRadical (hy_pos _).ne'
       exact associated_iff_eq.1 this.symm
-  · intro i j hij
+  · intro i _ j _ hij
     apply Nat.Coprime.isRelPrime
     apply Nat.Coprime.pow_right
     apply Nat.Coprime.pow_left
