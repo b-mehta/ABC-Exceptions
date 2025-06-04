@@ -5,7 +5,7 @@ We will follow the [paper of Browning, Lichtman and Teräväinen](https://arxiv.
 
 Useful links:
 
-* [Zulip chat for Lean](https://leanprover.zulipchat.com/) for coordination
+* [Zulip chat for Lean](https://leanprover.zulipchat.com/#narrow/channel/506076-ABC-Exceptions) for coordination
 * [Website](https://b-mehta.github.io/ABC-Exceptions/)
 * [Blueprint](https://b-mehta.github.io/ABC-Exceptions/blueprint/)
 * [Blueprint as pdf](https://b-mehta.github.io/ABC-Exceptions/blueprint.pdf)
