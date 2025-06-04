@@ -9,7 +9,7 @@ relaxedAutoImplicit = false # no "assume a typo is a new variable"
 linter.style.longLine = true # no lines longer than 100 chars
 linter.oldObtain = true # no "stream of consciousness `obtain`"
 linter.style.multiGoal = true # no multiple active goals
-# linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible tactic (e.g. `simp`)
+linter.flexible = true # no rigid tactic (e.g. `exact`) after a flexible tactic (e.g. `simp`)
 
 [[require]]
 name = "mathlib"

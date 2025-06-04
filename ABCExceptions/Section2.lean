@@ -569,26 +569,25 @@ private theorem hy_cop (i j : ℕ) (hij : i ≠ j) : Nat.Coprime (y i) (y j) := 
   subst hpi hpj
   exact hij rfl
 
+open Function in
 omit data in
 theorem _root_.Nat.prod_squarefree {ι : Type*} (f : ι → ℕ) {s : Finset ι}
-    (hf : ∀ i ∈ s, Squarefree (f i)) (h : ∀ i ∈ s, ∀ j ∈ s, i ≠ j → Nat.Coprime (f i) (f j)) :
+    (hf : ∀ i ∈ s, Squarefree (f i))
+    (h : Set.Pairwise s.toSet (Nat.Coprime on f)) :
     Squarefree (∏ i ∈ s, f i) := by
   induction s using Finset.cons_induction with
   | empty => simp
   | cons i s his ih =>
     simp only [Finset.prod_cons]
+    simp only [mem_cons, forall_eq_or_imp] at hf
+    rw [coe_cons, Set.pairwise_insert_of_symmetric_of_notMem _ (by simpa using his)] at h
+    swap
+    · exact Nat.Coprime.symmetric.comap _
     rw [Nat.squarefree_mul]
-    · refine ⟨hf _ (by simp), ?_⟩
-      apply ih
-      · simp only [Finset.mem_cons, forall_eq_or_imp] at hf
-        exact hf.2
-      · intro i hi j hj hij
-        apply h <;> simp [hi, hj, hij]
+    · exact ⟨hf.1, ih hf.2 h.1⟩
     apply Nat.Coprime.prod_right
     intro j hj
-    apply h <;> simp[his, hj]
-    rintro rfl
-    contradiction
+    exact h.2 j hj
 
 omit data in
 theorem _root_.Associated.nat_eq {a b : ℕ} (h : Associated a b) : a = b := by
@@ -597,9 +596,8 @@ theorem _root_.Associated.nat_eq {a b : ℕ} (h : Associated a b) : a = b := by
 theorem y_squarefree {i : ℕ} : Squarefree (y i) := by
   rw [y]
   apply Nat.prod_squarefree
-  · simp +contextual [Finset.mem_filter, Nat.mem_primeFactors, ne_eq, and_imp, Nat.Prime.prime,
-      Prime.squarefree]
-  · simp +contextual [Nat.coprime_primes]
+  · simp +contextual [Finset.mem_filter, Nat.mem_primeFactors, Nat.Prime.prime, Prime.squarefree]
+  · simp +contextual [Nat.coprime_primes, Function.onFun, Set.Pairwise]
 
 private theorem prod_y_eq_radical_n : ∏ m ∈ Finset.Icc 1 d ∪ Finset.Ioc d n, y m = radical n := by
   conv => rhs; rw [← prod_y_pow_eq_n]
@@ -758,7 +756,7 @@ private theorem aux (f : ℕ → ℕ) :
   obtain ⟨K', hK'⟩ := Nat.exists_eq_add_one.mpr hK_pos
   simp +contextual [hK', ← Finset.prod_filter]
   have : Finset.univ.filter (fun a : Fin d ↦ a.val = K') = ({(↑K' : Fin d)} : Finset (Fin d)) := by
-    ext x; simp
+    ext x; simp only [mem_filter, mem_univ, true_and, mem_singleton]
     rw [eq_comm]
     conv => rhs; rw [eq_comm]
     apply (nat_eq_fin_iff _).symm
@@ -770,17 +768,14 @@ private theorem c_mul_prod_x_eq_n : c * ∏ j, x j ^ (j.val + 1) = n := by
   simp_rw [c, x]
   simp_rw [mul_pow, Finset.prod_mul_distrib]
   simp only [ite_pow, one_pow]
-  simp +contextual
+  simp +contextual only
   rw [Fin.prod_univ_eq_prod_range (fun i ↦ y (i+1) ^ (i+1))]
   rw [mul_comm, mul_assoc, ← Finset.prod_pow, aux (fun _ ↦ _), ← Finset.prod_mul_distrib]
   simp_rw [← pow_mul, ← pow_add, mul_comm _ (K), Nat.div_add_mod]
   conv => rhs; rw [← prod_y_pow_eq_n]
   rw [Finset.prod_union]
   · have : (Finset.range d).map (addRightEmbedding 1) = Finset.Icc 1 d := by
-      have : 1 ≤ d := by
-        apply hd_pos
-      rw [Nat.range_eq_Icc_zero_sub_one _ (by omega), Finset.map_add_right_Icc]
-      simp [this]
+      rw [range_eq_Ico, Finset.map_add_right_Ico, zero_add, Ico_add_one_right_eq_Icc]
     rw [← this]
     simp
   refine Finset.disjoint_left.mpr ?_
@@ -859,7 +854,7 @@ private theorem tmp'' : ((K-1: Fin d).val + 1) = K := by
     have := two_lt_K
     omega
   rw [this]
-  simp
+  simp only [Fin.val_natCast]
   rw [Nat.mod_eq_of_lt]
   · simp [Nat.add_one_le_iff.eq ▸ hK_pos]
   · have := hKd
@@ -910,7 +905,7 @@ theorem x_K_le_X_pow : x (K-1) ≤ (X : ℝ) ^ ε := by
         gcongr
         · rw [← Real.rpow_natCast_mul, mul_inv_cancel₀]
           · simp
-          · simp
+          · simp only [ne_eq, Nat.cast_eq_zero]
             apply hK_pos.ne.symm
           · exact_mod_cast (hy_pos _).le
         · push_cast
@@ -931,7 +926,7 @@ theorem x_K_le_X_pow : x (K-1) ≤ (X : ℝ) ^ ε := by
           rw [Real.mul_rpow]
           · simp
           · positivity
-        · simp
+        · simp only [disjoint_singleton_left, mem_Ioc, not_and, not_le]
           intro
           linarith
     _ ≤ (∏ m ∈ Finset.Icc 1 d ∪ Finset.Ioc d n, y m ^ m) ^ (K⁻¹:ℝ)  := by
@@ -1018,11 +1013,9 @@ private theorem X_pow_mul_prod_le_radical : (X : ℝ)^(-ε) * ∏ j, x j ≤ (ra
       norm_cast
       apply Finset.prod_le_prod_of_subset_of_one_le'
       · intro x
-        simp
-        intro hxM hxK
-        omega
+        simp +contextual
       · simp only [Finset.mem_union, Finset.mem_range, Finset.mem_Icc, Finset.mem_filter, not_and,
-          Decidable.not_not]
+          Decidable.not_not, hy_pos]
         intro i _ _
         apply hy_pos
     _ = (radical n : ℕ) := mod_cast prod_y_eq_radical_n
@@ -1171,7 +1164,8 @@ theorem card_indexSet'_le (α β γ : ℝ) (d : ℕ) (x : ℕ) (ε : ℝ)  :
     (indexSet' α β γ d x ε).card ≤ (Nat.log 2 x + 1)^(3*d) * (⌊(x:ℝ) ^ (ε/4)⌋₊)^3 := by
   rw [indexSet']
   apply Finset.card_filter_le .. |>.trans
-  simp
+  simp only [card_product, Fintype.card_piFinset, Nat.card_Icc, tsub_zero, prod_const, card_univ,
+    Fintype.card_fin, Nat.card_Ioc]
   apply le_of_eq
   ring
 
@@ -1182,7 +1176,7 @@ noncomputable def BUnion (α β γ : ℝ) {d : ℕ} (x : ℕ) (ε : ℝ) :
     B_finset d c (fun i ↦ 2^r i) (fun i ↦ 2^s i) (fun i ↦ 2^t i)
 
 theorem similar_pow_log {x : ℕ} (hx : 0 < x) : x ~ 2 ^ Nat.log 2 x := by
-  simp [similar]
+  simp only [similar, Set.mem_Icc]
   norm_cast
   constructor
   · refine Nat.pow_log_le_self 2 hx.ne.symm
@@ -1267,16 +1261,18 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
 
   refine ⟨u, v, w, c', ?_, ?easy⟩
   case easy =>
-    simp [B_to_triple, c']
+    simp only [B_to_triple, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val,
+      Prod.mk.injEq, c']
     refine ⟨a_eq_c_mul_prod.symm, b_eq_c_mul_prod.symm, c_eq_c_mul_prod.symm⟩
   refine ⟨fun i ↦ Nat.log 2 (u i), fun i ↦ Nat.log 2 (v i), fun i ↦ Nat.log 2 (w i), c', ?_, ?_⟩
-  · simp [indexSet']
+  · simp only [indexSet', Fin.isValue, mem_filter, mem_product, Fintype.mem_piFinset, mem_Icc,
+      zero_le, true_and, mem_Ioc]
     refine ⟨?_, ?_⟩
     · refine ⟨?_, ?_, ?_, ?_⟩ <;> try {
       · intro i
         apply Nat.log_mono_right
         simp [*] }
-      simp [c', *]
+      simp only [c']
       intro i
       fin_cases i <;>
         simp [c₀_pos, c₁_pos, c₂_pos, c₀_le_floor, c₁_le_floor, c₂_le_floor]
@@ -1332,9 +1328,9 @@ theorem B_to_triple_surjOn {α β γ : ℝ}  (x : ℕ) (ε : ℝ) (hε_pos : 0 <
           rw [Finset.prod_pow_eq_pow_sum]
           congr
           rw [Finset.sum_fin_eq_sum_range]
-          simp +contextual [← Finset.mem_range]
+          simp +contextual only [← mem_range, ↓reduceDIte]
           apply sum_range_id_add_one
-    · simp [c']
+    · simp only [Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val, c']
       simp_rw [a_eq_c_mul_prod, b_eq_c_mul_prod, c_eq_c_mul_prod] at hab hbc hac
       refine ⟨hab.coprime_mul_right.coprime_mul_right_right,
         hbc.coprime_mul_right.coprime_mul_right_right,
@@ -1382,10 +1378,7 @@ theorem log_le_const_mul_pow {ε : ℝ} (hε : 0 < ε) (d : ℕ) (hd : 0 < d) :
       _ ≤ _ := by
         rw [abs_of_nonneg]
         positivity
-  · simp [Nat.cast_nonneg, Real.rpow_natCast, pow_eq_zero_iff', Real.log_eq_zero,
-    Nat.cast_eq_zero, Nat.cast_eq_one, ne_eq, eventually_top, hε.ne.symm, ]
-    intro x
-    omega
+  · simp [Real.rpow_natCast, hε.ne', hd.ne']
 
 theorem tmp {ε : ℝ} (hε : 0 < ε) (d : ℕ) (hd : 0 < d) :
     ∃ c, ∀ x : ℕ, 2 ≤ x → (Nat.log 2 x + 1) ^ (3 * d) ≤ c * (x : ℝ)^(ε/4) := by
@@ -1430,7 +1423,7 @@ noncomputable def const (ε : ℝ) : ℝ :=
         gcongr
         linarith
       have : 2 ^ 4 < ε⁻¹^4 := by gcongr
-      have hd : 0 < d := by simp [d]; rw [Nat.floor_pos, ← inv_pow]; linarith
+      have hd : 0 < d := by rw [Nat.floor_pos]; linarith
       Classical.choose (tmp h d hd)
     else 0
   else 0
@@ -1514,20 +1507,16 @@ theorem refinedCountTriplesStar_isBigO_B
     (∀ i, 1 ≤ c i) ∧
     (∀ i, (c i : ℝ) ≤ (x : ℝ) ^ ε)
     := by
-  have := refinedCountTriplesStar_le_card_BUnion α β γ (d := d ε) x ε hε_pos hε rfl
-  simp_rw [BUnion, Finset.sup_eq_biUnion] at this
-  have := this.trans Finset.card_biUnion_le |>.trans (sum_le_card_mul_sup ..)
+  have h₁ := refinedCountTriplesStar_le_card_BUnion α β γ (d := d ε) x ε hε_pos hε rfl
+  simp_rw [BUnion, Finset.sup_eq_biUnion] at h₁
+  have h₂ := h₁.trans Finset.card_biUnion_le |>.trans (sum_le_card_mul_sup ..)
   use (indexSet' α β γ (d ε) x ε).image fun ⟨u, v, w, c⟩ ↦
     ⟨fun i ↦ 2 ^ u i, fun i ↦ 2 ^ v i, fun i ↦ 2 ^ w i, c⟩
   simp only [Finset.sup_image, Finset.mem_image, Prod.mk.injEq, Prod.exists, Nat.cast_prod,
     Nat.cast_pow, forall_exists_index, and_imp]
   refine ⟨?_, ?_⟩
-  · simp [Function.comp_def]
-    calc
-      _ ≤ ((?_ : ℕ):ℝ) := by
-        /- Ok this really worries me because norm_cast closes the goal with `this` which is what
-        I want but is also very unstable. -/
-        norm_cast
+  · calc
+      _ ≤ ((_ : ℕ) : ℝ) := Nat.cast_le.2 h₂
       _ ≤ _ := by
         push_cast
         gcongr
