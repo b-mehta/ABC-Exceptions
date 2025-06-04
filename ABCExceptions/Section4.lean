@@ -1038,7 +1038,7 @@ lemma bound_4_point_24 (hd : 6 ≤ d) (hba : b 3 ≤ a 3) :
       have h4 : 0 ≤ min (a 4) (b 4) := le_min (ha.nonneg _) (hb.nonneg _)
       have h5 : 0 ≤ min (a 5) (b 5) := le_min (ha.nonneg _) (hb.nonneg _)
       have h6 : 0 ≤ min (a 6) (b 6) := le_min (ha.nonneg _) (hb.nonneg _)
-      simp [ha.zero, hb.zero, -min_add_max, hba]
+      norm_num [- min_add_max, ha.zero, hb.zero, hba]
       linear_combination 2 * h4 + 3 * h5 + 4 * h6
 
 include ha hb h44 htab hg in
@@ -1211,7 +1211,7 @@ lemma case_2_subcase_1_subsubcase_1
     _ ≤ a 3 + b 3 + 1 / 2 * (b 4 + c 4) + 1 / 5 * ((4 / 3 + δ_ d b + δ_ d c) - (b 2 + c 2) -
           2 * (b 3 + c 3) - 3 * (b 4 + c 4) + (b 5 + c 5)) := by
         rw [Finset.sum_range]
-        simp [Fin.sum_univ_six, hb.zero, hc.zero]
+        norm_num [Fin.sum_univ_six, hb.zero, hc.zero]
         linear_combination 1 / 5 * h
     _ ≤ a 3 + b 3 + 1 / 5 * ((4 / 3 + δ_ d b + δ_ d c) + (b 5 + c 5)) := by
         linear_combination (hb.nonneg 2 + hc.nonneg 2 + 2 * (hb.nonneg 3 + hc.nonneg 3)) / 5 +
@@ -1245,7 +1245,7 @@ lemma case_2_subcase_1_subsubcase_2
       ring_nf
     _ = 2 / 3 - δ_ d b - δ_ d c - 2 * (a 3 - c 3) + b 2 + c 2 + 3 * (b 4 ⊔ c 4) := by
       rw [Finset.sum_range, Fin.sum_univ_five]
-      simp [hb.zero, hc.zero]
+      norm_num [hb.zero, hc.zero]
       linear_combination min_add_max (b 4) (c 4)
     _ ≤ 11 / 30 - δ_ d b - δ_ d c + 3 * (b 4 ⊔ c 4) + 2 * δ := by
       have : a 3 + c 3 < 0.34 + δ := bound_4_point_12 ha hc htac 3 (by simp; omega) hν
@@ -1254,7 +1254,6 @@ lemma case_2_subcase_1_subsubcase_2
       have h := bound_4_point_9_lower hε₀ b h45b
       have h' := bound_4_point_9_lower hε₀ _ h45c
       linear_combination h + h' + 3 * h₄ + 4 * hδ
-
 
 include ha hb hc h43bc h45b h45c htab htac hg hdab hdac in
 lemma case_2_subcase_1
