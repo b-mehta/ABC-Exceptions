@@ -4,8 +4,6 @@ lintDriver = "batteries/runLinter"
 
 [leanOptions]
 pp.unicode.fun = true
-autoImplicit = false # no "assume a typo is a new variable"
-relaxedAutoImplicit = false # no "assume a typo is a new variable"
 linter.style.longLine = true # no lines longer than 100 chars
 linter.oldObtain = true # no "stream of consciousness `obtain`"
 linter.style.multiGoal = true # no multiple active goals
