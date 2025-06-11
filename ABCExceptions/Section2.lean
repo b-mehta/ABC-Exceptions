@@ -10,7 +10,7 @@ import Mathlib.Data.Nat.Squarefree
 import Mathlib.Data.Real.StarOrdered
 import Mathlib.Order.CompletePartialOrder
 
-import abcExceptions.ForMathlib.RingTheory.Radical
+import ABCExceptions.ForMathlib.RingTheory.Radical
 
 open Finset UniqueFactorizationMonoid
 
