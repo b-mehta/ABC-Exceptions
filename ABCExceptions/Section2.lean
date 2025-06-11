@@ -60,8 +60,7 @@ lemma Finset.abcExceptionsBelow_mono_left {ε₁ ε₂ : ℝ} {X : ℕ} (hε : �
   simpa
 
 @[gcongr]
-lemma Finset.abcExceptionsBelow_mono {ε₁ ε₂ : ℝ} {X Y : ℕ}
-    (hε : ε₁ ≤ ε₂) (hXY : X ≤ Y) :
+lemma Finset.abcExceptionsBelow_mono {ε₁ ε₂ : ℝ} {X Y : ℕ} (hε : ε₁ ≤ ε₂) (hXY : X ≤ Y) :
     abcExceptionsBelow ε₂ X ⊆ abcExceptionsBelow ε₁ Y :=
   (abcExceptionsBelow_mono_right hXY).trans (abcExceptionsBelow_mono_left hε)
 
@@ -69,6 +68,21 @@ lemma Finset.abcExceptionsBelow_mono {ε₁ ε₂ : ℝ} {X Y : ℕ}
 The number of exceptions to the abc conjecture for a given `ε` which are bounded by `X`.
 -/
 noncomputable def countTriples (ε : ℝ) (X : ℕ) : ℕ := #(abcExceptionsBelow ε X)
+
+@[gcongr]
+lemma countTriples_mono {ε₁ ε₂ : ℝ} {X Y : ℕ} (hε : ε₁ ≤ ε₂) (hXY : X ≤ Y) :
+    countTriples ε₂ X ≤ countTriples ε₁ Y := by
+  simp only [countTriples]; gcongr
+
+@[gcongr]
+lemma countTriples_mono_left {ε : ℝ} {X Y : ℕ} (hXY : X ≤ Y) :
+    countTriples ε X ≤ countTriples ε Y := by
+  simp only [countTriples]; gcongr
+
+@[gcongr]
+lemma countTriples_mono_right {ε₁ ε₂ : ℝ} {X : ℕ} (hε : ε₁ ≤ ε₂) :
+    countTriples ε₂ X ≤ countTriples ε₁ X := by
+  simp only [countTriples]; gcongr
 
 /--
 The set of exceptions to the abc conjecture for `ε`, in particular
@@ -141,16 +155,6 @@ lemma abcExceptionsBelow_eq_abcExceptions_inter' (ε : ℝ) (X : ℕ) (hε : 0 <
 
 open Asymptotics Filter
 
--- in a PR to mathlib
-theorem ciSup_eq_monotonicSequenceLimit {α : Type*} [ConditionallyCompleteLattice α]
-    [WellFoundedGT α] (a : ℕ →o α) (ha : BddAbove (Set.range a)) :
-    iSup a = monotonicSequenceLimit a := by
-  refine (ciSup_le fun m => ?_).antisymm (le_ciSup ha _)
-  rcases le_or_lt m (monotonicSequenceLimitIndex a) with hm | hm
-  · exact a.monotone hm
-  · obtain h := WellFoundedGT.monotone_chain_condition a
-    exact (Nat.sInf_mem (s := {n | ∀ m, n ≤ m → a n = a m}) h m hm.le).ge
-
 lemma forall_increasing' {α : Type*} (f : ℕ → Set α) (hf : Monotone f)
     (hf' : ∀ n, (f n).Finite)
     {C : ℕ} (hC : ∀ n, (f n).ncard ≤ C) : (⋃ n, f n).Finite := by
@@ -170,7 +174,7 @@ lemma forall_increasing {α : Type*} (f : ℕ → Set α) (hf : Monotone f)
   intro a b hab
   exact Set.inter_subset_inter_right _ (hf hab)
 
-lemma abcConjecture_iff :
+lemma abcConjecture_iff_countTriples :
     abcConjecture ↔ ∀ ε > 0, ε < 1 → (countTriples ε · : ℕ → ℝ) =O[atTop] (fun _ ↦ (1 : ℝ)) := by
   simp only [isBigO_one_nat_atTop_iff]
   constructor
@@ -200,6 +204,23 @@ lemma abcConjecture_iff :
       gcongr
     · intro n
       exact (Set.finite_Icc (1, 1, 1) (n, n, n)).inter_of_right _
+
+open Topology in
+lemma abcConjecture_iff_eventually_countTriples :
+    abcConjecture ↔ ∀ᶠ ε in 𝓝[>] 0, (countTriples ε · : ℕ → ℝ) =O[atTop] (fun _ ↦ (1 : ℝ)) := by
+  rw [abcConjecture_iff_countTriples]
+  constructor
+  · intro h
+    simp only [eventually_nhdsWithin_iff, h]
+    filter_upwards [eventually_lt_nhds zero_lt_one] with ε hε₁ hε₀ using h _ hε₀ hε₁
+  intro h ε hε₀ hε₁
+  suffices ∀ᶠ (δ : ℝ) in 𝓝[>] 0, (countTriples ε · : ℕ → ℝ) =O[atTop] (fun _ ↦ (1 : ℝ)) by simpa
+  filter_upwards [h, eventually_nhdsWithin_of_eventually_nhds (eventually_lt_nhds hε₀)]
+    with δ hδ hδε
+  apply IsBigO.trans (IsBigO.of_norm_le _) hδ
+  simp only [Real.norm_natCast, Nat.cast_le]
+  intro x
+  gcongr
 
 /-- We define reals `x` and `X` to be similar if `x ∈ [X, 2X]`. -/
 def similar (x X : ℝ) : Prop := x ∈ Set.Icc X (2 * X)
