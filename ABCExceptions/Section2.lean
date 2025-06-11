@@ -14,6 +14,8 @@ import ABCExceptions.ForMathlib.RingTheory.Radical
 
 open Finset UniqueFactorizationMonoid
 
+section
+
 /--
 The set (as a `Finset`) of exceptions to the abc conjecture at `ε` inside [1, X] ^ 3, in particular
 the set of triples `(a, b, c)` which are
@@ -222,6 +224,70 @@ lemma abcConjecture_iff_eventually_countTriples :
   intro x
   gcongr
 
+lemma radical_dvd_div_mul_radical_of_dvd (a b : ℕ) (h : a ∣ b) :
+    radical b ∣ (b / a) * radical a := by
+  obtain rfl | ha₀ := eq_or_ne a 0
+  · simp
+  obtain ⟨c, rfl⟩ := h
+  simp only [ne_eq, ha₀, not_false_eq_true, mul_div_cancel_left₀]
+  calc
+    radical (a * c) ∣ radical a * radical c := radical_mul_dvd
+    _ = radical c * radical a := by rw [mul_comm]
+    _ ∣ c * radical a := Nat.mul_dvd_mul_right radical_dvd_self _
+
+def tripleAt (n : ℕ) : ℕ × ℕ × ℕ := (1, 2 ^ (6 * n) - 1, 2 ^ (6 * n))
+
+lemma tripleAt_mem_abcExceptions (n : ℕ) (hn : 0 < n) : tripleAt n ∈ abcExceptions 0 := by
+  have h₂ : 1 < 2 ^ (6 * n) := one_lt_pow₀ one_lt_two (by positivity)
+  suffices radical ((2 ^ (6 * n) - 1) * 2 ^ (6 * n)) < 2 ^ (6 * n) by
+    simpa [hn.ne', h₂.le, abcExceptions, tripleAt]
+  have h₃ : 9 ∣ 2 ^ (6 * n) - 1 := by
+    rw [← Nat.modEq_iff_dvd' h₂.le, Nat.ModEq.comm]
+    calc
+      2 ^ (6 * n) ≡ (2 ^ 6) ^ n [MOD 9] := by rw [pow_mul]
+      _ ≡ 64 ^ n [MOD 9] := by simp [Nat.ModEq.refl]
+      _ ≡ 1 ^ n [MOD 9] := .pow _ (by decide)
+      _ ≡ 1 [MOD 9] := by simp [Nat.ModEq.refl]
+  have h₄ : radical (2 ^ (6 * n) - 1) * 2 < 2 ^ (6 * n) := by
+    obtain ⟨k, hk⟩ := h₃
+    calc
+    radical (2 ^ (6 * n) - 1) * 2 = radical (9 * k) * 2 := by rw [hk]
+    _ ≤ (radical 9 * radical k) * 2 :=
+      mul_le_mul_right' (Nat.le_of_dvd (by positivity) radical_mul_dvd) 2
+    _ = 2 * radical 9 * radical k := by ring
+    _ = 6 * radical k := by simp +ground [radical, primeFactors_eq_natPrimeFactors]
+    _ ≤ 9 * k := by
+      gcongr
+      · norm_num1
+      · exact Nat.radical_le_self_iff.2 (by omega)
+    _ < 2 ^ (6 * n) := by omega
+  calc
+    radical ((2 ^ (6 * n) - 1) * 2 ^ (6 * n))
+    _ = radical (2 ^ (6 * n) - 1) * radical (2 ^ (6 * n)) := by
+      simp [radical_mul, h₂.le, ← Nat.coprime_iff_isRelPrime]
+    _ = radical (2 ^ (6 * n) - 1) * 2 := by
+      rw [radical_pow_of_prime Nat.prime_two.prime (by positivity), normalize_eq]
+    _ < 2 ^ (6 * n) := h₄
+
+lemma tripleAt_strictMono : StrictMono tripleAt := by
+  apply strictMono_nat_of_lt_succ
+  intro n
+  simp only [tripleAt, Prod.mk_lt_mk, lt_self_iff_false, Prod.mk_le_mk, tsub_le_iff_right,
+    false_and, le_refl, true_and, false_or]
+  right
+  constructor
+  · rw [mul_add_one, pow_add]
+    omega
+  · gcongr
+    · simp
+    · simp
+
+lemma abcExceptions_zero_infinite : (abcExceptions 0).Infinite :=
+  ((Set.Ioi_infinite 0).image tripleAt_strictMono.injective.injOn).mono
+    (by simpa [Set.subset_def] using tripleAt_mem_abcExceptions)
+
+end
+
 /-- We define reals `x` and `X` to be similar if `x ∈ [X, 2X]`. -/
 def similar (x X : ℝ) : Prop := x ∈ Set.Icc X (2 * X)
 
@@ -392,6 +458,8 @@ theorem countTriples_le_log_pow_mul_sup (ε : ℝ) (X : ℕ) :
   apply le_trans _ (card_union_dyadicPoints_le_log_pow_mul_sup ε X)
   apply Finset.card_le_card
   exact Finset.abcExceptionsBelow_subset_union_dyadicPoints ε X
+
+open Asymptotics Filter
 
 theorem Real.natLog_isBigO_logb (b : ℕ) :
     (fun x : ℕ ↦ (Nat.log b x : ℝ)) =O[atTop] (fun x : ℕ ↦ Real.logb b x) := by
