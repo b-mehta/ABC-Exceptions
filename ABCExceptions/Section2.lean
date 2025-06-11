@@ -235,6 +235,7 @@ lemma radical_dvd_div_mul_radical_of_dvd (a b : ℕ) (h : a ∣ b) :
     _ = radical c * radical a := by rw [mul_comm]
     _ ∣ c * radical a := Nat.mul_dvd_mul_right radical_dvd_self _
 
+/-- A concrete construction of a triple which has rad(abc) < c. -/
 def tripleAt (n : ℕ) : ℕ × ℕ × ℕ := (1, 2 ^ (6 * n) - 1, 2 ^ (6 * n))
 
 lemma tripleAt_mem_abcExceptions (n : ℕ) (hn : 0 < n) : tripleAt n ∈ abcExceptions 0 := by
