@@ -1,8 +1,8 @@
-import ABCExceptions.TrivialBound
+import ABCExceptions.Section4
 import ABCExceptions.Section2
+import ABCExceptions.DeBruijnBound
 
 section compat
-
 
 lemma rad_eq (n : ℕ) (hn : n ≠ 0) : rad n = UniqueFactorizationMonoid.radical n := by
   rw [rad, if_neg hn, UniqueFactorizationMonoid.radical,
@@ -28,19 +28,16 @@ lemma exceptionalSet_eq (N : ℕ) (ε : ℝ) :
     · simp
       omega
 
-lemma finite_exceptionalSet {N ε} : (exceptionalSet N ε).Finite := by
-  rw [← exceptionalSet_eq]
-  simp
+instance finite_exceptionalSet {N ε} : Finite (exceptionalSet N ε) := by
+  simp only [← exceptionalSet_eq, Set.finite_coe_iff, Finset.finite_toSet]
 
 theorem theorem67' (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
     ∃ (C : ℝ), C > 0 ∧ ∃ (N₀ : ℕ), ∀ (N : ℕ), N ≥ N₀ →
     ((exceptionalSet N ε).ncard : ℝ) ≤ C * (N : ℝ) ^ ((2 : ℝ) / 3) := by
   obtain ⟨C, hC, N₀, hN₀⟩ := theorem67 ε hε hε_small
-  use C, hC, N₀
-  intro N hN
-  have : Finite (exceptionalSet N ε) := finite_exceptionalSet
+  refine ⟨C, hC, N₀, fun N hN ↦ ?_⟩
   have : Fintype (exceptionalSet N ε) := Fintype.ofFinite _
-  refine (hN₀ N hN).trans_eq' (by rw [Set.ncard_eq_toFinset_card'])
+  exact (hN₀ N hN).trans_eq' (by rw [Set.ncard_eq_toFinset_card'])
 
 theorem theorem67'' (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100) :
     (fun N ↦ ((exceptionalSet N ε).ncard : ℝ)) =O[Filter.atTop]
@@ -65,7 +62,7 @@ theorem mem_abcExceptions (ε : ℝ) (a b c : ℕ) :
   _root_.mem_abcExceptions ..
 
 theorem mem_abcExceptionsBelow (X : ℕ) (ε : ℝ) (a b c : ℕ) :
-    (a, b, c) ∈ Finset.abcExceptionsBelow ε X ↔
+    (a, b, c) ∈ abcExceptionsBelow ε X ↔
       a.Coprime b ∧ a.Coprime c ∧ b.Coprime c ∧
       a + b = c ∧
       radical (a * b * c) < (c : ℝ) ^ (1 - ε) ∧
@@ -88,6 +85,8 @@ theorem abcConjecture_equivalence_bigO :
 theorem deBruijn (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1 / 100) :
     (countTriples ε · : ℕ → ℝ) =O[atTop] (fun N ↦ (N : ℝ) ^ (2 / 3 : ℝ)) := by
   simpa [countTriples, ← exceptionalSet_eq] using theorem67'' ε hε hε_small
+
+#print axioms deBruijn
 
 theorem new_bound (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1 / 100000) :
     (countTriples ε · : ℕ → ℝ) =O[atTop] (fun N ↦ (N : ℝ) ^ (0.66 : ℝ)) := by

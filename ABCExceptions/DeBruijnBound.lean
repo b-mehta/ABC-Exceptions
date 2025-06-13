@@ -6,6 +6,7 @@ lemma two_rpow_ge_add_one (x : ℝ) (hx : x ≥ 1) : 2 ^ x ≥ x + 1 := by
   norm_num at h
   rw [add_comm] at h
   exact h
+
 theorem two_rpow_ge_half_add_one (x : ℝ) (hx : x ≥ 0) : 2 ^ x ≥ x / 2 + 1 := by
   -- We use the fact that 2^x = exp(log 2 * x) for base 2 > 0
   have h_rpow_def : 2 ^ x = Real.exp (Real.log 2 * x) :=
@@ -30,12 +31,16 @@ theorem two_rpow_ge_half_add_one (x : ℝ) (hx : x ≥ 0) : 2 ^ x ≥ x / 2 + 1 
     _ = 1 + Real.log 2 * x := by ring
     _ ≥ 1 + x / 2 := by linarith [h_rearrange]
     _ = x / 2 + 1 := by ring
+
 theorem fundamental_theorem_of_arithmetic : UniqueFactorizationMonoid ℕ := by
   exact Nat.instUniqueFactorizationMonoid
+
 -- Definition [Divisor function]
 def tau (n : ℕ) : ℕ := n.divisors.card
+
 lemma tau_eq_prod_factorization_add_one (n : ℕ) (hn : n ≠ 0) : tau n = n.primeFactors.prod (λ p => n.factorization p + 1) := by
   exact Nat.card_divisors hn
+
 lemma tau_n_div_n_rpow_eps_eq_prod (n : ℕ) (hn : n ≠ 0) (ε : ℝ) : (tau n : ℝ) / ((n : ℝ) ^ ε) = n.primeFactors.prod (fun p => (((n.factorization p) + 1 : ℝ) / ((p : ℝ) ^ ((n.factorization p : ℝ) * ε)))) := by
   simp only [tau]
   rw [Nat.card_divisors hn]
@@ -63,6 +68,7 @@ lemma tau_n_div_n_rpow_eps_eq_prod (n : ℕ) (hn : n ≠ 0) (ε : ℝ) : (tau n 
   congr 1
   ext p
   rw [Nat.cast_add, Nat.cast_one]
+
 lemma lemma7 (p a : ℕ) (ε : ℝ) (hp : p ≥ 2) (ha : a ≥ 1) (hε : ε > 0) (hε_small : ε < 1/100)  (h_cond : (p : ℝ) ^ ε ≥ 2) : (a + 1 : ℝ) / ((p : ℝ) ^ ((a : ℝ) * ε)) ≤ (a + 1 : ℝ) / ((2 : ℝ) ^ (a : ℝ)) ∧ (a + 1 : ℝ) / ((2 : ℝ) ^ (a : ℝ)) ≤ 1 := by
   constructor
   · -- First inequality: (a + 1 : ℝ) / ((p : ℝ) ^ ((a : ℝ) * ε)) ≤ (a + 1 : ℝ) / ((2 : ℝ) ^ (a : ℝ))
@@ -87,6 +93,7 @@ lemma lemma7 (p a : ℕ) (ε : ℝ) (hp : p ≥ 2) (ha : a ≥ 1) (hε : ε > 0)
     · exact two_rpow_ge_add_one (a : ℝ) (Nat.one_le_cast.mpr ha)
     · apply Real.rpow_pos_of_pos
       norm_num
+
 lemma lemma8 (p a : ℕ) (ε : ℝ) (hp : p ≥ 2) (ha : a ≥ 1) (hε : ε > 0) (hε_small : ε < 1/100)  (hpε : (p : ℝ) ^ ε < 2) : (a + 1 : ℝ) / ((p : ℝ) ^ ((a : ℝ) * ε)) ≤ 2 / ε := by
   -- Use the fundamental constraint: since p^ε < 2 and p ≥ 2, ε must be very constrained
   -- We'll prove this using basic exponential properties
@@ -151,6 +158,7 @@ lemma lemma8 (p a : ℕ) (ε : ℝ) (hp : p ≥ 2) (ha : a ≥ 1) (hε : ε > 0)
       _ ≤ (a : ℝ) * ε + 2 := by linarith [h_eps_bound]
 
   exact le_trans h_final (mul_le_mul_of_nonneg_left h_growth (by norm_num))
+
 lemma lemma9 (s : Finset ℕ) (a : ℕ → ℕ) (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  (hs_prime : ∀ p ∈ s, p.Prime) (ha_ge_one : ∀ p ∈ s, a p ≥ 1) :
   (∏ p ∈ s, ((a p + 1 : ℝ) / ((p : ℝ) ^ ((a p : ℝ) * ε)))) =
   (∏ p ∈ s.filter (fun (p : ℕ) => (p : ℝ) ^ ε ≥ 2), ((a p + 1 : ℝ) / ((p : ℝ) ^ ((a p : ℝ) * ε)))) *
@@ -160,6 +168,7 @@ lemma lemma9 (s : Finset ℕ) (a : ℕ → ℕ) (ε : ℝ) (hε : ε > 0) (hε_s
   congr 2
   ext p
   simp only [Finset.mem_filter, not_le]
+
 lemma lemma10 (s : Finset ℕ) (a : ℕ → ℕ) (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  (hs_prime : ∀ p ∈ s, p.Prime) (ha_ge_one : ∀ p ∈ s, a p ≥ 1) : ∏ p ∈ s.filter (fun (p : ℕ) => (p : ℝ) ^ ε ≥ 2), ((a p + 1 : ℝ) / ((p : ℝ) ^ ((a p : ℝ) * ε))) ≤ 1 := by
   apply Finset.prod_le_one
   · intro p hp
@@ -182,6 +191,7 @@ lemma lemma10 (s : Finset ℕ) (a : ℕ → ℕ) (ε : ℝ) (hε : ε > 0) (hε_
     calc (a p + 1 : ℝ) / (p : ℝ) ^ ((a p : ℝ) * ε)
         ≤ (a p + 1 : ℝ) / (2 : ℝ) ^ (a p : ℝ) := h.1
       _ ≤ 1 := h.2
+
 lemma lemma11 (s : Finset ℕ) (a : ℕ → ℕ) (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  (hs_prime : ∀ p ∈ s, p.Prime) (ha_ge_one : ∀ p ∈ s, a p ≥ 1) :
   (∏ p ∈ s.filter (fun (p : ℕ) => (p : ℝ) ^ ε < 2), ((a p + 1 : ℝ) / ((p : ℝ) ^ ((a p : ℝ) * ε)))) ≤
   (∏ p ∈ s.filter (fun (p : ℕ) => (p : ℝ) ^ ε < 2), (2 / ε : ℝ)) := by
@@ -216,6 +226,7 @@ lemma lemma11 (s : Finset ℕ) (a : ℕ → ℕ) (ε : ℝ) (hε : ε > 0) (hε_
     have hp_prime : p.Prime := hs_prime p hp_mem
     have hp_pos : p ≥ 2 := Nat.Prime.two_le hp_prime
     exact lemma8 p (a p) ε hp_pos ha_pos hε hε_small hp_cond
+
 lemma card_Icc_eq_sub_add_one (m M : ℕ) (h_le : m ≤ M) :
     (Finset.Icc m M).card = M - m + 1 := by
     have : M - m + 1 = M + 1 - m := by
@@ -223,6 +234,7 @@ lemma card_Icc_eq_sub_add_one (m M : ℕ) (h_le : m ≤ M) :
       rw [add_tsub_assoc_of_le h_le]
     rw [this]
     apply Nat.card_Icc
+
 lemma card_le_max_sub_min_add_one (S : Finset ℕ) (hS_nonempty : S.Nonempty) :
     S.card ≤ S.max' hS_nonempty - S.min' hS_nonempty + 1 := by
   let m := S.min' hS_nonempty
@@ -246,6 +258,7 @@ lemma card_le_max_sub_min_add_one (S : Finset ℕ) (hS_nonempty : S.Nonempty) :
     · -- Prove x ≤ M. This is true by definition of S.max'.
       exact Finset.le_max' S x hx_in_S
   exact Finset.card_le_card this
+
 lemma finset_card_le_of_all_lt (S : Finset ℕ) (X : ℝ) (x_pos : X > 0) (s_pos : ∀ s, s ∈ S → s > 0 ) (hn : ∀ n ∈ S, (n : ℝ) < X) : S.card ≤ X := by
   -- Case analysis: S is empty or non-empty
   cases' S.eq_empty_or_nonempty with h_empty h_nonempty
@@ -279,7 +292,16 @@ lemma finset_card_le_of_all_lt (S : Finset ℕ) (X : ℝ) (x_pos : X > 0) (s_pos
       unfold s_min
       unfold s_max
       simp [Finset.min', Finset.max']
-      aesop
+      simp_all only [gt_iff_lt, s_min, s_max]
+      apply Exists.intro
+      · apply And.intro
+        on_goal 2 => {
+          apply Exists.intro
+          · apply And.intro
+            · exact h_s_min_mem
+            · rfl
+        }
+        · simp_all only
     have {a b : Nat} (z : 1 ≤ b) (h : b ≤ a):  a - b + 1 = a - (b - 1) := by
       cases b
       · linarith
@@ -308,11 +330,14 @@ lemma finset_card_le_of_all_lt (S : Finset ℕ) (X : ℝ) (x_pos : X > 0) (s_pos
       lt_of_le_of_lt S_card_le_s_max_real s_max_lt_X
     -- Since (S.card : ℝ) < X, it's also true that (S.card : ℝ) ≤ X
     exact le_of_lt S_card_lt_X
+
 lemma lemma12 (s : Finset ℕ) (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100) (hs_prime : ∀ p ∈ s, p.Prime) :
   (2 / ε : ℝ) ^ ((s.filter (fun (p : ℕ) => (((↑p) : ℝ) ^ ε < (2 : ℝ)))).card : ℝ) ≤ (2 / ε : ℝ) ^ (2 : ℝ) ^ (1 / ε) := by
   -- Let S' = s.filter (fun p => p^ε < 2)
   let S' := s.filter (fun (p : ℕ) => (((↑p) : ℝ) ^ ε < (2 : ℝ)))
-  have mem_s_is_prime : ∀ s, s ∈ S' → s.Prime := by aesop
+  have mem_s_is_prime : ∀ s, s ∈ S' → s.Prime := by
+    intro s_1 a
+    simp_all only [gt_iff_lt, one_div, Finset.mem_filter, S']
   have s_pos: ∀ s, s ∈ S' → s > 0 := by
     intro n hn
     have : _ := Nat.Prime.ne_zero (mem_s_is_prime n hn)
@@ -368,6 +393,7 @@ lemma lemma12 (s : Finset ℕ) (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100
     exact finset_card_le_of_all_lt S' ((2 : ℝ) ^ (1 / ε)) ex s_pos h_prime_bound
   -- Apply monotonicity
   exact h_mono (S'.card : ℝ) ((2 : ℝ) ^ (1 / ε)) h_card_bound
+
 lemma lemma13 (n : ℕ) (ε : ℝ) (hn : n ≥ 1) (hε : ε > 0) (hε_small : ε < 1/100)  : (tau n : ℝ) / ((n : ℝ) ^ ε) ≤ (2 / ε : ℝ) ^ ((2 : ℝ) ^ (1 / ε)) := by
   rw [tau_n_div_n_rpow_eps_eq_prod n (Nat.one_le_iff_ne_zero.mp hn) ε]
 
@@ -504,8 +530,10 @@ lemma lemma15 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  : ∃ (C : ℝ
     calc (tau n : ℝ) / ((n : ℝ) ^ ε)
       _ ≤ (2 / ε : ℝ) ^ ((2 : ℝ) ^ (1 / ε)) := lemma13 n ε hn hε hε_small
       _ ≤ C := hC_bound
+
 lemma lemma16 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  : ∃ (C : ℝ), C > 0 ∧ ∀ (n : ℕ), 1 ≤ n → (tau n : ℝ) / ((n : ℝ) ^ ε) ≤ C := by
   exact lemma15 ε hε hε_small
+
 lemma lemma17 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  : ∃ (C : ℝ), C > 0 ∧ ∀ (n : ℕ), 1 ≤ n → (tau n : ℝ) ≤ C * ((n : ℝ) ^ ε) := by
   obtain ⟨C, hC_pos, hC⟩ := lemma16 ε hε hε_small
   use C, hC_pos
@@ -514,6 +542,7 @@ lemma lemma17 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  : ∃ (C : ℝ
   rw [div_le_iff₀] at hC
   · exact hC
   · exact Real.rpow_pos_of_pos (Nat.cast_pos.mpr (Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp hn))) ε
+
 theorem divisor_bound_tau_le_n_pow_o_one :
   ∀ ε : ℝ, ε > 0 → ε < 1/100 → Filter.Tendsto (fun n : ℕ => (tau n : ℝ) / (n : ℝ) ^ ε) Filter.atTop (nhds 0) := by
   intro ε hε hε_small
@@ -563,11 +592,14 @@ theorem divisor_bound_tau_le_n_pow_o_one :
       tendsto_rpow_neg_atTop hε_half
     -- Use tendsto_natCast_atTop_atTop to show (n : ℝ) → ∞
     exact Filter.Tendsto.comp h1 tendsto_natCast_atTop_atTop
+
 -- Definition [Radical]
 def rad (n : ℕ) : ℕ := if n = 0 then 0 else n.primeFactors.prod id
+
 lemma rad_eq_prod_distinct_prime_factors (n : ℕ) (hn : n ≠ 0) : rad n = n.factorization.support.prod id := by
   rw [rad, if_neg hn]
   rw [← Nat.support_factorization]
+
 lemma rad_mul_of_coprime {a b : ℕ} (h : Nat.Coprime a b) : rad (a * b) = rad a * rad b := by
   by_cases ha : a = 0
   · simp [ha, rad]
@@ -577,11 +609,13 @@ lemma rad_mul_of_coprime {a b : ℕ} (h : Nat.Coprime a b) : rad (a * b) = rad a
   rw [rad, rad, rad, if_neg ha, if_neg hb, if_neg hab_ne]
   rw [Nat.Coprime.primeFactors_mul h]
   rw [Finset.prod_union (Nat.Coprime.disjoint_primeFactors h)]
+
 lemma rad_abc_of_coprime (a b c : ℕ) (ha : a ≥ 1) (hb : b ≥ 1) (hc : c ≥ 1) (h_abc_coprime : Nat.Coprime a (b * c)) (h_bc_coprime : Nat.Coprime b c) : rad (a * b * c) = rad a * rad b * rad c := by
   rw [mul_assoc]
   rw [rad_mul_of_coprime h_abc_coprime]
   rw [rad_mul_of_coprime h_bc_coprime]
   rw [mul_assoc]
+
 lemma lemma23 (a b c : ℕ) (ha : a ≥ 1) (hb : b ≥ 1) (hc : c ≥ 1) (h_abc_coprime : Nat.Coprime a (b * c)) (h_bc_coprime : Nat.Coprime b c) : rad (a * b) * rad (a * c) * rad (b * c) = (rad (a * b * c)) ^ 2 := by
   -- First, we use rad_abc_of_coprime to get rad (a * b * c) = rad a * rad b * rad c
   -- Note: the formal context has a typo - it expects (hc : c ≥ c) instead of (hc : c ≥ 1)
@@ -626,6 +660,7 @@ lemma lemma23 (a b c : ℕ) (ha : a ≥ 1) (hb : b ≥ 1) (hc : c ≥ 1) (h_abc_
   rw [h_rad_ab, h_rad_ac, h_rad_bc, h_rad_abc]
   -- This becomes: (rad a * rad b) * (rad a * rad c) * (rad b * rad c) = (rad a * rad b * rad c) ^ 2
   ring
+
 lemma lemma24 (n : ℕ) (hn : n ≥ 1) (s : Finset ℕ) (hs_prime : ∀ p ∈ s, p.Prime) (h_rad : rad n = s.prod id) :
   ∀ p ∈ s, n.factorization p ≥ 1 := by
   intro p hp
@@ -648,13 +683,14 @@ lemma lemma24 (n : ℕ) (hn : n ≥ 1) (s : Finset ℕ) (hs_prime : ∀ p ∈ s,
   -- Convert divisibility to factorization
   rw [ge_iff_le]
   exact (Nat.Prime.dvd_iff_one_le_factorization (hs_prime p hp) hn_ne_zero).mp hp_dvd
+
 /-- The set of natural numbers `n` up to `N` such that `rad n = r`. -/
 def radical_set (r N : ℕ) : Finset ℕ := (Finset.range (N + 1)).filter (fun n => rad n = r)
 -- Definition of the target set
 -- The set of interest: natural numbers whose prime factors are exactly the set `s`.
+
 def target_set (s : Finset ℕ) : Set ℕ :=
   { m : ℕ | m.primeFactors = s ∧ m ≥ 1 ∧ ∀ p ∈ s, m.factorization p ≥ 1 }
-
 
 lemma lemma26 (s : Finset ℕ) (hs_prime : ∀ p ∈ s, p.Prime) :
   { n : ℕ | rad n = s.prod id } ⊆ target_set s := by
@@ -694,8 +730,10 @@ lemma lemma26 (s : Finset ℕ) (hs_prime : ∀ p ∈ s, p.Prime) :
   · -- Show ∀ p ∈ s, n.factorization p ≥ 1
     have h_ge : n ≥ 1 := Nat.one_le_iff_ne_zero.mpr h_ne_zero
     exact ⟨h_ge, lemma24 n h_ge s hs_prime hn⟩
+
 lemma card_finset_eq_sum_ones (s : Finset ℕ) : s.card = ∑ _x ∈ s, 1 := by
   exact Finset.card_eq_sum_ones s
+
 lemma lemma28 (ε : ℝ) (n N : ℕ) (hε : ε > 0) (hε_small : ε < 1/100)  (hn : 1 ≤ n) (hnN : n ≤ N) : 1 / ((n : ℝ) ^ ε) ≥ 1 / ((N : ℝ) ^ ε) := by
   have hn_pos : 0 < (n : ℝ) := by
     simp only [Nat.cast_pos]
@@ -711,6 +749,7 @@ lemma lemma28 (ε : ℝ) (n N : ℕ) (hε : ε > 0) (hε_small : ε < 1/100)  (h
   · exact le_of_lt hn_pos
   · exact Nat.cast_le.mpr hnN
   · exact le_of_lt hε
+
 lemma lemma29 (ε : ℝ) (N r : ℕ) (hε : ε > 0) (hε_small : ε < 1/100)  (hN : N ≥ 1) (hr : r ≥ 1) :
   ∑ n in radical_set r N, (1 : ℝ) / ((n : ℝ) ^ ε) ≥ ((radical_set r N).card : ℝ) / ((N : ℝ) ^ ε) := by
   -- We'll show the sum is at least card * (1/N^ε)
@@ -842,6 +881,7 @@ lemma lemma36 (ε : ℝ) (s : Finset ℕ) (hε : ε > 0) (hε_small : ε < 1/100
   apply Finset.prod_congr rfl
   intros p hp
   exact lemma35 ε p hε hε_small (hs_prime p hp)
+
 lemma lemma37 (ε : ℝ) (s : Finset ℕ) (hε : ε > 0) (hε_small : ε < 1/100)  (hs_prime : ∀ p ∈ s, p.Prime) :
   (∏ p in s, (1 : ℝ) / ((p : ℝ) ^ ε - 1)) =
   (∏ p in s.filter (fun (p : ℕ) => (p : ℝ) ^ ε ≥ 2), (1 : ℝ) / ((p : ℝ) ^ ε - 1)) *
@@ -855,10 +895,6 @@ lemma lemma37 (ε : ℝ) (s : Finset ℕ) (hε : ε > 0) (hε_small : ε < 1/100
     exact ⟨hp_mem, not_le.mp hp_not⟩
   · intro ⟨hp_mem, hp_lt⟩
     exact ⟨hp_mem, not_le.mpr hp_lt⟩
-
--- The set of interest: natural numbers whose prime factors are exactly the set `s`.
--- def target_set (s : Finset ℕ) : Set ℕ :=
---   { m : ℕ | m.primeFactors = s ∧ m ≥ 1 ∧ ∀ p ∈ s, m.factorization p ≥ 1 }
 
 -- The set of exponent functions: maps each prime in `s` to a positive integer exponent.
 def exponent_functions (s : Finset ℕ) : Type :=
@@ -1091,13 +1127,9 @@ theorem bijection_target_set_functions_h (s : Finset ℕ) (hs_prime : ∀ p ∈ 
   have hn_ne_zero : n.val ≠ 0 := by
     have := n.property.2.1
     linarith
-  dsimp [φ_equiv]
-  dsimp [φ]
-  dsimp [map_to_exponents]
+  dsimp [φ_equiv, φ, map_to_exponents]
   dsimp [target_set] at n
-  cases' n with n n_property
-  cases' n_property with np1 np2
-  cases' np2 with np2 np3
+  rcases n with ⟨n, np1, np2, np3⟩
   simp [*]
   rw [← np1]
   symm
@@ -1109,7 +1141,6 @@ lemma bijection_target_set_functions (s : Finset ℕ) (hs_prime : ∀ p ∈ s, p
   ∃ (φ : target_set s ≃ { f : s → ℕ // ∀ p : s, f p ≥ 1 }),
     ∀ n : target_set s, (n : ℕ) = ∏ p : s, p.val ^ (φ n).val p := by
     exact bijection_target_set_functions_h s hs_prime
-
 
 lemma sum_over_target_set_eq_sum_over_functions (s : Finset ℕ) (ε : ℝ) (hε : ε > 0) (hs_prime : ∀ p ∈ s, p.Prime) :
   ∑' (n : target_set s), (1 : ℝ) / ((n : ℝ) ^ ε) =
@@ -1186,7 +1217,6 @@ lemma reindex_sum_positive_to_nat (p : ℕ) (ε : ℝ) (hp : p.Prime) (hε : ε 
   congr 2
   simp only [Nat.cast_add, Nat.cast_one]
 
-
 lemma summable_geometric_series_of_p_gt_1
     (p : ℕ) (ε : ℝ) (hp : p > 1) (hε : ε > 0) :
     Summable (fun (a : { a : ℕ // a ≥ 1 }) => (1 : ℝ) / (p : ℝ) ^ (a.val * ε)) := by
@@ -1260,8 +1290,9 @@ lemma summable_geometric_series_of_p_gt_1
 
   rw [h_eq]
   exact h_summable.comp_injective equiv.symm.injective
+
 noncomputable def equiv_reindex_choice_functions
-    {ι : Type u} (β : ι → Type v)
+    {ι : Type*} (β : ι → Type*)
     [DecidableEq ι] {j : ι} (s : Finset ι) (hjs : j ∉ s) :
     -- The type we are mapping from: a function on `s` and a value at `j`
     ((i : s) → β i.1) × β j ≃
@@ -1312,31 +1343,9 @@ noncomputable def equiv_reindex_choice_functions
     split_ifs with h
     -- In both cases, the goal simplifies to something trivial.
     subst h
-    simp
-    rfl
+    · simp
+    · rfl
 }
-theorem prod_equiv_of_emb {ι₁ ι₂ α} [CommMonoid α]
-    (s₁ : Finset ι₁) (s₂ : Finset ι₂)
-    (f : ι₁ → α) (g : ι₂ → α)
-    (e : Function.Embedding ι₁ ι₂)
-    (h_s : s₂ = s₁.map e)
-    (h_f : ∀ i ∈ s₁, f i = g (e i)) :
-    ∏ i ∈ s₁, f i = ∏ j ∈ s₂, g j := by
-  -- First, substitute `f` with `g ∘ e` inside the product on the left.
-  -- `Finset.prod_congr` requires the finsets to be the same (`rfl`) and a proof
-  -- that the functions are equal for all elements in the finset (`h_f`).
-  rw [Finset.prod_congr rfl h_f]
-
-  -- Now the goal is `∏ i in s₁, g (e i) = ∏ j in s₂, g j`.
-  -- We can re-index the product on the left using `Finset.prod_map`.
-  -- `Finset.prod_map` states: `∏ i in s₁, g (e i) = ∏ j in (s₁.map e.toEmbedding), g j`
-  have := @Finset.prod_map ι₁ α ι₂ _ s₁ e g
-  change  ∏ x ∈ Finset.map e s₁, g x = ∏ x ∈ s₁, g (e x) at this
-  rw [← this]
-
-  -- Now the goal is `∏ j in s₁.map e.toEmbedding, g j = ∏ j in s₂, g j`.
-  -- The hypothesis `h_s` says `s₂ = s₁.map e.toEmbedding`, so we can rewrite.
-  rw [h_s]
 
 lemma tsum_prod_insert {α β : Type*} [DecidableEq α] (f : α → β → ℝ) (a : α) (S : Finset α) (ha : a ∉ S) :
   ∑' g : ({ x // x ∈ insert a S } → β), ∏ s : { x // x ∈ insert a S }, f s.1 (g s) =
@@ -1360,9 +1369,7 @@ lemma tsum_prod_insert {α β : Type*} [DecidableEq α] (f : α → β → ℝ) 
   have : f a g_prod.1 * ∏ s ∈ S.attach, f (↑s) (g_prod.2 s) = F a * ∏ x ∈ S, F x := by
     congr 1
     · simp [F, *]
-    · let emb : {x // x ∈ S} ↪ α := ⟨fun ⟨x, _⟩ => x, by simp [Function.Injective]⟩
-      -- Convert to products over S using prod_attach
-      rw [← Finset.prod_attach (s := S) (f := F)]
+    · rw [← Finset.prod_attach (s := S) (f := F)]
       apply Finset.prod_congr rfl
       intro x hx
       simp only [F]
@@ -1371,25 +1378,12 @@ lemma tsum_prod_insert {α β : Type*} [DecidableEq α] (f : α → β → ℝ) 
 
   rw [this]
   rw [← Finset.prod_insert ha (f := F)]
-  have this3 : ∏ s ∈ (insert a S).attach, f (↑s) (if hjeq : ↑s = a then g_prod.1 else g_prod.2 ⟨↑s, by {
-    cases' s with s1 hs
-    simp [*]
-    have : ¬ s1 = a := by simp [*]
-    rw [Finset.mem_insert] at hs
-    cases' hs with h1 h2
-    · contradiction
-    · assumption
-  }⟩) = ∏ x ∈ insert a S, F x := by
-    let emb : { x // x ∈ insert a S } ↪ α := ⟨fun ⟨x, _⟩ => x, by simp [Function.Injective]⟩
-    -- Convert using prod_attach
-    rw [← Finset.prod_attach (s := insert a S) (f := F)]
-    apply Finset.prod_congr rfl
-    intro x hx
-    simp only [F, x.2]
-    by_cases hxa : x.1 = a
-    · simp [hxa]
-    · simp [hxa]
-  assumption
+  -- Convert using prod_attach
+  rw [← Finset.prod_attach (s := insert a S) (f := F)]
+  apply Finset.prod_congr rfl
+  intro x hx
+  simp only [F, x.2]
+  split_ifs <;> rfl
 
 lemma tsum_prod_empty {α β : Type*} (f : α → β → ℝ) :
   ∑' g : ({ x : α // x ∈ (∅ : Finset α) } → β), ∏ s : { x : α // x ∈ (∅ : Finset α) }, f s.1 (g s) = 1 := by
@@ -1433,8 +1427,6 @@ lemma tsum_prod_empty {α β : Type*} (f : α → β → ℝ) :
   -- Now we have ↑1 = 1, which is just a coercion
   simp
 
-
-
 lemma tsum_prod_fintype_univ {α β : Type*} [Fintype α] (f : α → β → ℝ) :
   ∑' g : ({ x // x ∈ Finset.univ } → β), ∏ s : { x // x ∈ Finset.univ }, f s.1 (g s) =
   ∑' g : (α → β), ∏ a : α, f a (g a) := by
@@ -1465,7 +1457,6 @@ lemma tsum_prod_fintype_univ {α β : Type*} [Fintype α] (f : α → β → ℝ
     -- Use Fintype.prod_equiv to reindex the product
     rw [← Fintype.prod_equiv e.symm (fun a => f a (F g a))]
     -- After reindexing, we need to show the products are equal
-    congr 1
     intro s
     -- Show: f s.1 (g s) = f (e.symm (e s)) (F g (e s))
     -- We know e.symm (e s) = s and F g (e s) = g (e.invFun (e s)) = g s
@@ -1476,7 +1467,6 @@ lemma tsum_prod_fintype_univ {α β : Type*} [Fintype α] (f : α → β → ℝ
 
   -- Apply Equiv.tsum_eq
   exact Equiv.tsum_eq F (fun g => ∏ a : α, f a (g a))
-
 
 lemma prod_tsum_eq_tsum_prod_subtype
   {α β : Type*} [Fintype α] [DecidableEq α] (f : α → β → ℝ)
@@ -1545,7 +1535,6 @@ lemma prod_tsum_eq_tsum_prod_subtype
 
     -- Use tsum_prod_insert to complete
     rw [tsum_prod_insert f a S ha]
-
 
 lemma p_a_eps_pos
  {s : Finset ℕ} {ε : ℝ} (hs : ∀ p ∈ s, p > 1) (hε : ε > 0): ∀ (a : { x // x ∈ s }), ∀ (b : { a // a ≥ 1 }), 1 / (a : ℝ) ^ ((b : ℕ) * ε) > 0 := by
@@ -1675,7 +1664,6 @@ lemma tsum_over_fun_subtype_equiv_tsum_over_pi
   simp only [e]
   -- The product terms are identical since f.val p = (to_fun f p).val
   rfl
-
 
 lemma tsum_prod_positive_functions (s : Finset ℕ) (ε : ℝ) (hε : ε > 0) (hs_prime : ∀ p ∈ s, p.Prime) :
 ∑' (f : { f : s → ℕ // ∀ p : s, f p ≥ 1 }), ∏ p : s, (1 : ℝ) / ((p : ℝ) ^ (f.val p * ε)) =
@@ -1837,6 +1825,7 @@ lemma lemma31 (ε : ℝ) (N : ℕ) (r : ℕ) (hε : ε > 0) (hε_small : ε < 1/
   · exact h_nonneg -- The non-negativity of terms in the finite sum
   · -- The new Summable argument for the infinite sum:
     exact target_set_summable ε r.primeFactors hε hε_small h_primes
+
 -- Lemma 32
 lemma lemma32 (ε : ℝ) (p1 p2 : ℕ) (hε : ε > 0) (hε_small : ε < 1/100)  (hp1 : p1 ≥ 2) (hp2 : p2 ≥ 2) :
   ∑' (a1 : ℕ), ∑' (a2 : ℕ), (1 : ℝ) / (((p1 ^ (a1 + 1) * p2 ^ (a2 + 1)) : ℝ) ^ ε) =
@@ -1867,6 +1856,7 @@ lemma lemma38 (p : ℕ) (ε : ℝ) (hp : p.Prime) (hε : ε > 0) (hε_small : ε
   rw [div_le_one]
   · linarith [hpε]
   · linarith [hpε]
+
 lemma lemma39 (ε : ℝ) (s : Finset ℕ) (hε : ε > 0) (hε_small : ε < 1/100)  (hs_prime : ∀ p ∈ s, p.Prime) :
   let s_ge_two := s.filter (fun (p : ℕ) => (p : ℝ) ^ ε ≥ 2)
   ∏ p in s_ge_two, (1 : ℝ) / ((p : ℝ) ^ ε - 1) ≤ 1 := by
@@ -1882,6 +1872,7 @@ lemma lemma39 (ε : ℝ) (s : Finset ℕ) (hε : ε > 0) (hε_small : ε < 1/100
     · exact hε
     · exact hε_small
     · exact (Finset.mem_filter.mp hp).2
+
 lemma lemma40 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  : 1 / ((2 : ℝ) ^ ε - 1) ≤ 2 / ε := by
   have h1 : (2 : ℝ) ^ ε ≥ ε / 2 + 1 := two_rpow_ge_half_add_one ε hε.le
   have h2 : (2 : ℝ) ^ ε - 1 ≥ ε / 2 := by linarith
@@ -1914,6 +1905,7 @@ lemma lemma41 (p : ℕ) (ε : ℝ) (hp : p ≥ 2) (hε : ε > 0) (hε_small : ε
     rw [← h_inv_eq, ← h_inv_eq]
     exact inv_anti₀ h_two_pow_sub_one_pos h_sub_monotone
   exact le_trans h_inv_le (lemma40 ε hε hε_small)
+
 lemma lemma42 (ε : ℝ) (s : Finset ℕ) (hε : ε > 0) (hε_small : ε < 1/100)  (hs_prime : ∀ p ∈ s, p.Prime) :
   (∏ p in s.filter (fun (p : ℕ) => (p : ℝ) ^ ε < 2), (1 : ℝ) / ((p : ℝ) ^ ε - 1)) ≤
   (∏ p in s.filter (fun (p : ℕ) => (p : ℝ) ^ ε < 2), (2 / ε : ℝ)) := by
@@ -1966,6 +1958,7 @@ lemma lemma42 (ε : ℝ) (s : Finset ℕ) (hε : ε > 0) (hε_small : ε < 1/100
 
     -- Apply lemma40
     exact le_trans h_div (lemma40 ε hε hε_small)
+
 lemma lemma44 (ε : ℝ) (s : Finset ℕ) (hε : ε > 0) (hε_small : ε < 1/100)  (hs_prime : ∀ p ∈ s, p.Prime) :
   (∏ p in s.filter (fun p : ℕ => (p : ℝ) ^ ε < 2), ((1 : ℝ) / ((p : ℝ) ^ ε - 1))) ≤ ((2 : ℝ) / ε) ^ ((2 : ℝ) ^ (1 / ε)) := by
   calc
@@ -2008,7 +2001,9 @@ lemma lemma46 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
     -- We proceed assuming `hr_sf : rad r = r`, which is the non-trivial case.
 
     let s := r.primeFactors
-    have hs_prime : ∀ p ∈ s, p.Prime := by aesop
+    have hs_prime : ∀ p ∈ s, p.Prime := by
+      intro p a
+      simp_all only [gt_iff_lt, one_div, Nat.mem_primeFactors, ne_eq, s]
 
     calc ∑ n in radical_set r N, (1 : ℝ) / ((n : ℝ) ^ ε)
         _ ≤ ∑' (m : target_set s), (1 : ℝ) / (((m : ℕ) : ℝ) ^ ε) :=
@@ -2060,6 +2055,7 @@ lemma lemma47 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
   rw [div_le_iff₀] at hC
   · exact hC
   · exact Real.rpow_pos_of_pos (Nat.cast_pos.mpr (Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp hN))) ε
+
 theorem theorem48 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
   ∃ (N₀ : ℕ), ∀ (N : ℕ), N ≥ N₀ → ∀ (r : ℕ), 1 ≤ r → r ≤ N → rad r = r → ((radical_set r N).card : ℝ) ≤ (N : ℝ) ^ ε := by
   have h_half : ε / 2 > 0 := by linarith
@@ -2119,6 +2115,7 @@ theorem theorem48 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
       rw [← Real.rpow_add]
       · ring_nf
       · simp [hN_pos]
+
 lemma lemma49 (N : ℕ) (hN : N ≥ 1) (lambda : ℝ) (hlambda : 0 < lambda ∧ lambda < 1) :
     ((Finset.Icc 1 N).filter (fun n => (rad n : ℝ) ≤ (N : ℝ) ^ lambda)).card = ∑ r in Finset.Icc 1 (Nat.floor ((N : ℝ) ^ lambda)), ((Finset.Icc 1 N).filter (fun n => rad n = r)).card := by
   let X := (N : ℝ) ^ lambda
@@ -2190,6 +2187,7 @@ lemma lemma49 (N : ℕ) (hN : N ≥ 1) (lambda : ℝ) (hlambda : 0 < lambda ∧ 
       exact h_r_ne h_r1_eq_r2
     rw [h_inter_empty] at h_s_n_subset_inter
     exact h_s_n_subset_inter
+
 lemma lemma50 (N : ℕ) (hN : N ≥ 1) (lambda : ℝ) (hlambda : 0 < lambda ∧ lambda < 1) :
     ((Finset.Icc 1 N).filter (fun n => rad n ≤ (N : ℝ) ^ lambda)).card = ∑ r in Finset.Icc 1 (Nat.floor ((N : ℝ) ^ lambda)), (radical_set r N).card := by
   rw [lemma49 N hN lambda hlambda]
@@ -2215,6 +2213,7 @@ lemma lemma50 (N : ℕ) (hN : N ≥ 1) (lambda : ℝ) (hlambda : 0 < lambda ∧ 
         · exact Nat.le_of_succ_le_succ hn_lt
       · exact hn_rad
   rw [radical_set, h_eq]
+
 lemma lemma51 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
   ∃ N₀ : ℕ, ∀ N : ℕ, N ≥ N₀ → ∀ lambda : ℝ, 0 < lambda → lambda < 1 →
     (((Finset.Icc 1 N).filter (fun n => rad n ≤ (N : ℝ) ^ lambda)).card : ℝ) ≤
@@ -2293,7 +2292,9 @@ lemma lemma51 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
         rw [Finset.sum_const, nsmul_eq_mul]
     _ ≤ (Nat.floor ((N : ℝ) ^ lambda) : ℝ) * ((N : ℝ) ^ ε) := by
         apply mul_le_mul_of_nonneg_right _ (Real.rpow_nonneg (Nat.cast_nonneg N) ε)
-        have card_Icc_le (k : ℕ) : (Finset.Icc 1 k).card ≤ k := by aesop
+        have card_Icc_le (k : ℕ) : (Finset.Icc 1 k).card ≤ k := by
+          simp_all only [gt_iff_lt, one_div, ge_iff_le,
+          sup_le_iff, and_self, Finset.mem_Icc, and_imp, Nat.card_Icc, add_tsub_cancel_right, le_refl]
         exact Nat.cast_le.mpr (card_Icc_le (Nat.floor ((N : ℝ) ^ lambda)))
 
 theorem corollary52 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
@@ -2321,6 +2322,7 @@ theorem corollary52 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
     _ = (N : ℝ) ^ (lambda + ε) := by
         rw [← Real.rpow_add]
         exact Nat.cast_pos.mpr (Nat.pos_of_ne_zero (Nat.one_le_iff_ne_zero.mp hN_ge_1))
+
 def exceptionalSet (N : ℕ) (ε : ℝ) : Set (ℕ × ℕ × ℕ) :=
   { (a, b, c) |
     1 ≤ a ∧ a ≤ N ∧
@@ -2329,6 +2331,7 @@ def exceptionalSet (N : ℕ) (ε : ℝ) : Set (ℕ × ℕ × ℕ) :=
     a + b = c ∧
     Nat.Coprime a b ∧
     (rad (a * b * c) : ℝ) < (c : ℝ) ^ (1 - ε) }
+
 lemma lemma54 (a b c : ℕ) (ha : a ≥ 1) (hb : b ≥ 1) (hc : c ≥ 1) (h_abc_coprime : Nat.Coprime a (b * c)) (h_bc_coprime : Nat.Coprime b c) (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)
   (h_rab_gt : (rad (a * b) : ℝ) > (c : ℝ) ^ (2 / 3 * (1 - ε)))
   (h_rac_gt : (rad (a * c) : ℝ) > (c : ℝ) ^ (2 / 3 * (1 - ε)))
@@ -2432,6 +2435,7 @@ lemma lemma55 (a b c : ℕ) (ha : a ≥ 1) (hb : b ≥ 1) (hc : c ≥ 1)
   -- Convert h2 to the final form
   convert h2
   exact eq2.symm
+
 lemma lemma56 (N a b c : ℕ) (ε : ℝ) (hN : N ≥ 1) (hε : ε > 0) (hε_small : ε < 1/100)  (h_in_E : (a, b, c) ∈ exceptionalSet N ε) :
   (rad (a * b) : ℝ) < (c : ℝ) ^ (2 / 3 * (1 - ε)) ∨
   (rad (a * c) : ℝ) < (c : ℝ) ^ (2 / 3 * (1 - ε)) ∨
@@ -2520,6 +2524,7 @@ lemma lemma56 (N a b c : ℕ) (ε : ℝ) (hN : N ≥ 1) (hε : ε > 0) (hε_smal
 
         -- This contradicts h_rad_lt
         linarith
+
 lemma lemma57 (N a b c : ℕ) (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100) (h_in_E : (a, b, c) ∈ exceptionalSet N ε) :
   (rad (a * b) : ℝ) < (N : ℝ) ^ ((2 : ℝ) / 3 * (1 - ε)) ∨
   (rad (a * c) : ℝ) < (N : ℝ) ^ ((2 : ℝ) / 3 * (1 - ε)) ∨
@@ -2563,9 +2568,11 @@ lemma lemma57 (N a b c : ℕ) (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)
     | inr h2b =>
       right; right
       exact lt_of_lt_of_le h2b h_c_le_N
+
 lemma lemma58 (N : ℕ) (ε : ℝ) [Finite (exceptionalSet N ε)] [Fintype ↑(exceptionalSet N ε)] :
   (exceptionalSet N ε).toFinset.card = ∑ x in (exceptionalSet N ε).toFinset, 1 := by
   exact Finset.card_eq_sum_ones _
+
 -- Lemma 59
 lemma lemma59 (N : ℕ) (ε : ℝ) [Finite (exceptionalSet N ε)] [Fintype ↑(exceptionalSet N ε)] (hN : N ≥ 1) (hε : ε > 0) (hε_small : ε < 1/100) :
   (exceptionalSet N ε).toFinset.card ≤ 3 * ((Finset.Icc 1 N ×ˢ Finset.Icc 1 N).filter (fun p : ℕ × ℕ => Nat.Coprime p.fst p.snd ∧ ((rad (p.fst * p.snd)) : ℝ) ≤ (N : ℝ) ^ ((2 : ℝ) / 3 * (1 - ε)))).card := by
@@ -2754,6 +2761,7 @@ lemma lemma60 (ε : ℝ) (N : ℕ) (hε : ε > 0) (hN : N ≥ 1) (h_exp_pos : (2
   -- This gives r₁ = r₂, contradicting h_ne
   have : r₁ = r₂ := by rw [← h₁, h₂]
   exact h_ne this
+
 lemma lemma61 (N r : ℕ) :
   ((Finset.Icc 1 N ×ˢ Finset.Icc 1 N).filter (fun (x, y) => Nat.Coprime x y ∧ rad (x * y) = r)).card
   ≤ ∑ n in radical_set r (N * N), tau n := by -- Following the informal proof strategy: group pairs (x,y) by their product n = xy
@@ -2820,6 +2828,7 @@ lemma lemma61 (N r : ℕ) :
     ≤ ((radical_set r (N * N)).biUnion (fun n => (Finset.Icc 1 N ×ˢ Finset.Icc 1 N).filter (fun (x, y) => x * y = n ∧ Nat.Coprime x y))).card := Finset.card_le_card h_subset
     _ ≤ ∑ n in radical_set r (N * N), ((Finset.Icc 1 N ×ˢ Finset.Icc 1 N).filter (fun (x, y) => x * y = n ∧ Nat.Coprime x y)).card := by
       apply Finset.card_biUnion_le
+
 lemma lemma61_new (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100) :
 ∀ δ₁ : ℝ, δ₁ > 0 → ∃ N₁ : ℕ, ∀ (N : ℕ), N ≥ N₁ → ∀ (r : ℕ), r ≥ 1 →
 (((Finset.Icc 1 N) ×ˢ (Finset.Icc 1 N)).filter (fun p : ℕ × ℕ => Nat.Coprime p.fst p.snd ∧ rad (p.fst * p.snd) = r)).card
@@ -2961,6 +2970,7 @@ lemma lemma61_new (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100) :
       exact mul_le_mul_of_nonneg_right h_final_bound (Nat.cast_nonneg _)
     _ = (N : ℝ) ^ δ₁ * ↑((Finset.Icc 1 (N * N)).filter (fun n' => rad n' = r)).card := by
       rw [h_same_card]
+
 lemma lemma62 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
   ∃ (N₀ : ℕ), ∀ (N : ℕ), N ≥ N₀ → ∀ (r : ℕ), r ≥ 1 →
     let S := (Finset.Icc 1 (N*N)).filter (fun n => rad n = r)
@@ -2997,7 +3007,6 @@ lemma lemma62 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
         · linarith
       have h_simp : (C ^ (3 / ε)) ^ (ε / 3) = C := by
         rw [← Real.rpow_mul hC_pos.le]
-        congr 1
         field_simp
       rw [h_simp] at hN_pow
       exact hN_pow
@@ -3083,7 +3092,10 @@ lemma adaptive_constant_absorption (ε' : ℝ) (hε' : ε' > 0) :
     constructor
     · exact le_max_right n 1
     · -- Show (max n 1 : ℝ)^(ε' - δ) ≥ 3
-      have h_n_ge : (max n 1 : ℝ) ≥ (n : ℝ) := by aesop
+      have h_n_ge : (max n 1 : ℝ) ≥ (n : ℝ) := by
+        simp_all only [gt_iff_lt, one_div, lt_inf_iff,
+        div_pos_iff_of_pos_left, Nat.ofNat_pos, inv_pos, and_self, inf_lt_iff, sub_pos, half_lt_self_iff, true_or,
+        ge_iff_le, le_sup_left, δ]
       have h_n_gt : (n : ℝ) > (3 : ℝ) ^ (1 / (ε' - δ)) := hn
       have h_target_identity : ((3 : ℝ) ^ (1 / (ε' - δ))) ^ (ε' - δ) = 3 := by
         rw [← Real.rpow_mul (by norm_num : (0 : ℝ) ≤ 3)]
@@ -3093,7 +3105,9 @@ lemma adaptive_constant_absorption (ε' : ℝ) (hε' : ε' > 0) :
         --   rhs
         rw [inv_mul_cancel₀ (by linarith [hε'_δ_pos]) ]
         norm_num
-      calc (max n 1) ^ (ε' - δ) ≥ (n : ℝ) ^ (ε' - δ) := by apply Real.rpow_le_rpow; exact Nat.cast_nonneg n; aesop; exact le_of_lt hε'_δ_pos
+      calc (max n 1) ^ (ε' - δ) ≥ (n : ℝ) ^ (ε' - δ) := by apply Real.rpow_le_rpow; exact Nat.cast_nonneg n; simp_all only [gt_iff_lt,
+        one_div, lt_inf_iff, div_pos_iff_of_pos_left, Nat.ofNat_pos, inv_pos, and_self, inf_lt_iff, sub_pos,
+        half_lt_self_iff, true_or, ge_iff_le, le_sup_left, Nat.ofNat_nonneg, Nat.cast_max, Nat.cast_one, δ]; exact le_of_lt hε'_δ_pos
         _ ≥  ((3 : ℝ) ^ (1 / (ε' - δ))) ^ (ε' - δ) := by
 
           apply Real.rpow_le_rpow
@@ -3178,6 +3192,7 @@ lemma lemma63 (ε : ℝ) (N : ℕ) (hε : ε > 0) (hN : N ≥ 1) (h_exp_pos : (2
         intro r hr
         apply mul_le_mul_of_nonneg_left (hN₀₂ N hN₂)
         exact Nat.cast_nonneg _
+
 -- Lemma 64
 lemma lemma64 (N : ℕ) (ε : ℝ) (hN : N ≥ 1) (hε : ε > 0) (hε_small : ε < 1/100)  (h_exp_pos : (2 : ℝ) / 3 * (1 - ε) > 0) :
   ∑ r in Finset.Icc 1 (Nat.floor ((N : ℝ) ^ ((2 : ℝ) / 3 * (1 - ε)))),
@@ -3235,7 +3250,7 @@ lemma lemma64 (N : ℕ) (ε : ℝ) (hN : N ≥ 1) (hε : ε > 0) (hε_small : ε
 lemma lemma65_step1_apply_lemma59 (N : ℕ) (ε : ℝ) [Fintype ↑(exceptionalSet N ε)] (hN : N ≥ 1) (hε : ε > 0) (hε_small : ε < 1/100) :
   ((exceptionalSet N ε).toFinset.card : ℝ) ≤ (3 : ℝ) * ((((Finset.Icc 1 N) ×ˢ (Finset.Icc 1 N)).filter (fun p : ℕ × ℕ => Nat.Coprime p.fst p.snd ∧ ((rad (p.fst * p.snd)) : ℝ) ≤ (N : ℝ) ^ ((2 : ℝ) / 3 * (1 - ε)))).card : ℝ) := by
   convert Nat.cast_le.mpr (lemma59 N ε hN hε hε_small)
-  <;> aesop
+  <;> simp_all only [ge_iff_le, gt_iff_lt, one_div, Nat.cast_mul, Nat.cast_ofNat]
   exact addLeftMono_of_addLeftStrictMono ℝ
   exact Real.instZeroLEOneClass
   exact IsStrictOrderedRing.toCharZero
@@ -3246,15 +3261,6 @@ lemma lemma65_step2_apply_lemma60 (N : ℕ) (ε : ℝ) (hN : N ≥ 1) (hε : ε 
   let Sum_r_S_pairs_eq_r_card := ∑ r_val in Finset.Icc 1 (Nat.floor K0), (((Finset.Icc 1 N) ×ˢ (Finset.Icc 1 N)).filter (fun p : ℕ × ℕ => Nat.Coprime p.fst p.snd ∧ rad (p.fst * p.snd) = r_val)).card
   (S_pairs_le_K0_card : ℝ) = (Sum_r_S_pairs_eq_r_card : ℝ) := by
   simp [lemma60 ε N hε hN h_exp_pos]
-
--- lemma Nat.cast_sum {α β : Type*} [AddCommMonoid α] [Semiring β] (s : Finset α) (f : α → ℕ) :
---   (↑(∑ x in s, f x) : β) = ∑ x in s, (f x : β) := by
---   exact Nat.cast_sum s f -- Using existing Mathlib lemma
-
--- theorem Finset.sum_mul_boole {R M : Type*} [Semiring R] [AddCommMonoid M] [Module R M] (s : Finset M) (c : R) (f : M → R) :
---     (∑ x in s, f x) * c = ∑ x in s, f x * c := by
---   simp_rw [← smul_eq_mul, Finset.sum_smul, smul_eq_mul]
-
 
 lemma lemma65_step3_apply_lemma61_new (N : ℕ) (ε : ℝ) (δ_half : ℝ)
     (hN : N ≥ 1) (hε : ε > 0) (hε_small : ε < 1/100) (h_exp_pos : (2 : ℝ) / 3 * (1 - ε) > 0)
@@ -3299,6 +3305,7 @@ by
 
   -- Apply the per-term inequality from h_lemma61_new_cond.
   exact h_term_bound_prop r_val hr_val_ge_1
+
 lemma lemma65_step4_factor_out_power (N : ℕ) (ε : ℝ) (δ_half : ℝ)
     (h_exp_pos : (2 : ℝ) / 3 * (1 - ε) > 0) :
   let K0 := (N : ℝ) ^ ((2 : ℝ) / 3 * (1 - ε))
@@ -3323,7 +3330,6 @@ lemma lemma65_step6_apply_absorption (N : ℕ) (δ : ℝ)
     (Term_E_factor : ℝ) (h_factor_nonneg : Term_E_factor ≥ 0) :
   (3 : ℝ) * (N : ℝ)^(δ/2) * Term_E_factor ≤ (N : ℝ)^δ * Term_E_factor := by
   exact mul_le_mul_of_nonneg_right h_absorption_cond.2 h_factor_nonneg
-
 
 lemma lemma65 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100) (h_exp_pos : (2 : ℝ) / 3 * (1 - ε) > 0) :
   ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ (N : ℕ) [Fintype ↑(exceptionalSet N ε)], N ≥ N₀ →
@@ -3354,15 +3360,23 @@ lemma lemma65 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100) (h_exp_pos : (2
   have direct_absorption_inequality : (3 : ℝ) * (N : ℝ)^(δ/2) ≤ (N : ℝ)^δ := by
     have h_N_large : (N : ℝ) ≥ (3 : ℝ) ^ (2 / δ) := by
       -- have : (N_for_final_abs : ℝ) ≤ N:= by
-      have h1: (N_for_final_abs : ℝ) ≤ (N₀_final : ℝ) := by convert Nat.le_max_right N₁ N_for_final_abs; aesop
+      have h1: (N_for_final_abs : ℝ) ≤ (N₀_final : ℝ) := by convert Nat.le_max_right N₁ N_for_final_abs; simp_all only [gt_iff_lt,
+        one_div, Nat.ofNat_pos, div_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, sub_pos, ge_iff_le,
+        Nat.one_le_ceil_iff, sup_le_iff, Nat.ceil_le, Nat.cast_max, le_sup_right, N_for_final_abs, N₀_final]
       have h2: (3 ^ (2 / δ) : ℝ) ≤ N_for_final_abs := by exact Nat.le_ceil (3 ^ (2 / δ))
       rw [GE.ge] at hN_ge_N₀_final
-      have h3: (N₀_final : ℝ) ≤ (N : ℝ) := by aesop
+      have h3: (N₀_final : ℝ) ≤ (N : ℝ) := by
+        simp_all only [gt_iff_lt, one_div, Nat.ofNat_pos,
+        div_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, sub_pos, ge_iff_le, Nat.one_le_ceil_iff, sup_le_iff,
+        Nat.ceil_le, Nat.cast_max, le_sup_right, Nat.cast_le, and_self, N_for_final_abs, N₀_final]
       linarith
     have hNReal_ge1 : (N : ℝ) ≥ 1:= by exact Nat.one_le_cast.mpr hN_ge_1
     -- Step 2: Deduce properties of δ/2 and 2/δ.
     have h_delta_div_two_gt_zero : δ / 2 > 0 := hδ_half -- from h_delta_gt_zero
-    have h_two_div_delta_gt_zero : 2 / δ > 0 := by aesop -- from h_delta_gt_zero
+    have h_two_div_delta_gt_zero : 2 / δ > 0 := by
+      simp_all only [gt_iff_lt, one_div, Nat.ofNat_pos,
+      div_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, sub_pos, ge_iff_le, Nat.one_le_ceil_iff, sup_le_iff,
+      Nat.ceil_le, and_true, Nat.one_le_cast, N_for_final_abs, N₀_final] -- from h_delta_gt_zero
 
     -- Step 3: Establish that the base of the power in h_N_large, 3^(2/δ), is greater than 1.
     have h_base_of_rhs_power_gt_one : (3 : ℝ) > 1 := by simp -- 3 > 1
@@ -3387,7 +3401,10 @@ lemma lemma65 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100) (h_exp_pos : (2
       -- Real.rpow_add_of_pos requires the base to be positive (hN_pos).
       -- The exponents (δ / 2) and (δ / 2) are inferred by Lean.
       refine Real.rpow_add' ?_ ?_ -- by rpow_add_left_basis (needs ↑N ≥ 0), as δ = δ/2 + δ/2. From h_upN_gt_one, ↑N > 0.
-      <;> aesop
+      <;> simp_all [gt_iff_lt, one_div, Nat.ofNat_pos, div_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, sub_pos,
+        ge_iff_le, Nat.one_le_ceil_iff, sup_le_iff, Nat.ceil_le, and_true, Nat.one_le_cast, Nat.one_lt_ofNat,
+        Nat.one_lt_cast, Nat.cast_nonneg, N_for_final_abs, N₀_final]
+      linarith
 
     have h_goal_iff_simplified : (3 * (↑N) ^ (δ / 2) ≤ (N : ℝ) ^ δ) ↔ (3 ≤ (N : ℝ) ^ (δ / 2)) := by
       rw [h_upN_pow_delta_eq_prod]
@@ -3408,7 +3425,10 @@ lemma lemma65 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100) (h_exp_pos : (2
     have h_exponent_product_is_one : (2 / δ) * (δ / 2) = 1 := by ring_nf; apply mul_inv_cancel₀; linarith-- by field rules, using h_delta_gt_zero (so δ ≠ 0).
     have h_rhs_pow_eq_three_pow_one : ((3 : ℝ) ^ (2 / δ)) ^ (δ / 2) = 3 ^ ((2 / δ) * (δ / 2)) := by rw [Real.rpow_mul]; linarith -- by
     have h_rhs_simplified_to_three : ((3 : ℝ) ^ (2 / δ)) ^ (δ / 2) = (3 : ℝ) := by
-      aesop -- from h_rhs_pow_eq_three_pow_one, h_exponent_product_is_one, and Real.rpow_one.
+      simp_all only [gt_iff_lt, one_div, Nat.ofNat_pos, div_pos_iff_of_pos_left, mul_pos_iff_of_pos_left, sub_pos,
+        ge_iff_le, Nat.one_le_ceil_iff, sup_le_iff, Nat.ceil_le, and_true, Nat.one_le_cast, Nat.one_lt_ofNat,
+        Nat.one_lt_cast, mul_le_mul_right, Real.rpow_one, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+        div_mul_div_cancel₀', N_for_final_abs, N₀_final] -- from h_rhs_pow_eq_three_pow_one, h_exponent_product_is_one, and Real.rpow_one.
 
     -- Step 9: Conclude the simplified inequality.
     have h_simplified_ineq_proved : (3 : ℝ) ≤ (N : ℝ) ^ (δ / 2) := by
@@ -3575,3 +3595,5 @@ theorem theorem67 (ε : ℝ) (hε : ε > 0) (hε_small : ε < 1/100)  :
       _ = (N : ℝ) ^ ((2 : ℝ) / 3 * (1 - ε) + 2 * δ) := by ring_nf
       _ ≤ (N : ℝ) ^ ((2 : ℝ) / 3) := by
         apply Real.rpow_le_rpow_of_exponent_le hN_one_le h_exp_ineq
+
+#print axioms theorem67
