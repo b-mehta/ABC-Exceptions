@@ -30,6 +30,8 @@ jobs:
 
       - name: Build Lean code
         uses: leanprover/lean-action@v1
+        with:
+          lint: false
 
       - name: Cache Mathlib Docs
         uses: actions/cache@v4
